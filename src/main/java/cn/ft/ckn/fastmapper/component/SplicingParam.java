@@ -11,10 +11,11 @@ import java.util.List;
 public class SplicingParam {
     public Boolean isMaster = true;
     public DataSource dataSource;
-
+    public Boolean isCloseDeleteProtect=Boolean.FALSE;
     public List<WhereCondition> whereCondition;
     public List<OrderByCondition> orderByCondition;
     public List<Value> valueList;
+    public Boolean isAnd=Boolean.TRUE;
 
     public SplicingParam() {
         whereCondition = new ArrayList<>();
@@ -51,11 +52,12 @@ public class SplicingParam {
         public String expression;
         public String columnName;
         public Object value;
-        public Boolean isAnd=true;
-        public WhereCondition(String columnName, Object value, String expression) {
+        public Boolean isAnd;
+        public WhereCondition(String columnName, Object value, String expression,Boolean isAnd) {
             this.expression = expression;
             this.columnName = columnName;
             this.value = value;
+            this.isAnd=isAnd;
         }
     }
     public static class Value {

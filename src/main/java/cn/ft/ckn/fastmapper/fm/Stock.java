@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * @author ckn
@@ -16,9 +17,19 @@ import javax.persistence.Table;
 @Data
 public class Stock {
     @Id
-    @Column(name="id")
+    @Column(name = "id")
     private Long id;
 
-    @Column(name="stock_name")
+    @Column(name = "stock_name")
     private String stockName;
+
+    @Column(name = "create_time")
+    private Date createTime;
+
+    @Column(name = "update_time")
+    private Date updateTime;
+
+    @Column(name = "deleted")
+    private Boolean deleted;
+
 }

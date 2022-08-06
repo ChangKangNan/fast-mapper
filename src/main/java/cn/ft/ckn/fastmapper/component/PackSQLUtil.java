@@ -57,25 +57,60 @@ public class PackSQLUtil {
         Table annotation = objClass.getAnnotation(Table.class);
         String table = annotation.name();
         stringBuilder.append(table);
+        System.out.println(JSONUtil.toJsonStr(splicingParam.whereCondition));
         if (splicingParam.whereCondition.size() > 0 || FastMapperConfig.isOpenLogicDeletedAuto) {
             stringBuilder.append(System.lineSeparator());
             stringBuilder.append("WHERE");
             stringBuilder.append(StrUtil.SPACE);
+            if(splicingParam.whereCondition.size()>=2){
+                for (int i = 0; i <= splicingParam.whereCondition.size()-2; i++) {
+                    splicingParam.whereCondition.get(i).isAnd= splicingParam.whereCondition.get(i+1).isAnd;
+                }
+                splicingParam.whereCondition.get(splicingParam.whereCondition.size()-1).isAnd=true;
+            }
+            System.out.println(JSONUtil.toJsonStr(splicingParam.whereCondition));
             if (CollUtil.isNotEmpty(splicingParam.whereCondition)) {
                 for (int i = 0; i < splicingParam.whereCondition.size(); i++) {
                     stringBuilder.append(splicingParam.whereCondition.get(i).columnName);
                     stringBuilder.append(splicingParam.whereCondition.get(i).expression);
-                    params.put(splicingParam.whereCondition.get(i).columnName, splicingParam.whereCondition.get(i).value);
-                    stringBuilder.append(CharPool.COLON);
-                    stringBuilder.append(splicingParam.whereCondition.get(i).columnName);
+                    if(!Expression.Like.expression.equals(splicingParam.whereCondition.get(i).expression)){
+                        if(Expression.In.expression.equals(splicingParam.whereCondition.get(i).expression)){
+                            if (ArrayUtil.isArray(splicingParam.whereCondition.get(i).value)) {
+                                stringBuilder.append(Expression.LeftBracket.expression);
+                                Object[] wrap = ArrayUtil.wrap(splicingParam.whereCondition.get(i).value);
+                                int j=0;
+                                for (Object o : wrap) {
+                                    j++;
+                                    stringBuilder.append(CharPool.COLON);
+                                    stringBuilder.append(splicingParam.whereCondition.get(i).columnName).append("_in_").append(j);
+                                    stringBuilder.append(",");
+                                    params.put(splicingParam.whereCondition.get(i).columnName + "_in_" + j, o);
+                                }
+                                stringBuilder=new StringBuilder(stringBuilder.substring(0,stringBuilder.length()-1));
+                                stringBuilder.append(Expression.RightBracket.expression);
+                            }
+                        }else {
+                            stringBuilder.append(CharPool.COLON);
+                            stringBuilder.append(splicingParam.whereCondition.get(i).columnName).append("_").append(i);
+                            params.put(splicingParam.whereCondition.get(i).columnName + "_" + i, splicingParam.whereCondition.get(i).value);
+                        }
+                    }else{
+                        stringBuilder.append("'%").append(splicingParam.whereCondition.get(i).value).append("%'");
+                    }
                     if (i != splicingParam.whereCondition.size() - 1) {
                         stringBuilder.append(System.lineSeparator());
-                        stringBuilder.append("and");
+                        if(splicingParam.whereCondition.get(i).isAnd){
+                            stringBuilder.append("and");
+                        }else {
+                            stringBuilder.append("or");
+                        }
                         stringBuilder.append(StrUtil.SPACE);
                     }
                 }
                 if (FastMapperConfig.isOpenLogicDeletedAuto) {
+                    stringBuilder.append(StrUtil.SPACE);
                     stringBuilder.append("and");
+                    stringBuilder.append(StrUtil.SPACE);
                     stringBuilder.append(FastMapperConfig.logicDeletedColumn);
                     stringBuilder.append(Expression.Equal.expression);
                     stringBuilder.append(CharPool.COLON);
@@ -83,6 +118,7 @@ public class PackSQLUtil {
                     params.put(FastMapperConfig.logicDeletedColumn, FastMapperConfig.logicDeletedColumnDefaultValue);
                 }
             } else {
+                stringBuilder.append(StrUtil.SPACE);
                 stringBuilder.append(FastMapperConfig.logicDeletedColumn);
                 stringBuilder.append(Expression.Equal.expression);
                 stringBuilder.append(CharPool.COLON);
@@ -114,26 +150,5 @@ public class PackSQLUtil {
         return new Pair<>(params, stringBuilder);
     }
 
-    static Object getValue(SplicingParam.WhereCondition whereCondition) {
-        Object value = whereCondition.value;
-        StringBuilder stringBuilder = new StringBuilder();
-        if (value instanceof String || value instanceof Date) {
-            stringBuilder.append("'");
-        }
-        if (StrUtil.equalsAny(whereCondition.expression, Expression.Like.name, Expression.NotLike.name)) {
-            stringBuilder.append("%");
-        }
-        if (value instanceof Date) {
-            stringBuilder.append(DateUtil.format((Date) value, "yyyy-MM-dd"));
-        } else {
-            stringBuilder.append(value);
-        }
-        if (StrUtil.equalsAny(whereCondition.expression, Expression.Like.name, Expression.NotLike.name)) {
-            stringBuilder.append("%");
-        }
-        if (value instanceof String || value instanceof Date) {
-            stringBuilder.append("'");
-        }
-        return stringBuilder.toString();
-    }
+
 }

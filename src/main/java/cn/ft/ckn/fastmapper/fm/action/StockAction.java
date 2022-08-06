@@ -28,9 +28,9 @@ public class StockAction {
         }
     }
 
-    public static class UpdateMapper extends UpdatePojo<Stock, SelectMapper> {
+    public static class UpdateMapper extends UpdatePojo<Stock, UpdateMapper> {
         public UpdateMapper(SplicingParam splicingParam) {
-            super(splicingParam,Stock.class,StockAction.SelectMapper.class);
+            super(splicingParam,Stock.class,StockAction.UpdateMapper.class);
         }
         public UpdateCriteria<Stock, UpdateMapper> id() {
             this.fieldName="id";

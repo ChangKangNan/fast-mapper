@@ -1,6 +1,11 @@
 package cn.ft.ckn.fastmapper.component;
 
 import cn.ft.ckn.fastmapper.util.ColumnUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author ckn
@@ -17,11 +22,21 @@ public class UpdateValue<T, R> {
         this.returnObj = returnObj;
     }
 
-    public UpdateValue<T, R> set(SFunction<T, ?> function, Object val) {
-        String fieldName = ColumnUtil.getFieldName(function);
-        if (val != null) {
-            splicingParam.valueList.add(new SplicingParam.Value(fieldName, val));
+    public <V> UpdateValue<T, R> set(SFunction<T, V> function, V val) {
+        if (val == null) {
+            return this;
         }
+        Class<?> fieldType = ColumnUtil.getFieldType(function);
+        String fieldName = ColumnUtil.getFieldName(function);
+        String fieldTypeName = fieldType.getName();
+        String parameterType = val.getClass().getName();
+        if (!StrUtil.equals(fieldTypeName, parameterType)) {
+            throw new RuntimeException(fieldName + "需要类型:"+fieldTypeName+",提供的参数类型:"+parameterType+",两者不匹配!");
+        }
+        if (CollUtil.isNotEmpty(splicingParam.valueList)) {
+            splicingParam.valueList = splicingParam.valueList.stream().filter(s -> !Objects.equals(s.columnName, fieldName)).collect(Collectors.toList());
+        }
+        splicingParam.valueList.add(new SplicingParam.Value(fieldName, val));
         return this;
     }
 

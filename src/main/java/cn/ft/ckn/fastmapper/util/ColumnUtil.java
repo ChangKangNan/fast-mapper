@@ -36,6 +36,25 @@ public class ColumnUtil {
         return getFieldName(fn, split, defaultToType);
     }
 
+
+    /**
+     * 获取实体类的字段类型
+     */
+    public static <T> Class<?> getFieldType(SFunction<T, ?> fn) {
+        SerializedLambda serializedLambda = getSerializedLambda(fn);
+
+        // 从lambda信息取出method、field、class等
+        String fieldName = serializedLambda.getImplMethodName().substring("get".length());
+        fieldName = fieldName.replaceFirst(fieldName.charAt(0) + "", (fieldName.charAt(0) + "").toLowerCase());
+        Field field;
+        try {
+            field = Class.forName(serializedLambda.getImplClass().replace("/", ".")).getDeclaredField(fieldName);
+        } catch (ClassNotFoundException | NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+        return field.getType();
+    }
+
     /**
      * 获取实体类的字段名称
      *
@@ -60,7 +79,6 @@ public class ColumnUtil {
         if (column != null && StrUtil.isNotBlank(column.name())) {
             return column.name();
         } else {
-
             //0.不做转换 1.大写 2.小写
             switch (toType) {
                 case 1:
@@ -72,7 +90,6 @@ public class ColumnUtil {
             }
 
         }
-
     }
 
     private static <T> SerializedLambda getSerializedLambda(SFunction<T, ?> fn) {
