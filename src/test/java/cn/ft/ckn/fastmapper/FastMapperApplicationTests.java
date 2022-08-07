@@ -3,7 +3,9 @@ package cn.ft.ckn.fastmapper;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.fm.Stock;
+import cn.ft.ckn.fastmapper.fm.Stock1;
 import cn.ft.ckn.fastmapper.fm.action.StockAction;
+import cn.ft.ckn.fastmapper.join.JoinCustomer;
 import cn.ft.ckn.fastmapper.mapper.StockMapper;
 import cn.ft.ckn.fastmapper.util.FastCustomer;
 import cn.hutool.json.JSONUtil;
@@ -167,4 +169,10 @@ public class FastMapperApplicationTests {
         List<Stock> stocks = FastCustomer.create().selectByFile("/test.sql", new HashMap<>(), Stock.class);
         System.out.println(JSONUtil.toJsonStr(stocks));
     }
+    @Test
+    void test9(){
+
+
+    }
+
 }
