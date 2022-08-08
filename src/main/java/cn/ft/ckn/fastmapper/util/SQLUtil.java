@@ -33,7 +33,6 @@ public class SQLUtil {
                 "---------------------------------------------------------"
                 + System.lineSeparator()
                 +execute
-                +System.lineSeparator()
                 + result
                 +System.lineSeparator()+
                 "---------------------------------------------------------");

@@ -1,18 +1,14 @@
-package cn.ft.ckn.fastmapper_test;
+package cn.ft.ckn.fastmapper_test.test;
 
 import cn.ft.ckn.fastmapper.FastMapperApplication;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.ft.ckn.fastmapper.fm.Stock;
-import cn.ft.ckn.fastmapper.fm.Stock1;
-import cn.ft.ckn.fastmapper.fm.action.StockAction;
-import cn.ft.ckn.fastmapper.join.JoinCustomer;
-import cn.ft.ckn.fastmapper.mapper.StockMapper;
 import cn.ft.ckn.fastmapper.util.FastCustomer;
+import cn.ft.ckn.fastmapper_test.fm.Stock;
+import cn.ft.ckn.fastmapper_test.mapper.StockMapper;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.druid.pool.DruidDataSource;
 import org.junit.jupiter.api.Test;
-import org.omg.CORBA.TRANSACTION_MODE;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;

@@ -1,4 +1,4 @@
-package cn.ft.ckn.fastmapper.fm;
+package cn.ft.ckn.fastmapper_test.fm;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -12,16 +12,16 @@ import java.util.Date;
  * @author ckn
  * @date 2022/7/28
  */
-@Table(name = "stock1")
+@Table(name = "stock")
 @Accessors(chain = true)
 @Data
-public class Stock1 {
+public class Stock {
     @Id
     @Column(name = "id")
-    private Long id1;
+    private Long id;
 
     @Column(name = "stock_name")
-    private String stockName1;
+    private String stockName;
 
     @Column(name = "create_time")
     private Date createTime;

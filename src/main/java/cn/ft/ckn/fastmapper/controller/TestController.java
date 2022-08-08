@@ -1,7 +1,5 @@
 package cn.ft.ckn.fastmapper.controller;
 
-import cn.ft.ckn.fastmapper.fm.Stock;
-import cn.ft.ckn.fastmapper.util.ColumnUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
