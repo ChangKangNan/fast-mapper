@@ -166,12 +166,10 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
                 updateSQL.append(StrUtil.SPACE);
             }
         }
-        if(FastMapperConfig.isOpenSQLPrint){
-            SQLUtil.print(updateSQL.toString(),paramMap,"UPDATE");
-        }
         int update = jdbcTemplate.update(updateSQL.toString(), paramMap);
-        if(FastMapperConfig.isOpenSQLPrint){
-            SQLUtil.printResult(update);
+        if (FastMapperConfig.isOpenSQLPrint) {
+            SQLUtil.print(SQLUtil.printSql(updateSQL.toString(),paramMap)
+                    , SQLUtil.printResult(update));
         }
     }
     public R or() {

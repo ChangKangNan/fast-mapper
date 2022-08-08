@@ -123,12 +123,10 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
                 params.put("updateTime",date);
             }
         }catch (Exception e){throw new RuntimeException("默认字段设置异常");}
-        if(FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(insertSQL, params, "INSERT");
-        }
         int update = jdbcTemplate.update(insertSQL, new BeanPropertySqlParameterSource(t), keyHolder);
-        if(FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.printResult(JSONUtil.toJsonStr(update));
+        if (FastMapperConfig.isOpenSQLPrint) {
+            SQLUtil.print(SQLUtil.printSql(insertSQL,params)
+                    , SQLUtil.printResult(update));
         }
         Number number = keyHolder.getKey();
         if (number != null) {

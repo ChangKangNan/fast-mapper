@@ -1,6 +1,7 @@
 package cn.ft.ckn.fastmapper.util;
 
 import cn.ft.ckn.fastmapper.component.MapperDataSourceManger;
+import cn.ft.ckn.fastmapper.component.PackSQLUtil;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.component.SplicingParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
@@ -31,14 +32,14 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         return new FastCustomer(new SplicingParam());
     }
 
-    public PageInfo<Map<String,Object>> findPage(StringBuilder sql, Integer pageNumber, Integer pageSize) {
+    public PageInfo<Map<String,Object>> findPage(StringBuilder sql, Integer pageNumber, Integer pageSize,Map<String,Object> params) {
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         StringBuilder countSQL=new StringBuilder("SELECT count(*) ");
-        int lastIndexOf = sql.toString().lastIndexOf("from");
-        if(lastIndexOf<0){
-            lastIndexOf = sql.toString().lastIndexOf("From");
+        int indexOf = sql.toString().indexOf("from");
+        if(indexOf<0){
+            indexOf = sql.toString().indexOf("From");
         }
-        countSQL.append(sql.substring(lastIndexOf));
+        countSQL.append(sql.substring(indexOf));
         Integer totalCount = jdbcTemplate.queryForObject(countSQL.toString(), new HashMap<>(), Integer.class);
         if (pageNumber != null && pageSize != null) {
             sql.append(System.lineSeparator());
@@ -49,17 +50,19 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             sql.append(StrUtil.C_COMMA);
             sql.append(pageSize);
         }
-        if(FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(sql.toString(),new HashMap<>(),"CUSTOMER");
-        }
         try {
-            List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(),new HashMap<>());
+            List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(),params);
             PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(mapList, pageNumber, pageSize, totalCount);
-            if(FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.printResult(mapPageInfo);
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql.toString(),params)
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(mapPageInfo)));
             }
             return mapPageInfo;
         }catch (Exception e){
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql.toString(),params)
+                        , SQLUtil.printResult(""));
+            }
             return new PageInfo<>(new ArrayList<>(),pageNumber,pageSize,totalCount);
         }
     }

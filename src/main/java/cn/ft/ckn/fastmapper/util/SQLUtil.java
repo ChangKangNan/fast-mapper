@@ -2,6 +2,7 @@ package cn.ft.ckn.fastmapper.util;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.druid.sql.SQLUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,35 +11,42 @@ import java.util.Map;
 
 @Slf4j
 public class SQLUtil {
-    public static void print(String sql, Map<String, Object> params, String type) {
-        int deep = 0;
-        if (StrUtil.equals(type, "INSERT")) {
-            deep = 3;
+
+    static String getPrefix(){
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            String className = stackTraceElement.getClassName();
+            String methodName = stackTraceElement.getMethodName();
+            int lineNumber = stackTraceElement.getLineNumber();
+            if(!stackTraceElement.getClassName().startsWith("cn.ft.ckn.fastmapper.")
+            && !stackTraceElement.getClassName().startsWith("java.lang")
+            ){
+                return className + "." + methodName + "(" + lineNumber + ")     SQL执行↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓";
+            }
         }
-        if (StrUtil.equals(type, "SELECT")) {
-            deep = 3;
-        }
-        if (StrUtil.equals(type, "UPDATE")) {
-            deep = 4;
-        }
-        if (StrUtil.equals(type, "DELETE")) {
-            deep = 3;
-        }
-        if (StrUtil.equals(type, "CUSTOMER")) {
-            deep = 3;
-        }
+        return "";
+    }
+
+    public static void print(String execute,String result){
+        log.info(getPrefix()
+                + System.lineSeparator()+
+                "---------------------------------------------------------"
+                + System.lineSeparator()
+                +execute
+                +System.lineSeparator()
+                + result
+                +System.lineSeparator()+
+                "---------------------------------------------------------");
+    }
+
+    public static String printSql(String sql, Map<String, Object> params) {
         if (params.size() > 0) {
             for (String param : params.keySet()) {
                 Object o = params.get(param);
                 sql = StrUtil.replace(sql, ":" + param, getValue(o));
             }
         }
-        String className = Thread.currentThread().getStackTrace()[deep].getClassName();
-        String methodName = Thread.currentThread().getStackTrace()[deep].getMethodName();
-        int lineNumber = Thread.currentThread().getStackTrace()[deep].getLineNumber();
-        log.info("---------------------------------------------------------");
-        log.info(className + "." + methodName + "(" + lineNumber + ")     SQL执行↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓"
-                + System.lineSeparator() + SQLUtils.formatMySql(sql));
+        return  SQLUtils.formatMySql(sql);
     }
 
     static String getValue(Object value) {
@@ -57,8 +65,7 @@ public class SQLUtil {
         return stringBuilder.toString();
     }
 
-    public static void printResult(Object val) {
-        log.info(System.lineSeparator()+"执行结果:[" + val+"]");
-        log.info("---------------------------------------------------------");
+    public static String printResult(Object val) {
+        return System.lineSeparator()+"执行结果:[" + val+"]";
     }
 }

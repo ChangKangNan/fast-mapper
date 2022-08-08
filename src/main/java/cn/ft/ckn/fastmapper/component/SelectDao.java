@@ -5,12 +5,10 @@ import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +38,10 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         sqlBuilder.append("0,1");
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         try {
-            if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey(), "SELECT");
-            }
             T queryForObject = jdbcTemplate.queryForObject(sqlBuilder.toString(), key, new BeanPropertyRowMapper<T>(classObj));
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.printResult(queryForObject);
+                SQLUtil.print(SQLUtil.printSql(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey())
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(queryForObject)));
             }
             return queryForObject;
         } catch (Exception e) {
@@ -60,17 +56,16 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = PackSQLUtil.packageSQL(this.splicingParam, classObj);
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         try {
-            if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey(), "SELECT");
-            }
             List<T> query = jdbcTemplate.query(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey(), new BeanPropertyRowMapper<T>(classObj));
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.printResult(JSONUtil.toJsonStr(query));
+                SQLUtil.print(SQLUtil.printSql(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey())
+                , SQLUtil.printResult(JSONUtil.toJsonStr(query)));
             }
             return query;
         } catch (Exception e) {
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.printResult("");
+                SQLUtil.print(SQLUtil.printSql(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey())
+                        , SQLUtil.printResult(""));
             }
             return new ArrayList<>();
         }

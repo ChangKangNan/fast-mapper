@@ -1,5 +1,6 @@
-package cn.ft.ckn.fastmapper;
+package cn.ft.ckn.fastmapper_test;
 
+import cn.ft.ckn.fastmapper.FastMapperApplication;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.fm.Stock;
@@ -22,9 +23,13 @@ public class FastMapperApplicationTests {
     void select(){
         FastMapperConfig.isOpenSQLPrint=true;
        Stock stock = StockMapper.SELECT()
-                .id().equal(1)
+                .id().equal(1L)
                 .stockName().equal("江南仓库")
                 .one();
+
+       StockMapper.SELECT()
+               .id().equal(2L)
+               .id().desc();
         List<Stock> stocks = StockMapper.SELECT()
                // .stockName().equal("江南仓库")
                 .id().desc()
@@ -33,18 +38,18 @@ public class FastMapperApplicationTests {
         DruidDataSource salve=new DruidDataSource();
         try {
             salve.setDriverClassName("com.mysql.jdbc.Driver");
-            salve.setUrl("jdbc:mysql://127.0.0.1:3306/test-salve?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC");
+            salve.setUrl("jdbc:mysql://127.0.0.1:3306/test1?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC");
             salve.setUsername("root");
             salve.setPassword("123456");
         }catch (Exception e){}
         Stock stock1 = StockMapper.SELECT()
                 .setSalveDataSource(salve)
-                .id().equal(1)
+                .id().equal(1L)
                 .one();
         DruidDataSource salve1=new DruidDataSource();
         try {
             salve1.setDriverClassName("com.mysql.jdbc.Driver");
-            salve1.setUrl("jdbc:mysql://127.0.0.1:3306/test-salve?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC");
+            salve1.setUrl("jdbc:mysql://127.0.0.1:3306/test1?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC");
             salve1.setUsername("root");
             salve1.setPassword("123456");
             salve1.setConnectionErrorRetryAttempts(1);
@@ -52,7 +57,7 @@ public class FastMapperApplicationTests {
         }catch (Exception e){e.printStackTrace();}
         Stock stock2 = StockMapper.SELECT()
                 .setSalveDataSource(salve1)
-                .id().equal(1)
+                .id().equal(1L)
                 .one();
     }
 
@@ -92,19 +97,19 @@ public class FastMapperApplicationTests {
         FastMapperConfig.setTimeAuto(true,true);
         FastMapperConfig.setDeleted(true,"deleted",0,1);
         StockMapper.UPDATE()
-                .id().equal(2)
+                .id().equal(2L)
                 .stockName().in("e")
                 .or()
-                .id().equal(15)
+                .id().equal(15L)
                 .value()
                 .set(Stock::getStockName,"江Bei")
                 .execute();
         Stock stock=new Stock();
         stock.setStockName("yyyy");
         StockMapper.UPDATE()
-                .id().in(2,4,5)
+                .id().in(2L,4L,5L)
                 .or()
-                .id().equal(1)
+                .id().equal(1L)
                 .update(stock);
     }
 
@@ -114,7 +119,7 @@ public class FastMapperApplicationTests {
         FastMapperConfig.setTimeAuto(true,true);
         FastMapperConfig.setDeleted(true,"deleted",0,1);
       //  StockMapper.DELETE().id().equal(3).closeDeletedProtect().delete();
-        StockMapper.DELETE().id().equal(6).or().stockName().equal("aaa").delete();
+        StockMapper.DELETE().id().equal(6L).or().stockName().equal("aaa").delete();
     }
 
 
@@ -123,7 +128,7 @@ public class FastMapperApplicationTests {
         FastMapperConfig.isOpenSQLPrint=true;
         FastMapperConfig.setTimeAuto(true,true);
         FastMapperConfig.setDeleted(true,"deleted",0,1);
-        StockMapper.DELETE().id().in(2,4,5).or().id().equal(1).closeDeletedProtect().delete();
+        StockMapper.DELETE().id().in(2L,4L,5L).or().id().equal(1L).closeDeletedProtect().delete();
     }
 
     @Test
@@ -138,7 +143,7 @@ public class FastMapperApplicationTests {
         PageInfo<Map<String, Object>> page = FastCustomer.create()
                 .setSalveDataSource(salve).
                 findPage(new StringBuilder("select id,stock_name from stock"),
-                2, 3);
+                2, 3,new HashMap<>());
         System.out.println(JSONUtil.toJsonStr(page));
     }
 
@@ -147,7 +152,7 @@ public class FastMapperApplicationTests {
         FastMapperConfig.isOpenSQLPrint=true;
         FastMapperConfig.setDeleted(true,"deleted",0,1);
         Stock stock = StockMapper.SELECT()
-                .id().equal(1)
+                .id().equal(1L)
                 .or()
                 .stockName().equal("江南仓库")
                 .stockName().equal("bbb")
@@ -159,7 +164,7 @@ public class FastMapperApplicationTests {
     void test7(){
         FastMapperConfig.setDeleted(true,"deleted",0,1);
         List<Stock> stocks = StockMapper.SELECT()
-                .id().in(2, 4, 5)
+                .id().in(2L, 4L, 5L)
                 .list();
         System.out.println(JSONUtil.toJsonStr(stocks));
     }

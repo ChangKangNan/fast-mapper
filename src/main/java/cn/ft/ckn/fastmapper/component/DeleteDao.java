@@ -100,12 +100,10 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R>{
         deletedSQL.append("WHERE");
         deletedSQL.append(StrUtil.SPACE);
         whereConcat(paramMap, deletedSQL, endIndex);
-        if(FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(deletedSQL.toString(),paramMap,"DELETE");
-        }
         int update = jdbcTemplate.update(deletedSQL.toString(), paramMap);
-        if(FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.printResult(JSONUtil.toJsonStr(update));
+        if (FastMapperConfig.isOpenSQLPrint) {
+            SQLUtil.print(SQLUtil.printSql(deletedSQL.toString(),paramMap)
+                    , SQLUtil.printResult(JSONUtil.toJsonStr(update)));
         }
     }
 

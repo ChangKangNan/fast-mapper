@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -43,7 +44,7 @@ public class DaoController {
         PageInfo<Map<String, Object>> page = FastCustomer.create()
                 .setSalveDataSource(salve).
                 findPage(new StringBuilder("select id,stock_name from stock"),
-                        2, 3);
+                        2, 3,new HashMap<>());
         System.out.println(JSONUtil.toJsonStr(page));
     }
 
