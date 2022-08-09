@@ -3,6 +3,9 @@ package cn.ft.ckn.fastmapper_test.test;
 import cn.ft.ckn.fastmapper.FastMapperApplication;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.fm.action.OtherOpenAction;
+import cn.ft.ckn.fastmapper.fm.bean.OtherOpen;
+import cn.ft.ckn.fastmapper.fm.dao.OtherOpenMapper;
 import cn.ft.ckn.fastmapper.util.FastCustomer;
 import cn.ft.ckn.fastmapper_test.fm.Stock;
 import cn.ft.ckn.fastmapper_test.mapper.StockMapper;
@@ -11,7 +14,10 @@ import com.alibaba.druid.pool.DruidDataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SpringBootTest(classes = FastMapperApplication.class)
 public class FastMapperApplicationTests {
@@ -172,8 +178,18 @@ public class FastMapperApplicationTests {
     }
     @Test
     void test9(){
-
-
+        FastMapperConfig.isOpenSQLPrint=true;
+        FastMapperConfig.setDeleted(true,"delete_flag",0,1);
+        OtherOpen otherOpen = OtherOpenMapper.SELECT().id().equal(20L).one();
+        OtherOpenAction.BaseSelectMapper select = OtherOpenMapper.SELECT();
+        select.id().equal(20L);
+        select.institutionId().equal(2L);
+        List<OtherOpen> otherOpens = select.list();
+        List<OtherOpen> opens = OtherOpenMapper.SELECT()
+                .institutionId().equal(2L)
+                .id().less(100L)
+                .page(1, 10)
+                .list();
     }
 
 }

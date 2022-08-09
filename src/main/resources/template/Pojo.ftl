@@ -1,4 +1,4 @@
-package ${table.pojoPackagePath}.fm;
+package ${table.pojoPackagePath}.fm.bean;
 import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.persistence.Entity;

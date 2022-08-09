@@ -1,14 +1,13 @@
-package cn.ft.ckn.fastmapper.fm;
-
+package cn.ft.ckn.fastmapper.fm.bean;
+import javax.persistence.Column;
+import javax.persistence.Table;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -21,14 +20,14 @@ import java.util.Date;
 public class OtherOpen {
 
     @Id
-    @ApiModelProperty(value = "主键")
+    @ApiModelProperty(value = "")
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
 
     @ApiModelProperty(value = "我方户名(当前组织机构id)")
     @Column(name = "institution_id")
-    private Integer institutionId;
+    private Long institutionId;
 
 
     @ApiModelProperty(value = "我方户名,当前组织机构名称")
@@ -43,7 +42,7 @@ public class OtherOpen {
 
     @ApiModelProperty(value = "票据类型,1020,银票、1021,商票")
     @Column(name = "bill_type")
-    private BigDecimal billType;
+    private Integer billType;
 
 
     @ApiModelProperty(value = "录入状态:1060,已保存;1061,已提交;1062,作废;")
@@ -58,7 +57,7 @@ public class OtherOpen {
 
     @ApiModelProperty(value = "交易对手,id")
     @Column(name = "kyc_id")
-    private Integer kycId;
+    private Long kycId;
 
 
     @ApiModelProperty(value = "交易对手户名;全部KYC类型数据（IMS获取+组织机构）")
@@ -68,7 +67,7 @@ public class OtherOpen {
 
     @ApiModelProperty(value = "收票账户id")
     @Column(name = "sp_account_id")
-    private Integer spAccountId;
+    private Long spAccountId;
 
 
     @ApiModelProperty(value = "收票账户备注,展示银行账户【账号备注】筛选读取当前组织机构下的银行账户")
@@ -83,7 +82,7 @@ public class OtherOpen {
 
     @ApiModelProperty(value = "票据数量")
     @Column(name = "sp_quantity")
-    private Integer spQuantity;
+    private Long spQuantity;
 
 
     @ApiModelProperty(value = "承兑人")
@@ -102,7 +101,7 @@ public class OtherOpen {
 
 
     @ApiModelProperty(value = "汇票到期")
-    @Column( name = "bill_due_date")
+    @Column(name = "bill_due_date")
     private Date billDueDate;
 
 
@@ -113,7 +112,7 @@ public class OtherOpen {
 
     @ApiModelProperty(value = "逻辑删除标识")
     @Column(name = "delete_flag")
-    private Integer deleteFlag;
+    private Boolean deleteFlag;
 
 
     @ApiModelProperty(value = "创建人账号")
@@ -128,17 +127,17 @@ public class OtherOpen {
 
     @ApiModelProperty(value = "创建人")
     @Column(name = "create_user_id")
-    private Integer createUserId;
+    private Long createUserId;
 
 
     @ApiModelProperty(value = "修改人")
     @Column(name = "update_user_id")
-    private Integer updateUserId;
+    private Long updateUserId;
 
 
     @ApiModelProperty(value = "逻辑锁")
     @Column(name = "version")
-    private Integer version;
+    private Long version;
 
 
     @ApiModelProperty(value = "创建时间")

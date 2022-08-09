@@ -45,8 +45,10 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
             }
             return queryForObject;
         } catch (Exception e) {
+            e.printStackTrace();
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.printResult("");
+                SQLUtil.print(SQLUtil.printSql(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey())
+                        , SQLUtil.printResult(""));
             }
             return null;
         }

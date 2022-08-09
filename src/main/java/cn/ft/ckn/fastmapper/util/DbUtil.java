@@ -91,6 +91,7 @@ public class DbUtil {
             columnName = columns.getString("COLUMN_NAME");
             columnType = columns.getString("TYPE_NAME");
             remarks = columns.getString("remarks");
+            remarks = remarks.replaceAll("\\s*|\r|\n|\t", "");
             ColumnInfo info = new ColumnInfo();
             info.setColumnName(columnName);
             info.setColumnType(columnType);
@@ -148,13 +149,13 @@ public class DbUtil {
         String pojoPackagePath = conf.getBasePackage();
         tableInfo.setPojoPackagePath(pojoPackagePath);
 
-        tableInfo.setPojoFilePath(javaBasePath + tableInfo.getPojoPackagePath().replace(".", separator)+separator+"fm"+separator + tableInfo.getPojoName() + ".java");
+        tableInfo.setPojoFilePath(javaBasePath + tableInfo.getPojoPackagePath().replace(".", separator)+separator+"fm"+separator +"bean"+separator+tableInfo.getPojoName() + ".java");
         tableInfo.setPojoActionName(tableInfo.getPojoName().substring(0,1).toUpperCase()+
                 tableInfo.getPojoName().substring(1)+"Action");
         tableInfo.setPojoActionFilePath(javaBasePath + tableInfo.getPojoPackagePath().replace(".", separator)+separator+"fm"+separator+"action"+separator+tableInfo.getPojoActionName()+".java");
         tableInfo.setPojoMapperName(tableInfo.getPojoName().substring(0,1).toUpperCase()+
                 tableInfo.getPojoName().substring(1)+"Mapper");
-        tableInfo.setPojoMapperFilePath(javaBasePath + tableInfo.getPojoPackagePath().replace(".", separator)+separator+"mapper"+separator+tableInfo.getPojoMapperName()+".java");
+        tableInfo.setPojoMapperFilePath(javaBasePath + tableInfo.getPojoPackagePath().replace(".", separator)+separator+"fm"+separator+"dao"+separator+tableInfo.getPojoMapperName()+".java");
  }
 
     /**
@@ -188,31 +189,25 @@ public class DbUtil {
      */
     public static String getFieldType(String columnType, Set<String> packages) {
         columnType = columnType.toLowerCase();
-        if ("varchar".equals(columnType) || "nvarchar".equals(columnType) || columnType.equals("char")
-                || columnType.equals("text") || columnType.equals("mediumtext"))
+        if (StrUtil.equalsAny(columnType,"varchar","nvarchar","char","text","mediumtext"))
         {
             return "String";
-        } else if (columnType.equals("tinyblob") || columnType.equals("blob") || columnType.equals("mediumblob")
-                || columnType.equals("longblob")) {
+        } else if (StrUtil.equalsAny(columnType,"tinyblob","blob","mediumblob","longblob")) {
             return "byte[]";
-        } else if (columnType.equals("datetime") || columnType.equals("date") || columnType.equals("timestamp")
-                || columnType.equals("time") || columnType.equals("year")) {
+        } else if (StrUtil.equalsAny(columnType,"datetime","date","timestamp","time","year")) {
             packages.add("import java.util.Date;");
             return "Date";
-        } else if (columnType.equals("bit")) {
+        } else if (StrUtil.equalsAny(columnType,"bit","tinyint","tinyint unsigned")) {
             return "Boolean";
-        } else if (columnType.equals("bit") || columnType.equals("int") || columnType.equals("tinyint")
-                || columnType.equals("smallint")) {
+        } else if (StrUtil.equalsAny(columnType,"int","smallint","smallint unsigned")) {
             return "Integer";
-        } else if (columnType.equals("int unsigned")) {
-            return "Integer";
-        } else if (columnType.equals("bigint unsigned") || columnType.equals("bigint")) {
+        }  else if (StrUtil.equalsAny(columnType,"bigint","int unsigned")) {
             return "Long";
-        } else if (columnType.equals("float")) {
+        } else if (StrUtil.equalsAny(columnType,"float")) {
             return "Float";
-        } else if (columnType.equals("double")) {
+        } else if (StrUtil.equalsAny(columnType,"double")) {
             return "Double";
-        } else if (columnType.equals("decimal")) {
+        } else if (StrUtil.equalsAny(columnType,"decimal","decimal unsigned")) {
             packages.add("import java.math.BigDecimal;");
             return "BigDecimal";
         }
