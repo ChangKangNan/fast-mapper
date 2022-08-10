@@ -1,4 +1,4 @@
-package cn.ft.ckn.fastmapper_test.test;
+package cn.ft.ckn.test;
 
 
 import cn.ft.ckn.fastmapper.bean.FileConfig;

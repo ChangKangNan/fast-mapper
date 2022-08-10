@@ -1,6 +1,6 @@
-package cn.ft.ckn.fastmapper.fm.action;
+package cn.ft.ckn.test.fm.action;
 import cn.ft.ckn.fastmapper.component.*;
-import cn.ft.ckn.fastmapper.fm.bean.OtherOpen;
+import cn.ft.ckn.test.fm.bean.OtherOpen;
 
 public class OtherOpenAction {
 public static class InsertMapper extends InsertDao<OtherOpen, InsertMapper> {

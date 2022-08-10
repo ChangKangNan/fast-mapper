@@ -1,6 +1,6 @@
-package cn.ft.ckn.fastmapper.fm.action;
+package cn.ft.ckn.test.fm.action;
 import cn.ft.ckn.fastmapper.component.*;
-import cn.ft.ckn.fastmapper.fm.bean.OtherBill;
+import cn.ft.ckn.test.fm.bean.OtherBill;
 
 public class OtherBillAction {
 public static class InsertMapper extends InsertDao<OtherBill, InsertMapper> {

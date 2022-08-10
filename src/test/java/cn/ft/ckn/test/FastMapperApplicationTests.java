@@ -1,30 +1,25 @@
-package cn.ft.ckn.fastmapper_test.test;
+package cn.ft.ckn.test;
 
 import cn.ft.ckn.fastmapper.FastMapperApplication;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.component.SFunction;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.ft.ckn.fastmapper.fm.action.OtherOpenAction;
-import cn.ft.ckn.fastmapper.fm.bean.OtherBill;
-import cn.ft.ckn.fastmapper.fm.bean.OtherOpen;
-import cn.ft.ckn.fastmapper.fm.dao.OtherOpenMapper;
+import cn.ft.ckn.test.fm.action.OtherOpenAction;
+import cn.ft.ckn.test.fm.bean.OtherBill;
+import cn.ft.ckn.test.fm.bean.OtherOpen;
+import cn.ft.ckn.test.fm.dao.OtherOpenMapper;
 import cn.ft.ckn.fastmapper.join.JoinCustomer;
-import cn.ft.ckn.fastmapper.util.FastCustomer;
-import cn.ft.ckn.fastmapper_test.fm.Stock;
-import cn.ft.ckn.fastmapper_test.mapper.StockMapper;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.druid.pool.DruidDataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @SpringBootTest(classes = FastMapperApplication.class)
 public class FastMapperApplicationTests {
-    @Test
+/*    @Test
     void select(){
         FastMapperConfig.isOpenSQLPrint=true;
        Stock stock = StockMapper.SELECT()
@@ -74,7 +69,7 @@ public class FastMapperApplicationTests {
         Stock stock1=new Stock();
         stock1.setStockName("aaa");
         StockMapper.INSERT().insert(stock1);
-/*
+*//*
 
         Stock stock2=new Stock();
         stock2.setStockName("bbb");
@@ -82,7 +77,7 @@ public class FastMapperApplicationTests {
         stock3.setStockName("ccc");
         stockList.add(stock1);
         stockList.add(stock2);
-        stockList.add(stock3);*/
+        stockList.add(stock3);*//*
 //        DruidDataSource salve=new DruidDataSource();
 //        try {
 //            salve.setDriverClassName("com.mysql.jdbc.Driver");
@@ -178,7 +173,7 @@ public class FastMapperApplicationTests {
     void test8(){
         List<Stock> stocks = FastCustomer.create().selectByFile("/test.sql", new HashMap<>(), Stock.class);
         System.out.println(JSONUtil.toJsonStr(stocks));
-    }
+    }*/
     @Test
     void test9(){
         FastMapperConfig.isOpenSQLPrint=true;

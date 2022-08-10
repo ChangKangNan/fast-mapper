@@ -1,10 +1,11 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.component.*;
+import cn.ft.ckn.fastmapper.component.Expression;
+import cn.ft.ckn.fastmapper.component.PageInfo;
+import cn.ft.ckn.fastmapper.component.SFunction;
+import cn.ft.ckn.fastmapper.component.SplicingParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.ft.ckn.fastmapper.fm.bean.OtherOpen;
 import cn.ft.ckn.fastmapper.util.ColumnUtil;
-import cn.ft.ckn.fastmapper.util.FastCustomer;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrBuilder;
@@ -354,7 +355,6 @@ public class JoinCustomer<T> {
             sql.append(pageSize);
         }
         try {
-            List<OtherOpen> otherOpens = jdbcTemplate.queryForList(sql.toString(), new HashMap<>(), OtherOpen.class);
             List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(),new HashMap<>());
             PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(mapList, pageNumber, pageSize, totalCount);
             if (FastMapperConfig.isOpenSQLPrint) {

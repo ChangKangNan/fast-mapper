@@ -1,13 +1,14 @@
-package cn.ft.ckn.fastmapper.fm.bean;
-import javax.persistence.Column;
-import javax.persistence.Table;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+package cn.ft.ckn.test.fm.bean;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.Date;
 

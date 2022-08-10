@@ -1,6 +1,6 @@
-package cn.ft.ckn.fastmapper.fm.dao;
+package cn.ft.ckn.test.fm.dao;
 import cn.ft.ckn.fastmapper.component.SplicingParam;
-import cn.ft.ckn.fastmapper.fm.action.OtherOpenAction;
+import cn.ft.ckn.test.fm.action.OtherOpenAction;
 
 public class OtherOpenMapper {
     private OtherOpenMapper() {}
