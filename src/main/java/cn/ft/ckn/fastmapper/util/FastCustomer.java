@@ -1,17 +1,14 @@
 package cn.ft.ckn.fastmapper.util;
 
 import cn.ft.ckn.fastmapper.component.MapperDataSourceManger;
-import cn.ft.ckn.fastmapper.component.PackSQLUtil;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.component.SplicingParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.util.ArrayList;
@@ -64,6 +61,24 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
                         , SQLUtil.printResult(""));
             }
             return new PageInfo<>(new ArrayList<>(),pageNumber,pageSize,totalCount);
+        }
+    }
+
+    public <R>List<R> findAll(StringBuilder sql,Class<R> returnObj){
+        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        try {
+            List<R> list = jdbcTemplate.queryForList(sql.toString(), new HashMap<>(), returnObj);
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
+            }
+            return list;
+        }catch (Exception e){
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                        , SQLUtil.printResult(""));
+            }
+            return new ArrayList<>();
         }
     }
 

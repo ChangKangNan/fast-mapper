@@ -2,10 +2,13 @@ package cn.ft.ckn.fastmapper_test.test;
 
 import cn.ft.ckn.fastmapper.FastMapperApplication;
 import cn.ft.ckn.fastmapper.component.PageInfo;
+import cn.ft.ckn.fastmapper.component.SFunction;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.fm.action.OtherOpenAction;
+import cn.ft.ckn.fastmapper.fm.bean.OtherBill;
 import cn.ft.ckn.fastmapper.fm.bean.OtherOpen;
 import cn.ft.ckn.fastmapper.fm.dao.OtherOpenMapper;
+import cn.ft.ckn.fastmapper.join.JoinCustomer;
 import cn.ft.ckn.fastmapper.util.FastCustomer;
 import cn.ft.ckn.fastmapper_test.fm.Stock;
 import cn.ft.ckn.fastmapper_test.mapper.StockMapper;
@@ -191,5 +194,31 @@ public class FastMapperApplicationTests {
                 .page(1, 10)
                 .list();
     }
+    @Test
+    void test10(){
+        FastMapperConfig.isOpenSQLPrint=true;
+        PageInfo<Map<String, Object>> customerPage =
+                new JoinCustomer<>(OtherBill.class, OtherBill::getBno, OtherBill::getSpNo).
+                leftJoin(OtherOpen.class
+                , new HashMap<SFunction<OtherBill, ?>, SFunction<OtherOpen, ?>>(){{
+                    put(OtherBill::getOtherOpenId,OtherOpen::getId);
+                }}
+                , new HashMap<SFunction<OtherOpen, ?>, Object>(){{
+                    put(OtherOpen::getInstitutionId,2);
+                }}
+                , OtherOpen::getOrgName)
+                .findPage(1, 5);
 
+/*        List<OtherOpen> all = new JoinCustomer<>(OtherBill.class, OtherBill::getBno, OtherBill::getSpNo).
+                leftJoin(OtherOpen.class
+                        , new HashMap<SFunction<OtherBill, ?>, SFunction<OtherOpen, ?>>() {{
+                            put(OtherBill::getOtherOpenId, OtherOpen::getId);
+                        }}
+                        , new HashMap<SFunction<OtherOpen, ?>, Object>() {{
+                            put(OtherOpen::getInstitutionId, 2);
+                        }}
+                        , OtherOpen::getOrgName)
+                .findAll(OtherOpen.class);*/
+        System.out.println(JSONUtil.toJsonStr(customerPage));
+    }
 }

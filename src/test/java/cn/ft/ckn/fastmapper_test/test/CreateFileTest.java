@@ -19,7 +19,7 @@ public class CreateFileTest {
         config.setReplaceFile(true);
         //文件生成的包路径
         config.setBasePackage("cn.ft.ckn.fastmapper");
-        config.setCreateTables("bz_other_open");
+        config.setCreateTables("bz_open_bill");
         CreateTemplateFile.createTemplates(config);
     }
 }

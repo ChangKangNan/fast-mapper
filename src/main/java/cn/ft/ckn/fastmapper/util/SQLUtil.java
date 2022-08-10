@@ -48,7 +48,7 @@ public class SQLUtil {
         return  SQLUtils.formatMySql(sql);
     }
 
-    static String getValue(Object value) {
+  public  static String getValue(Object value) {
         StringBuilder stringBuilder = new StringBuilder();
         if (value instanceof String || value instanceof Date) {
             stringBuilder.append("'");
