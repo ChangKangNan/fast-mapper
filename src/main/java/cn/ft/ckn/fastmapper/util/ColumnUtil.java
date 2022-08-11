@@ -4,6 +4,7 @@ import cn.ft.ckn.fastmapper.component.SFunction;
 import cn.hutool.core.util.StrUtil;
 
 import javax.persistence.Column;
+import javax.persistence.Table;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -90,6 +91,17 @@ public class ColumnUtil {
             }
 
         }
+    }
+
+    public static <T> String getClassName(SFunction<T, ?> fn){
+        SerializedLambda serializedLambda = getSerializedLambda(fn);
+        String implClass = serializedLambda.getImplClass();
+        implClass = implClass.replaceAll("/", ".");
+        try {
+            Class<?> aClass = Class.forName(implClass);
+            Table annotation = aClass.getAnnotation(Table.class);
+            return annotation.name();
+        }catch (Exception e){return null;}
     }
 
     private static <T> SerializedLambda getSerializedLambda(SFunction<T, ?> fn) {

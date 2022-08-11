@@ -191,18 +191,18 @@ public class FastMapperApplicationTests {
     }
     @Test
     void test10(){
-        FastMapperConfig.isOpenSQLPrint=true;
-        PageInfo<Map<String, Object>> customerPage =
-                new JoinCustomer<>(OtherBill.class, OtherBill::getBno, OtherBill::getSpNo).
-                leftJoin(OtherOpen.class
-                , new HashMap<SFunction<OtherBill, ?>, SFunction<OtherOpen, ?>>(){{
-                    put(OtherBill::getOtherOpenId,OtherOpen::getId);
-                }}
-                , new HashMap<SFunction<OtherOpen, ?>, Object>(){{
-                    put(OtherOpen::getInstitutionId,2);
-                }}
-                , OtherOpen::getOrgName)
-                .findPage(1, 5);
+//        FastMapperConfig.isOpenSQLPrint=true;
+//        PageInfo<Map<String, Object>> customerPage =
+//                new JoinCustomer<>(OtherBill.class).
+//                leftJoin(OtherOpen.class
+//                , new HashMap<SFunction<OtherBill, ?>, SFunction<OtherOpen, ?>>(){{
+//                    put(OtherBill::getOtherOpenId,OtherOpen::getId);
+//                }}
+//                , new HashMap<SFunction<OtherOpen, ?>, Object>(){{
+//                    put(OtherOpen::getInstitutionId,2);
+//                }}
+//                , OtherOpen::getOrgName)
+//                .findPage(1, 5);
 
 /*        List<OtherOpen> all = new JoinCustomer<>(OtherBill.class, OtherBill::getBno, OtherBill::getSpNo).
                 leftJoin(OtherOpen.class
@@ -214,6 +214,16 @@ public class FastMapperApplicationTests {
                         }}
                         , OtherOpen::getOrgName)
                 .findAll(OtherOpen.class);*/
-        System.out.println(JSONUtil.toJsonStr(customerPage));
+//        System.out.println(JSONUtil.toJsonStr(customerPage));
+        FastMapperConfig.isOpenSQLPrint=true;
+        JoinCustomer<OtherBill> billJoinCustomer = new JoinCustomer<>(OtherBill.class);
+        PageInfo<Map<String, Object>> mapPageInfo = new JoinCustomer<>(OtherBill.class)
+                .select(OtherBill::getContractNo, OtherBill::getBno)
+                .where(OtherBill::getOtherOpenId, 29L)
+                .leftJoin(OtherOpen.class, OtherBill::getOtherOpenId, OtherOpen::getId)
+                .select(OtherOpen::getOrgName)
+                .leftJoinGroup(billJoinCustomer,OtherBill::getBno,OtherBill::getBno)
+                .findPage(1, 3);
+        System.out.println(JSONUtil.toJsonStr(mapPageInfo));
     }
 }
