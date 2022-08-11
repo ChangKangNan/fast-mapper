@@ -57,4 +57,8 @@ public class WhereJoin<T,R> {
     public  <R> List<R> findAll(Class<R> returnObj){
         return new JoinCustomer<T>(params).findAll(returnObj);
     }
+
+    public JoinCustomer<T> getObj(){
+        return new JoinCustomer<T>(params);
+    }
 }

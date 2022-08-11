@@ -5,8 +5,7 @@ import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.component.SFunction;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.test.fm.action.OtherOpenAction;
-import cn.ft.ckn.test.fm.bean.OtherBill;
-import cn.ft.ckn.test.fm.bean.OtherOpen;
+import cn.ft.ckn.test.fm.bean.*;
 import cn.ft.ckn.test.fm.dao.OtherOpenMapper;
 import cn.ft.ckn.fastmapper.join.JoinCustomer;
 import cn.hutool.json.JSONUtil;
@@ -216,14 +215,40 @@ public class FastMapperApplicationTests {
                 .findAll(OtherOpen.class);*/
 //        System.out.println(JSONUtil.toJsonStr(customerPage));
         FastMapperConfig.isOpenSQLPrint=true;
-        JoinCustomer<OtherBill> billJoinCustomer = new JoinCustomer<>(OtherBill.class);
-        PageInfo<Map<String, Object>> mapPageInfo = new JoinCustomer<>(OtherBill.class)
-                .select(OtherBill::getContractNo, OtherBill::getBno)
-                .where(OtherBill::getOtherOpenId, 29L)
-                .leftJoin(OtherOpen.class, OtherBill::getOtherOpenId, OtherOpen::getId)
-                .select(OtherOpen::getOrgName)
-                .leftJoinGroup(billJoinCustomer,OtherBill::getBno,OtherBill::getBno)
-                .findPage(1, 3);
+//        JoinCustomer<OtherBill> billJoinCustomer = new JoinCustomer<>(OtherBill.class);
+//        PageInfo<Map<String, Object>> mapPageInfo = new JoinCustomer<>(OtherBill.class)
+//                .select(OtherBill::getContractNo, OtherBill::getBno)
+//                .where(OtherBill::getOtherOpenId, 29L)
+//                .leftJoin(OtherOpen.class, OtherBill::getOtherOpenId, OtherOpen::getId)
+//                .select(OtherOpen::getOrgName)
+//                .leftJoinGroup(billJoinCustomer,OtherBill::getBno,OtherBill::getBno)
+//                .findPage(1, 3);
+//        System.out.println(JSONUtil.toJsonStr(mapPageInfo));
+
+//                .leftJoin(BankPaperContract.class,BankPaperApply::getId,BankPaperContract::getFundingBankPaperApplyId)
+//                .select(BankPaperContract::getContractV2No,BankPaperContract::getContractV2LotId)
+//                .where(BankPaperContract::getDeleted,0);
+        JoinCustomer<BankPaperContract> contractJoinCustomer = new JoinCustomer<BankPaperContract>(BankPaperContract.class)
+                .select(BankPaperContract::getContractV2No, BankPaperContract::getContractV2LotId)
+                .where(BankPaperContract::getDeleted, 0)
+                .leftJoin(Contract.class, BankPaperContract::getContractV2LotId, Contract::getId)
+                .getObj();
+        JoinCustomer<BankPaperApply> applyJoinCustomer = new JoinCustomer<BankPaperApply>(BankPaperApply.class)
+                .where(BankPaperApply::getApplyStatus, "success")
+                .where(BankPaperApply::getDeleted, 0)
+                .leftJoinGroup(contractJoinCustomer, BankPaperApply::getId, BankPaperContract::getFundingBankPaperApplyId);
+        PageInfo<Map<String, Object>> mapPageInfo = new JoinCustomer<BankPaper>(BankPaper.class)
+                .select(BankPaper::getId, BankPaper::getPaperType, BankPaper::getPaperNo, BankPaper::getPaperAmount)
+                .where(BankPaper::getPaperType, "silver_paper")
+                .where(BankPaper::getOpenType, "this")
+                .where(BankPaper::getDeleted, "0")
+                .leftJoinGroup(applyJoinCustomer, BankPaper::getFundingBankPaperApplyId, BankPaperApply::getId)
+                .leftJoin(BankPaperOpen.class, BankPaper::getFundingBankPaperOpenId, BankPaperOpen::getId)
+                .select(BankPaperOpen::getNo)
+                .where(BankPaperOpen::getOpenStatus, "success")
+                .leftJoin(PayInterestDetail.class, BankPaper::getId, PayInterestDetail::getPaperId)
+                .select(PayInterestDetail::getInterestRate, PayInterestDetail::getPayInterestAmount, PayInterestDetail::getFundingPayInterestId)
+                .where(PayInterestDetail::getDeleted, 0).findPage(1, 10);
         System.out.println(JSONUtil.toJsonStr(mapPageInfo));
     }
 }

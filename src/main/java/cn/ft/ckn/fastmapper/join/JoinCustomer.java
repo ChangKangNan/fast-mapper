@@ -78,7 +78,11 @@ public class JoinCustomer<T> extends JoinManager<T> {
         if (MapUtil.isNotEmpty(leftGroup.params.joins)) {
             this.params.joins.putAll(leftGroup.params.joins);
         }
-        this.params.relation.put(leftGroup.params.mainTable, "LEFT JOIN");
+        if (MapUtil.isNotEmpty(leftGroup.params.relation)) {
+            this.params.relation.putAll(leftGroup.params.relation);
+        }
+        String className = ColumnUtil.getClassName(joinKey);
+        this.params.relation.put(className, "LEFT JOIN");
         return this;
     }
 
@@ -98,7 +102,11 @@ public class JoinCustomer<T> extends JoinManager<T> {
         if (MapUtil.isNotEmpty(rightGroup.params.joins)) {
             this.params.joins.putAll(rightGroup.params.joins);
         }
-        this.params.relation.put(rightGroup.params.mainTable, "RIGHT JOIN");
+        if (MapUtil.isNotEmpty(rightGroup.params.relation)) {
+            this.params.relation.putAll(rightGroup.params.relation);
+        }
+        String className = ColumnUtil.getClassName(joinKey);
+        this.params.relation.put(className, "RIGHT JOIN");
         return this;
     }
 
@@ -118,7 +126,11 @@ public class JoinCustomer<T> extends JoinManager<T> {
         if (MapUtil.isNotEmpty(innerGroup.params.joins)) {
             this.params.joins.putAll(innerGroup.params.joins);
         }
-        this.params.relation.put(innerGroup.params.mainTable, "INNER JOIN");
+        if (MapUtil.isNotEmpty(innerGroup.params.relation)) {
+            this.params.relation.putAll(innerGroup.params.relation);
+        }
+        String className = ColumnUtil.getClassName(joinKey);
+        this.params.relation.put(className, "INNER JOIN");
         return this;
     }
 

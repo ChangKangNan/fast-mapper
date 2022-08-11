@@ -10,6 +10,16 @@ import java.util.Set;
  */
 public class FileConfig {
 
+    private Boolean isTest;
+
+    public void setTest(Boolean test) {
+        isTest = test;
+    }
+
+    public Boolean getTest() {
+        return isTest;
+    }
+
     /**
      * 模板文件生成的包路径 xxx.xxx.xxx
      */

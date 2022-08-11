@@ -85,6 +85,7 @@ public class JoinManager<T> {
     }
 
     StringBuilder getSQL(){
+        System.out.println("relation:"+JSONUtil.toJsonStr(params.relation));
         StringBuilder sqlBuilder=new StringBuilder("SELECT");
         sqlBuilder.append(Expression.LineSeparator.expression);
         sqlBuilder.append(StrUtil.join(",",params.columns.toArray()));

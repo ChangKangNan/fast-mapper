@@ -140,11 +140,14 @@ public class DbUtil {
         String separator = File.separator;
         String childModuleName = conf.getChildModuleName();
         StringBuilder javaBasePath =new StringBuilder();
+        String dir="main";
+        if(conf.getTest()){
+            dir="test";
+        }
         if(StrUtil.isNotBlank(childModuleName)){
-            javaBasePath.append(System.getProperty("user.dir")).append(separator).append(childModuleName).append(separator).append("src").append(separator).append("main").append(separator).append("java").append(separator).toString();
+            javaBasePath.append(System.getProperty("user.dir")).append(separator).append(childModuleName).append(separator).append("src").append(separator).append(dir).append(separator).append("java").append(separator).toString();
         }else {
-            javaBasePath.append(System.getProperty("user.dir")).append(separator).append("src").append(separator).append("main").append(separator).append("java").append(separator).toString();
-
+            javaBasePath.append(System.getProperty("user.dir")).append(separator).append("src").append(separator).append(dir).append(separator).append("java").append(separator).toString();
         }
         String pojoPackagePath = conf.getBasePackage();
         tableInfo.setPojoPackagePath(pojoPackagePath);

@@ -12,14 +12,16 @@ public class CreateFileTest {
     public static void main(String[] args) throws Exception{
         FileConfig config = new FileConfig();
         //数据库连接
-        config.setDBInfo("jdbc:mysql://kaifa.mysql.guo-kai.com:3306/gk_asset?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useInformationSchema=true","gkims-kaifa","PGrsByizeD357ajR","com.mysql.jdbc.Driver");
+        config.setDBInfo("jdbc:mysql://kaifa.mysql.guo-kai.com:3306/gk-ims?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useInformationSchema=true","gkims-kaifa","PGrsByizeD357ajR","com.mysql.jdbc.Driver");
         //是否生成表前缀
         config.setIgnorePrefix(true);
         //是否覆盖原文件,默认false
         config.setReplaceFile(true);
+        config.setTest(true);
         //文件生成的包路径
-        config.setBasePackage("cn.ft.ckn.fastmapper");
-        config.setCreateTables("bz_open_bill");
+        config.setBasePackage("cn.ft.ckn.test");
+        config.setCreateTables("funding_bank_paper","funding_bank_paper_apply","funding_bank_paper_open",
+        "funding_bank_paper_contract","contract","funding_pay_interest_detail");
         CreateTemplateFile.createTemplates(config);
     }
 }
