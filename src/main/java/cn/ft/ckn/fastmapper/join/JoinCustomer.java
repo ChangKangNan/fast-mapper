@@ -31,6 +31,7 @@ public class JoinCustomer<T> extends JoinManager<T> {
             put(params.mainTable + StrUtil.DOT + kName, tableName + StrUtil.DOT + vName);
         }});
         params.relation.put(tableName, "LEFT JOIN");
+        params.deeps.put(tableName, 1);
         return new FieldJoin<>(params);
     }
 
@@ -45,6 +46,7 @@ public class JoinCustomer<T> extends JoinManager<T> {
             put(params.mainTable + StrUtil.DOT + kName, tableName + StrUtil.DOT + vName);
         }});
         params.relation.put(tableName, "RIGHT JOIN");
+        params.deeps.put(tableName, 1);
         return new FieldJoin<>(params);
     }
 
@@ -58,6 +60,7 @@ public class JoinCustomer<T> extends JoinManager<T> {
             put(params.mainTable + StrUtil.DOT + kName, tableName + StrUtil.DOT + vName);
         }});
         params.relation.put(tableName, "INNER JOIN");
+        params.deeps.put(tableName, 1);
         return new FieldJoin<>(params);
     }
 
@@ -76,6 +79,12 @@ public class JoinCustomer<T> extends JoinManager<T> {
         map.put(this.params.mainTable + StrUtil.DOT + kName, leftGroup.params.mainTable + StrUtil.DOT + vName);
         this.params.joins.put(leftGroup.params.mainTable, map);
         if (MapUtil.isNotEmpty(leftGroup.params.joins)) {
+            Map<String,Integer> m=new HashMap<>();
+            for (String key : leftGroup.params.deeps.keySet()) {
+                Integer integer = leftGroup.params.deeps.get(key);
+                m.put(key,integer+1);
+            }
+            this.params.deeps.putAll(m);
             this.params.joins.putAll(leftGroup.params.joins);
         }
         if (MapUtil.isNotEmpty(leftGroup.params.relation)) {
@@ -83,6 +92,7 @@ public class JoinCustomer<T> extends JoinManager<T> {
         }
         String className = ColumnUtil.getClassName(joinKey);
         this.params.relation.put(className, "LEFT JOIN");
+        params.deeps.put(className, 1);
         return this;
     }
 
@@ -100,6 +110,12 @@ public class JoinCustomer<T> extends JoinManager<T> {
         map.put(this.params.mainTable + StrUtil.DOT + kName, rightGroup.params.mainTable + StrUtil.DOT + vName);
         this.params.joins.put(rightGroup.params.mainTable, map);
         if (MapUtil.isNotEmpty(rightGroup.params.joins)) {
+            Map<String,Integer> m=new HashMap<>();
+            for (String key : rightGroup.params.deeps.keySet()) {
+                Integer integer = rightGroup.params.deeps.get(key);
+                m.put(key,integer+1);
+            }
+            this.params.deeps.putAll(m);
             this.params.joins.putAll(rightGroup.params.joins);
         }
         if (MapUtil.isNotEmpty(rightGroup.params.relation)) {
@@ -107,6 +123,7 @@ public class JoinCustomer<T> extends JoinManager<T> {
         }
         String className = ColumnUtil.getClassName(joinKey);
         this.params.relation.put(className, "RIGHT JOIN");
+        params.deeps.put(className, 1);
         return this;
     }
 
@@ -124,6 +141,12 @@ public class JoinCustomer<T> extends JoinManager<T> {
         map.put(this.params.mainTable + StrUtil.DOT + kName, innerGroup.params.mainTable + StrUtil.DOT + vName);
         this.params.joins.put(innerGroup.params.mainTable, map);
         if (MapUtil.isNotEmpty(innerGroup.params.joins)) {
+            Map<String,Integer> m=new HashMap<>();
+            for (String key : innerGroup.params.deeps.keySet()) {
+                Integer integer = innerGroup.params.deeps.get(key);
+                m.put(key,integer+1);
+            }
+            this.params.deeps.putAll(m);
             this.params.joins.putAll(innerGroup.params.joins);
         }
         if (MapUtil.isNotEmpty(innerGroup.params.relation)) {
@@ -131,6 +154,7 @@ public class JoinCustomer<T> extends JoinManager<T> {
         }
         String className = ColumnUtil.getClassName(joinKey);
         this.params.relation.put(className, "INNER JOIN");
+        params.deeps.put(className, 1);
         return this;
     }
 

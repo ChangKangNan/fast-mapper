@@ -9,6 +9,7 @@ import cn.ft.ckn.test.fm.bean.*;
 import cn.ft.ckn.test.fm.dao.OtherOpenMapper;
 import cn.ft.ckn.fastmapper.join.JoinCustomer;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.druid.pool.DruidDataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -237,7 +238,18 @@ public class FastMapperApplicationTests {
                 .where(BankPaperApply::getApplyStatus, "success")
                 .where(BankPaperApply::getDeleted, 0)
                 .leftJoinGroup(contractJoinCustomer, BankPaperApply::getId, BankPaperContract::getFundingBankPaperApplyId);
+        DruidDataSource salve=new DruidDataSource();
+        try {
+            salve.setDriverClassName("com.mysql.jdbc.Driver");
+            salve.setUrl("jdbc:mysql://kaifa.mysql.guo-kai.com:3306/gk-ims?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC");
+            salve.setUsername("gkims-kaifa");
+            salve.setPassword("PGrsByizeD357ajR");
+            salve.setConnectionErrorRetryAttempts(1);
+            salve.setBreakAfterAcquireFailure(true);
+        }catch (Exception e){e.printStackTrace();}
+
         PageInfo<Map<String, Object>> mapPageInfo = new JoinCustomer<BankPaper>(BankPaper.class)
+                .setSalveDataSource(salve)
                 .select(BankPaper::getId, BankPaper::getPaperType, BankPaper::getPaperNo, BankPaper::getPaperAmount)
                 .where(BankPaper::getPaperType, "silver_paper")
                 .where(BankPaper::getOpenType, "this")

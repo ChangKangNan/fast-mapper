@@ -6,6 +6,7 @@ import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONUtil;
@@ -85,7 +86,25 @@ public class JoinManager<T> {
     }
 
     StringBuilder getSQL(){
-        System.out.println("relation:"+JSONUtil.toJsonStr(params.relation));
+        List<String> tables=new ArrayList<>();
+        if(MapUtil.isNotEmpty(params.deeps)){
+            int deep=1;
+            int size=0;
+            while(size<params.deeps.size()){
+                int i=0;
+                for (String s : params.deeps.keySet()) {
+                    i++;
+                    Integer dep = params.deeps.get(s);
+                    if(dep==deep){
+                        size++;
+                        tables.add(s);
+                    }
+                }
+                if(i==params.deeps.size()){
+                    deep++;
+                }
+            }
+        }
         StringBuilder sqlBuilder=new StringBuilder("SELECT");
         sqlBuilder.append(Expression.LineSeparator.expression);
         sqlBuilder.append(StrUtil.join(",",params.columns.toArray()));
@@ -94,8 +113,8 @@ public class JoinManager<T> {
         sqlBuilder.append(StrUtil.SPACE);
         sqlBuilder.append(params.mainTable);
         sqlBuilder.append(Expression.LineSeparator.expression);
-        if(MapUtil.isNotEmpty(params.joins)){
-            for (String table : params.joins.keySet()) {
+        if(ArrayUtil.isNotEmpty(tables)){
+            for (String table : tables) {
                 Map<String, String> map = params.joins.get(table);
                 String r = params.relation.get(table);
                 sqlBuilder.append(r);

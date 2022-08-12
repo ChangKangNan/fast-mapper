@@ -15,6 +15,7 @@ public class JoinParams{
     public ArrayList<String> columns;
     public Map<String, Map<String, String>> joins;
     public Map<String,String> relation;
+    public Map<String,Integer> deeps;
 
     public Boolean isMaster = true;
     public DataSource dataSource;
@@ -24,5 +25,6 @@ public class JoinParams{
        columns = new ArrayList<>();
        joins = new HashMap<>();
        relation=new HashMap<>();
+       deeps=new HashMap<>();
     }
 }
