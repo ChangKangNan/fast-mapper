@@ -234,10 +234,12 @@ public class FastMapperApplicationTests {
                 .where(BankPaperContract::getDeleted, 0)
                 .leftJoin(Contract.class, BankPaperContract::getContractV2LotId, Contract::getId)
                 .getObj();
+
         JoinCustomer<BankPaperApply> applyJoinCustomer = new JoinCustomer<BankPaperApply>(BankPaperApply.class)
                 .where(BankPaperApply::getApplyStatus, "success")
                 .where(BankPaperApply::getDeleted, 0)
                 .leftJoinGroup(contractJoinCustomer, BankPaperApply::getId, BankPaperContract::getFundingBankPaperApplyId);
+
         DruidDataSource salve=new DruidDataSource();
         try {
             salve.setDriverClassName("com.mysql.jdbc.Driver");
@@ -253,7 +255,7 @@ public class FastMapperApplicationTests {
                 .select(BankPaper::getId, BankPaper::getPaperType, BankPaper::getPaperNo, BankPaper::getPaperAmount)
                 .where(BankPaper::getPaperType, "silver_paper")
                 .where(BankPaper::getOpenType, "this")
-                .where(BankPaper::getDeleted, "0")
+                .where(BankPaper::getDeleted, 0)
                 .leftJoinGroup(applyJoinCustomer, BankPaper::getFundingBankPaperApplyId, BankPaperApply::getId)
                 .leftJoin(BankPaperOpen.class, BankPaper::getFundingBankPaperOpenId, BankPaperOpen::getId)
                 .select(BankPaperOpen::getNo)
