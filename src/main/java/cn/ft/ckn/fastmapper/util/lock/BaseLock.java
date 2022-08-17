@@ -41,6 +41,7 @@ public class BaseLock {
 
     public BaseLock(String lockKey) {
         this.lockKey = KEY_PRE + lockKey;
+        this.threadId=Thread.currentThread().getId()+"";
         init();
     }
 
