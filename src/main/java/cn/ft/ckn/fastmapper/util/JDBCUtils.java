@@ -22,6 +22,8 @@ import java.sql.*;
 import java.util.Date;
 import java.util.*;
 
+import static java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE;
+
 @Slf4j
 public class JDBCUtils {
     private static Map<String, Connection> dataSourceToConnection = new HashMap<>();
@@ -90,7 +92,7 @@ public class JDBCUtils {
         String final_sql = getSql(statementCreator);
         log.info(final_sql);
         List params = searchParams(statementCreator);
-        PreparedStatement prepareStatement = connection.prepareStatement(final_sql);
+        PreparedStatement prepareStatement = connection.prepareStatement(final_sql, TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
         if (CollUtil.isNotEmpty(params)) {
             int i = 1;
             for (Object param : params) {
@@ -118,7 +120,7 @@ public class JDBCUtils {
         String final_sql = getSql(statementCreator);
         log.info(final_sql);
         List params = searchParams(statementCreator);
-        PreparedStatement prepareStatement = connection.prepareStatement(final_sql);
+        PreparedStatement prepareStatement = connection.prepareStatement(final_sql,TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
         if (CollUtil.isNotEmpty(params)) {
             int i = 1;
             for (Object param : params) {
@@ -181,7 +183,7 @@ public class JDBCUtils {
         Connection connection = getConnection();
         PreparedStatementCreator statementCreator = getPreparedStatementCreator(sql, sqlParameterSources[0]);
         String final_sql = getSql(statementCreator);
-        PreparedStatement prepareStatement = connection.prepareStatement(final_sql);
+        PreparedStatement prepareStatement = connection.prepareStatement(final_sql,TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
         for (int j = 0; j < sqlParameterSources.length; j++) {
             PreparedStatementCreator preparedStatementCreator = getPreparedStatementCreator(sql, sqlParameterSources[j]);
             List params = searchParams(preparedStatementCreator);
@@ -262,7 +264,7 @@ public class JDBCUtils {
         String final_sql = getSql(statementCreator);
         log.info(final_sql);
         List params = searchParams(statementCreator);
-        PreparedStatement prepareStatement = connection.prepareStatement(final_sql);
+        PreparedStatement prepareStatement = connection.prepareStatement(final_sql, TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
         if (CollUtil.isNotEmpty(params)) {
             int i = 1;
             for (Object param : params) {
@@ -309,7 +311,7 @@ public class JDBCUtils {
         String final_sql = getSql(statementCreator);
         log.info(final_sql);
         List params = searchParams(statementCreator);
-        PreparedStatement prepareStatement = connection.prepareStatement(final_sql);
+        PreparedStatement prepareStatement = connection.prepareStatement(final_sql, TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
         if (CollUtil.isNotEmpty(params)) {
             int i = 1;
             for (Object param : params) {
@@ -371,7 +373,7 @@ public class JDBCUtils {
         String final_sql = getSql(statementCreator);
         log.info(final_sql);
         List params = searchParams(statementCreator);
-        PreparedStatement prepareStatement = connection.prepareStatement(final_sql);
+        PreparedStatement prepareStatement = connection.prepareStatement(final_sql, TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
         if (CollUtil.isNotEmpty(params)) {
             int i = 1;
             for (Object param : params) {
@@ -416,7 +418,7 @@ public class JDBCUtils {
         String final_sql = getSql(statementCreator);
         log.info(final_sql);
         List params = searchParams(statementCreator);
-        PreparedStatement prepareStatement = connection.prepareStatement(final_sql);
+        PreparedStatement prepareStatement = connection.prepareStatement(final_sql, TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
         if (CollUtil.isNotEmpty(params)) {
             int i = 1;
             for (Object param : params) {
