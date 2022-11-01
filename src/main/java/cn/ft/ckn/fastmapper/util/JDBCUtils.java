@@ -1,7 +1,9 @@
 package cn.ft.ckn.fastmapper.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import io.netty.util.concurrent.FastThreadLocal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -143,16 +145,19 @@ public class JDBCUtils {
      * @throws IllegalAccessException
      */
     public int insert(String sql, SqlParameterSource sqlParameterSource, KeyHolder generatedKeyHolder) throws DataAccessException, SQLException, IllegalAccessException {
+        log.info(sql);
         Connection connection = getConnection();
         PreparedStatementCreator statementCreator = this.getPreparedStatementCreator(sql, sqlParameterSource);
         String final_sql = getSql(statementCreator);
         log.info(final_sql);
         List params = searchParams(statementCreator);
+        log.info(JSONUtil.toJsonStr(params));
         PreparedStatement prepareStatement = connection.prepareStatement(final_sql, Statement.RETURN_GENERATED_KEYS);
         if (CollUtil.isNotEmpty(params)) {
             int i = 1;
             for (Object param : params) {
-                prepareStatement.setObject(i, param);
+                SqlParameterValue map=(SqlParameterValue) param;
+                prepareStatement.setObject(i,param);
                 i++;
             }
         }
