@@ -43,7 +43,7 @@ public class MapperDataSourceManger<R> {
     }
 
     protected DataSource getDataSource() {
-        return splicingParam.dataSource;
+        return splicingParam.dataSource==null?getMasterDataSource():splicingParam.dataSource;
     }
 
     protected NamedParameterJdbcTemplate getJdbcTemplate() {

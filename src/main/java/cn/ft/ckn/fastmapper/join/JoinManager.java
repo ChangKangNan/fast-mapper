@@ -47,7 +47,7 @@ public class JoinManager<T> {
     }
 
     protected DataSource getDataSource() {
-        return params.dataSource;
+        return params.dataSource==null?getMasterDataSource():params.dataSource;
     }
 
     protected NamedParameterJdbcTemplate getJdbcTemplate() {
