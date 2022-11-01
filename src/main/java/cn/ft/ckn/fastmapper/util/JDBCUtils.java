@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterUtils;
 import org.springframework.jdbc.core.namedparam.ParsedSql;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -48,7 +49,40 @@ public class JDBCUtils {
         dataSourceFastThreadLocal.set(dataSource);
     }
 
+    /**
+     * 获取全局事务栈
+     *
+     * @return
+     */
+    public static Stack<Connection> getCurrentGlobalTransactionStack() {
+        return transactionTreadLocal.get() == null ? new Stack<>() : transactionTreadLocal.get();
+    }
 
+    /**
+     * 全局事务连接关闭
+     *
+     * @throws SQLException
+     */
+    public static void clearThreadLocalTransaction() throws SQLException {
+        Stack<Connection> connections = transactionTreadLocal.get();
+        for (Connection conn : connections) {
+            conn.close();
+        }
+        transactionTreadLocal.remove();
+        transactionMapTreadLocal.remove();
+        TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.remove();
+    }
+
+    /**
+     * 以map形式更新数据
+     *
+     * @param sql
+     * @param paramsMap
+     * @return
+     * @throws DataAccessException
+     * @throws SQLException
+     * @throws IllegalAccessException
+     */
     public int update(String sql, Map<String, Object> paramsMap) throws DataAccessException, SQLException, IllegalAccessException {
         Connection connection = getConnection();
         SqlParameterSource sqlParameterSource = new MapSqlParameterSource(paramsMap);
@@ -67,6 +101,16 @@ public class JDBCUtils {
         return prepareStatement.executeUpdate();
     }
 
+    /**
+     * 以map形式插入
+     *
+     * @param sql
+     * @param paramsMap
+     * @return
+     * @throws DataAccessException
+     * @throws SQLException
+     * @throws IllegalAccessException
+     */
     public int insert(String sql, Map<String, Object> paramsMap) throws DataAccessException, SQLException, IllegalAccessException {
         Connection connection = getConnection();
         SqlParameterSource sqlParameterSource = new MapSqlParameterSource(paramsMap);
@@ -85,6 +129,17 @@ public class JDBCUtils {
         return prepareStatement.executeUpdate();
     }
 
+    /**
+     * 根据实体类进行插入
+     *
+     * @param sql
+     * @param sqlParameterSource
+     * @param generatedKeyHolder
+     * @return
+     * @throws DataAccessException
+     * @throws SQLException
+     * @throws IllegalAccessException
+     */
     public int insert(String sql, SqlParameterSource sqlParameterSource, KeyHolder generatedKeyHolder) throws DataAccessException, SQLException, IllegalAccessException {
         Connection connection = getConnection();
         PreparedStatementCreator statementCreator = this.getPreparedStatementCreator(sql, sqlParameterSource);
@@ -113,6 +168,42 @@ public class JDBCUtils {
         return rows;
     }
 
+    /**
+     * 批量更新
+     *
+     * @param sql
+     * @param sqlParameterSources
+     * @throws DataAccessException
+     * @throws SQLException
+     * @throws IllegalAccessException
+     */
+    public void updateBatch(String sql, SqlParameterSource[] sqlParameterSources) throws DataAccessException, SQLException, IllegalAccessException {
+        Connection connection = getConnection();
+        PreparedStatementCreator statementCreator = getPreparedStatementCreator(sql, sqlParameterSources[0]);
+        String final_sql = getSql(statementCreator);
+        PreparedStatement prepareStatement = connection.prepareStatement(final_sql);
+        for (int j = 0; j < sqlParameterSources.length; j++) {
+            PreparedStatementCreator preparedStatementCreator = getPreparedStatementCreator(sql, sqlParameterSources[j]);
+            List params = searchParams(preparedStatementCreator);
+            if (CollUtil.isNotEmpty(params)) {
+                int i = 1;
+                for (Object param : params) {
+                    prepareStatement.setObject(i, param);
+                    i++;
+                }
+            }
+            prepareStatement.addBatch();
+        }
+        prepareStatement.executeBatch();
+        closeStatement(prepareStatement);
+    }
+
+    /**
+     * 获取连接
+     *
+     * @return
+     * @throws SQLException
+     */
     protected Connection getConnection() throws SQLException {
         Connection connection = null;
         boolean transactionFlag = TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.get() != null && TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.get();

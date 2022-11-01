@@ -1,6 +1,8 @@
 package cn.ft.ckn.fastmapper.component;
 
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.util.FastCustomer;
+import cn.ft.ckn.fastmapper.util.JDBCUtils;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
@@ -8,6 +10,7 @@ import cn.hutool.json.JSONUtil;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +39,10 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         sqlBuilder.append("LIMIT");
         sqlBuilder.append(StrUtil.SPACE);
         sqlBuilder.append("0,1");
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
         try {
-            T queryForObject = jdbcTemplate.queryForObject(sqlBuilder.toString(), key, new BeanPropertyRowMapper<T>(classObj));
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            T queryForObject = jdbcUtils.queryForObject(sqlBuilder.toString(), key, classObj);
             if (FastMapperConfig.isOpenSQLPrint) {
                 SQLUtil.print(SQLUtil.printSql(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey())
                         , SQLUtil.printResult(JSONUtil.toJsonStr(queryForObject)));
@@ -56,12 +60,13 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
 
     public List<T> list() {
         Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = PackSQLUtil.packageSQL(this.splicingParam, classObj);
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
         try {
-            List<T> query = jdbcTemplate.query(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey(), new BeanPropertyRowMapper<T>(classObj));
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            List<T> query = jdbcUtils.queryForList(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey(), classObj);
             if (FastMapperConfig.isOpenSQLPrint) {
                 SQLUtil.print(SQLUtil.printSql(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey())
-                , SQLUtil.printResult(JSONUtil.toJsonStr(query)));
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(query)));
             }
             return query;
         } catch (Exception e) {
@@ -83,6 +88,7 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
             return null;
         }
     }
+
     public R or() {
         this.splicingParam.isAnd = false;
         try {

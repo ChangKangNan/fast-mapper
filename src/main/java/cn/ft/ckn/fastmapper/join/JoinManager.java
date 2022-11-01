@@ -3,6 +3,7 @@ package cn.ft.ckn.fastmapper.join;
 import cn.ft.ckn.fastmapper.component.Expression;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.util.JDBCUtils;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrBuilder;
@@ -27,7 +28,7 @@ public class JoinManager<T> {
     public JoinParams params;
 
     public JoinManager(JoinParams params) {
-        this.params=params;
+        this.params = params;
     }
 
     private DataSource getMasterDataSource() {
@@ -43,6 +44,10 @@ public class JoinManager<T> {
         params.isMaster = false;
         params.dataSource = dataSource;
         return new JoinCustomer<T>(params);
+    }
+
+    protected DataSource getDataSource() {
+        return params.dataSource;
     }
 
     protected NamedParameterJdbcTemplate getJdbcTemplate() {
@@ -85,35 +90,35 @@ public class JoinManager<T> {
         }
     }
 
-    StringBuilder getSQL(){
-        List<String> tables=new ArrayList<>();
-        if(MapUtil.isNotEmpty(params.deeps)){
-            int deep=1;
-            int size=0;
-            while(size<params.deeps.size()){
-                int i=0;
+    StringBuilder getSQL() {
+        List<String> tables = new ArrayList<>();
+        if (MapUtil.isNotEmpty(params.deeps)) {
+            int deep = 1;
+            int size = 0;
+            while (size < params.deeps.size()) {
+                int i = 0;
                 for (String s : params.deeps.keySet()) {
                     i++;
                     Integer dep = params.deeps.get(s);
-                    if(dep==deep){
+                    if (dep == deep) {
                         size++;
                         tables.add(s);
                     }
                 }
-                if(i==params.deeps.size()){
+                if (i == params.deeps.size()) {
                     deep++;
                 }
             }
         }
-        StringBuilder sqlBuilder=new StringBuilder("SELECT");
+        StringBuilder sqlBuilder = new StringBuilder("SELECT");
         sqlBuilder.append(Expression.LineSeparator.expression);
-        sqlBuilder.append(StrUtil.join(",",params.columns.toArray()));
+        sqlBuilder.append(StrUtil.join(",", params.columns.toArray()));
         sqlBuilder.append(Expression.LineSeparator.expression);
         sqlBuilder.append("from");
         sqlBuilder.append(StrUtil.SPACE);
         sqlBuilder.append(params.mainTable);
         sqlBuilder.append(Expression.LineSeparator.expression);
-        if(ArrayUtil.isNotEmpty(tables)){
+        if (ArrayUtil.isNotEmpty(tables)) {
             for (String table : tables) {
                 Map<String, String> map = params.joins.get(table);
                 String r = params.relation.get(table);
@@ -123,10 +128,10 @@ public class JoinManager<T> {
                 sqlBuilder.append(StrUtil.SPACE);
                 sqlBuilder.append("ON");
                 sqlBuilder.append(StrUtil.SPACE);
-                int i=0;
+                int i = 0;
                 for (String link : map.keySet()) {
                     i++;
-                    if(i !=1){
+                    if (i != 1) {
                         sqlBuilder.append("and");
                     }
                     String s = map.get(link);
@@ -138,13 +143,13 @@ public class JoinManager<T> {
                 sqlBuilder.append(Expression.LineSeparator.expression);
             }
         }
-        if(MapUtil.isNotEmpty(params.where)){
+        if (MapUtil.isNotEmpty(params.where)) {
             sqlBuilder.append("WHERE");
             sqlBuilder.append(StrUtil.SPACE);
-            int i=0;
+            int i = 0;
             for (String key : params.where.keySet()) {
                 i++;
-                if(i !=1){
+                if (i != 1) {
                     sqlBuilder.append(Expression.LineSeparator.expression);
                     sqlBuilder.append("and");
                     sqlBuilder.append(StrUtil.SPACE);
@@ -159,56 +164,60 @@ public class JoinManager<T> {
         return sqlBuilder;
     }
 
-    public PageInfo<Map<String, Object>> findPage(Integer pageNumber, Integer pageSize){
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        StringBuilder sql=getSQL();
-        StringBuilder countSQL=new StringBuilder("SELECT count(*) ");
+    public PageInfo<Map<String, Object>> findPage(Integer pageNumber, Integer pageSize) {
+        DataSource dataSource = getDataSource();
+        StringBuilder sql = getSQL();
+        StringBuilder countSQL = new StringBuilder("SELECT count(*) ");
         int indexOf = sql.toString().indexOf("from");
-        if(indexOf<0){
+        if (indexOf < 0) {
             indexOf = sql.toString().indexOf("From");
         }
         countSQL.append(sql.substring(indexOf));
-        Integer totalCount = jdbcTemplate.queryForObject(countSQL.toString(), new HashMap<>(), Integer.class);
-        if (pageNumber != null && pageSize != null) {
-            sql.append(System.lineSeparator());
-            sql.append("LIMIT");
-            sql.append(StrUtil.SPACE);
-            int pageNum = pageNumber - 1;
-            sql.append(pageNum*pageSize);
-            sql.append(StrUtil.C_COMMA);
-            sql.append(pageSize);
-        }
+        Integer totalCount=null;
         try {
-            List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(),new HashMap<>());
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            totalCount = jdbcUtils.queryForObject(countSQL.toString(), new HashMap<>(), Integer.class);
+            if (pageNumber != null && pageSize != null) {
+                sql.append(System.lineSeparator());
+                sql.append("LIMIT");
+                sql.append(StrUtil.SPACE);
+                int pageNum = pageNumber - 1;
+                sql.append(pageNum * pageSize);
+                sql.append(StrUtil.C_COMMA);
+                sql.append(pageSize);
+            }
+
+            List<Map<String, Object>> mapList = jdbcUtils.queryForMap(sql.toString(), new HashMap<>());
             PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(mapList, pageNumber, pageSize, totalCount);
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), new HashMap<>())
                         , SQLUtil.printResult(JSONUtil.toJsonStr(mapPageInfo)));
             }
             return mapPageInfo;
-        }catch (Exception e){
+        } catch (Exception e) {
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), new HashMap<>())
                         , SQLUtil.printResult(""));
             }
-            return new PageInfo<>(new ArrayList<>(),pageNumber,pageSize,totalCount);
+            return new PageInfo<>(new ArrayList<>(), pageNumber, pageSize, totalCount);
         }
     }
 
-    public <R>List<R> findAll(Class<R> returnObj){
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        StringBuilder sql=getSQL();
+    public <R> List<R> findAll(Class<R> returnObj) {
+        DataSource dataSource = getDataSource();
+        StringBuilder sql = getSQL();
         try {
-            List<R> list = jdbcTemplate.queryForList(sql.toString(), new HashMap<>(), returnObj);
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            List<R> list = jdbcUtils.queryForList(sql.toString(), new HashMap<>(), returnObj);
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), new HashMap<>())
                         , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
             }
             return list;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), new HashMap<>())
                         , SQLUtil.printResult(""));
             }
             return new ArrayList<>();

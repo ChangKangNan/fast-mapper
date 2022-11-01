@@ -1,6 +1,7 @@
 package cn.ft.ckn.fastmapper.component;
 
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.util.JDBCUtils;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.ft.ckn.fastmapper.util.ValueUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -12,6 +13,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,7 +55,6 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
     protected void execute(){
         Table table = classObj.getAnnotation(Table.class);
         String tableName = table.name();
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         Map<String, Object> paramMap = new HashMap<>();
         boolean isExistUpdate=false;
         boolean isExistDeleted=false;
@@ -166,10 +167,16 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
                 updateSQL.append(StrUtil.SPACE);
             }
         }
-        int update = jdbcTemplate.update(updateSQL.toString(), paramMap);
-        if (FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(SQLUtil.printSql(updateSQL.toString(),paramMap)
-                    , SQLUtil.printResult(update));
+        DataSource dataSource = getDataSource();
+        try {
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            int update = jdbcUtils.update(updateSQL.toString(), paramMap);
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(updateSQL.toString(),paramMap)
+                        , SQLUtil.printResult(update));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
     public R or() {

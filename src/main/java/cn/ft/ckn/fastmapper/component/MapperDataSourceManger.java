@@ -32,14 +32,18 @@ public class MapperDataSourceManger<R> {
         return master;
     }
 
-    public R setSalveDataSource(DataSource dataSource){
+    public R setSalveDataSource(DataSource dataSource) {
         splicingParam.isMaster = false;
         splicingParam.dataSource = dataSource;
         try {
             return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
+    }
+
+    protected DataSource getDataSource() {
+        return splicingParam.dataSource;
     }
 
     protected NamedParameterJdbcTemplate getJdbcTemplate() {

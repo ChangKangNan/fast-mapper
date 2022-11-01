@@ -94,6 +94,13 @@
             <artifactId>jol-core</artifactId>
             <version>0.9</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-aop -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>5.3.9</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>

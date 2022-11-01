@@ -8,9 +8,9 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,15 +25,16 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     public FastCustomer(SplicingParam splicingParam) {
         super(FastCustomer.class, splicingParam);
     }
-    public static FastCustomer create(){
+
+    public static FastCustomer create() {
         return new FastCustomer(new SplicingParam());
     }
 
-    public PageInfo<Map<String,Object>> findPage(StringBuilder sql, Integer pageNumber, Integer pageSize,Map<String,Object> params) {
+    public PageInfo<Map<String, Object>> findPage(StringBuilder sql, Integer pageNumber, Integer pageSize, Map<String, Object> params) {
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        StringBuilder countSQL=new StringBuilder("SELECT count(*) ");
+        StringBuilder countSQL = new StringBuilder("SELECT count(*) ");
         int indexOf = sql.toString().indexOf("from");
-        if(indexOf<0){
+        if (indexOf < 0) {
             indexOf = sql.toString().indexOf("From");
         }
         countSQL.append(sql.substring(indexOf));
@@ -43,43 +44,51 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             sql.append("LIMIT");
             sql.append(StrUtil.SPACE);
             int pageNum = pageNumber - 1;
-            sql.append(pageNum*pageSize);
+            sql.append(pageNum * pageSize);
             sql.append(StrUtil.C_COMMA);
             sql.append(pageSize);
         }
         try {
-            List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(),params);
+            DataSource dataSource = getDataSource();
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            List<Map<String, Object>> mapList = jdbcUtils.queryForMap(sql.toString(), params);
             PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(mapList, pageNumber, pageSize, totalCount);
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),params)
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), params)
                         , SQLUtil.printResult(JSONUtil.toJsonStr(mapPageInfo)));
             }
             return mapPageInfo;
-        }catch (Exception e){
+        } catch (Exception e) {
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),params)
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), params)
                         , SQLUtil.printResult(""));
             }
-            return new PageInfo<>(new ArrayList<>(),pageNumber,pageSize,totalCount);
+            return new PageInfo<>(new ArrayList<>(), pageNumber, pageSize, totalCount);
         }
     }
 
-    public <R>List<R> findAll(StringBuilder sql,Class<R> returnObj){
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+    public <R> List<R> findAll(StringBuilder sql, Class<R> returnObj) {
         try {
-            List<R> list = jdbcTemplate.queryForList(sql.toString(), new HashMap<>(), returnObj);
-            if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
-                        , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
+            DataSource dataSource = getDataSource();
+            try {
+                JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+                List<R> list = jdbcUtils.queryForList(sql.toString(), new HashMap<>(), returnObj);
+                if (FastMapperConfig.isOpenSQLPrint) {
+                    SQLUtil.print(SQLUtil.printSql(sql.toString(), new HashMap<>())
+                            , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
+                }
+                return list;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            return list;
-        }catch (Exception e){
+        } catch (Exception e) {
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), new HashMap<>())
                         , SQLUtil.printResult(""));
             }
             return new ArrayList<>();
         }
+        return new ArrayList<>();
     }
 
     /**
@@ -95,9 +104,14 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         ClassPathResource resource = new ClassPathResource(sqlPath);
         String sql = IoUtil.read(resource.getStream()).toString();
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        Map<String,Object> params=new HashMap<>();
-        params.put("id",6);
-        List<E> query = jdbcTemplate.query(sql,params,new BeanPropertyRowMapper<>(rowMapperClass));
-        return query;
+        DataSource dataSource = getDataSource();
+        try {
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            List<E> query = jdbcUtils.queryForList(sql, parameters, rowMapperClass);
+            return query;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 }

@@ -1,6 +1,7 @@
 package cn.ft.ckn.fastmapper.component;
 
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.util.JDBCUtils;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ReflectUtil;
@@ -16,6 +17,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -123,19 +125,25 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
                 params.put("updateTime",date);
             }
         }catch (Exception e){throw new RuntimeException("默认字段设置异常");}
-        int update = jdbcTemplate.update(insertSQL, new BeanPropertySqlParameterSource(t), keyHolder);
-        if (FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(SQLUtil.printSql(insertSQL,params)
-                    , SQLUtil.printResult(update));
-        }
-        Number number = keyHolder.getKey();
-        if (number != null) {
-            long longValue = number.longValue();
-            try {
-                setPrimaryKey.invoke(t, longValue);
-            } catch (Exception e) {
-                throw new RuntimeException("设置主键失败!");
+        DataSource dataSource = getDataSource();
+        try {
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            int update = jdbcUtils.insert(insertSQL, new BeanPropertySqlParameterSource(t), keyHolder);
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(insertSQL,params)
+                        , SQLUtil.printResult(update));
             }
+            Number number = keyHolder.getKey();
+            if (number != null) {
+                long longValue = number.longValue();
+                try {
+                    setPrimaryKey.invoke(t, longValue);
+                } catch (Exception e) {
+                    throw new RuntimeException("设置主键失败!");
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return t;
     }
@@ -199,7 +207,12 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
             });
         }
         SqlParameterSource[] sqlParameterSources = SqlParameterSourceUtils.createBatch(collection);
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        jdbcTemplate.batchUpdate(insertSQL, sqlParameterSources);
+        DataSource dataSource = getDataSource();
+        try {
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            jdbcUtils.updateBatch(insertSQL, sqlParameterSources);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

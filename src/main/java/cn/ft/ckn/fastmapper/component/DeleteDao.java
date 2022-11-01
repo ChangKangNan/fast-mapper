@@ -1,6 +1,7 @@
 package cn.ft.ckn.fastmapper.component;
 
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.util.JDBCUtils;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.text.CharPool;
@@ -11,6 +12,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
+import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,7 +55,6 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R>{
             }
         }
         String tableName = table.name();
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         Map<String, Object> paramMap = new HashMap<>();
         StringBuilder deletedSQL;
         int endIndex=0;
@@ -100,10 +101,16 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R>{
         deletedSQL.append("WHERE");
         deletedSQL.append(StrUtil.SPACE);
         whereConcat(paramMap, deletedSQL, endIndex);
-        int update = jdbcTemplate.update(deletedSQL.toString(), paramMap);
-        if (FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(SQLUtil.printSql(deletedSQL.toString(),paramMap)
-                    , SQLUtil.printResult(JSONUtil.toJsonStr(update)));
+        DataSource dataSource = getDataSource();
+        try {
+            JDBCUtils jdbcUtils = new JDBCUtils(dataSource);
+            int update = jdbcUtils.update(deletedSQL.toString(), paramMap);
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(deletedSQL.toString(),paramMap)
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(update)));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
