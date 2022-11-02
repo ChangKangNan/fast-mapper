@@ -157,7 +157,7 @@ public class JDBCUtils {
             int i = 1;
             for (Object param : params) {
                 SqlParameterValue map=(SqlParameterValue) param;
-                prepareStatement.setObject(i,param);
+                prepareStatement.setObject(i,map.getValue());
                 i++;
             }
         }
