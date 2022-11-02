@@ -1,6 +1,8 @@
-//package cn.ft.ckn.fastmapper.util;
+//package cn.ft.ckn.fastmapper.aspect;
 //
 //import cn.ft.ckn.fastmapper.component.GlobalTransactionalLocal;
+//import cn.ft.ckn.fastmapper.util.JDBCUtils;
+//import cn.ft.ckn.fastmapper.util.TransactionSwitch;
 //import lombok.extern.slf4j.Slf4j;
 //import org.aspectj.lang.JoinPoint;
 //import org.aspectj.lang.annotation.*;
@@ -89,3 +91,8 @@
 //        }
 //    }
 //}
+//        <dependency>
+//            <groupId>org.springframework.boot</groupId>
+//            <artifactId>spring-boot-starter-aop</artifactId>
+//        </dependency>
+//
