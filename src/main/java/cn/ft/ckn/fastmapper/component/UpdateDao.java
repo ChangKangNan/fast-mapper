@@ -55,7 +55,6 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
     protected void execute(){
         Table table = classObj.getAnnotation(Table.class);
         String tableName = table.name();
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         Map<String, Object> paramMap = new HashMap<>();
         boolean isExistUpdate=false;
         boolean isExistDeleted=false;
@@ -169,6 +168,7 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
             }
         }
         DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
         int update = jdbcTemplate.update(updateSQL.toString(), paramMap);
         if (FastMapperConfig.isOpenSQLPrint) {

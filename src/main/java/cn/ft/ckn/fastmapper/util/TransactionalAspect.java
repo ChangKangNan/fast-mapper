@@ -1,6 +1,9 @@
-//package cn.ft.ckn.fastmapper.util;
+//package com.example.testlocal.aop;
 //
 //import cn.ft.ckn.fastmapper.inter.GlobalTransactionalLocal;
+//import cn.ft.ckn.fastmapper.util.TransactionManager;
+//import cn.ft.ckn.fastmapper.util.TransactionSwitch;
+//import io.netty.util.concurrent.FastThreadLocal;
 //import lombok.extern.slf4j.Slf4j;
 //import org.aspectj.lang.JoinPoint;
 //import org.aspectj.lang.annotation.*;
@@ -22,12 +25,13 @@
 //@Slf4j
 //public class TransactionalAspect {
 //    private JoinPoint joinPoint;
+//    private static FastThreadLocal<Boolean> isReturn = new FastThreadLocal<>();
 //
 //    @Pointcut("@annotation(cn.ft.ckn.fastmapper.inter.GlobalTransactionalLocal)")
-//    public void roll() {
+//    public void transactionalAction() {
 //    }
 //
-//    @Before("roll()")
+//    @Before("transactionalAction()")
 //    public void before(JoinPoint joinPoint) throws Throwable {
 //        this.joinPoint = joinPoint;
 //        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
@@ -41,8 +45,12 @@
 //    }
 //
 //
-//    @After("roll()")
+//    @After("transactionalAction()")
 //    public void after() throws Throwable {
+//        Boolean aBoolean = isReturn.get();
+//        if(aBoolean!=null && (aBoolean)){
+//            return;
+//        }
 //        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 //        Method method = signature.getMethod();
 //        GlobalTransactionalLocal annotation = method.getAnnotation(GlobalTransactionalLocal.class);
@@ -63,6 +71,7 @@
 //            }
 //            log.info("--------------全局事务执行完毕---------------");
 //        }
+//        isReturn.set(true);
 //    }
 //
 //    /**
@@ -70,7 +79,7 @@
 //     *
 //     * @throws Throwable
 //     */
-//    @AfterThrowing("roll()")
+//    @AfterThrowing("transactionalAction()")
 //    public void afterThrowing() throws Throwable {
 //        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 //        Method method = signature.getMethod();
@@ -92,5 +101,6 @@
 //            }
 //            log.info("--------------全局事务遇错回滚完毕---------------");
 //        }
+//        isReturn.set(true);
 //    }
 //}

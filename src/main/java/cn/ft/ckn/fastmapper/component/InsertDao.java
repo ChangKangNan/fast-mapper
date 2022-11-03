@@ -109,7 +109,8 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
                 + ") VALUES (" + String.join(", ", columnParams.stream().map(p -> ":" + p.getFieldName()).toArray(String[]::new))
                 + ")";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         try {
             if(FastMapperConfig.isOpenLogicDeletedAuto && methodDeleted !=null){
                 methodDeleted.invoke(t,FastMapperConfig.logicDeletedColumnDefaultValue);
@@ -125,7 +126,6 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
                 params.put("updateTime",date);
             }
         }catch (Exception e){throw new RuntimeException("默认字段设置异常");}
-        DataSource dataSource = getDataSource();
         TransactionManager.initTransaction(dataSource);
         int update = jdbcTemplate.update(insertSQL, new BeanPropertySqlParameterSource(t), keyHolder);
         if (FastMapperConfig.isOpenSQLPrint) {
@@ -203,8 +203,8 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
             });
         }
         SqlParameterSource[] sqlParameterSources = SqlParameterSourceUtils.createBatch(collection);
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
         jdbcTemplate.batchUpdate(insertSQL, sqlParameterSources);
     }

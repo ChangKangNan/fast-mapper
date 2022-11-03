@@ -55,7 +55,6 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R>{
             }
         }
         String tableName = table.name();
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         Map<String, Object> paramMap = new HashMap<>();
         StringBuilder deletedSQL;
         int endIndex=0;
@@ -103,6 +102,7 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R>{
         deletedSQL.append(StrUtil.SPACE);
         whereConcat(paramMap, deletedSQL, endIndex);
         DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
         int update = jdbcTemplate.update(deletedSQL.toString(), paramMap);
         if (FastMapperConfig.isOpenSQLPrint) {
