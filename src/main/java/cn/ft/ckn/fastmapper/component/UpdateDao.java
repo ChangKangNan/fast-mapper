@@ -2,6 +2,7 @@ package cn.ft.ckn.fastmapper.component;
 
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
+import cn.ft.ckn.fastmapper.util.TransactionManager;
 import cn.ft.ckn.fastmapper.util.ValueUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.CharPool;
@@ -12,6 +13,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
@@ -166,6 +168,8 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
                 updateSQL.append(StrUtil.SPACE);
             }
         }
+        DataSource dataSource = getDataSource();
+        TransactionManager.initTransaction(dataSource);
         int update = jdbcTemplate.update(updateSQL.toString(), paramMap);
         if (FastMapperConfig.isOpenSQLPrint) {
             SQLUtil.print(SQLUtil.printSql(updateSQL.toString(),paramMap)

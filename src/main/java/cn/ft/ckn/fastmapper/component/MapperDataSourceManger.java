@@ -41,6 +41,9 @@ public class MapperDataSourceManger<R> {
             return null;
         }
     }
+    protected DataSource getDataSource() {
+        return splicingParam.dataSource==null?getMasterDataSource():splicingParam.dataSource;
+    }
 
     protected NamedParameterJdbcTemplate getJdbcTemplate() {
         try {

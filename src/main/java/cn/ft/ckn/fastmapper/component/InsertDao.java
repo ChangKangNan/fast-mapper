@@ -2,6 +2,7 @@ package cn.ft.ckn.fastmapper.component;
 
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
+import cn.ft.ckn.fastmapper.util.TransactionManager;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -16,6 +17,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -123,6 +125,8 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
                 params.put("updateTime",date);
             }
         }catch (Exception e){throw new RuntimeException("默认字段设置异常");}
+        DataSource dataSource = getDataSource();
+        TransactionManager.initTransaction(dataSource);
         int update = jdbcTemplate.update(insertSQL, new BeanPropertySqlParameterSource(t), keyHolder);
         if (FastMapperConfig.isOpenSQLPrint) {
             SQLUtil.print(SQLUtil.printSql(insertSQL,params)
@@ -200,6 +204,8 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
         }
         SqlParameterSource[] sqlParameterSources = SqlParameterSourceUtils.createBatch(collection);
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
+        TransactionManager.initTransaction(dataSource);
         jdbcTemplate.batchUpdate(insertSQL, sqlParameterSources);
     }
 }
