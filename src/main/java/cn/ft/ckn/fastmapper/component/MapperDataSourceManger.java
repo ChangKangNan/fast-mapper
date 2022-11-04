@@ -1,6 +1,7 @@
 package cn.ft.ckn.fastmapper.component;
 
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.util.DataSourceContext;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -42,10 +43,18 @@ public class MapperDataSourceManger<R> {
         }
     }
     protected DataSource getDataSource() {
+        DataSource dataSource = DataSourceContext.getDataSource();
+        if(dataSource != null){
+            return dataSource;
+        }
         return splicingParam.dataSource==null?getMasterDataSource():splicingParam.dataSource;
     }
 
     protected NamedParameterJdbcTemplate getJdbcTemplate() {
+        DataSource dataSource = DataSourceContext.getDataSource();
+        if(dataSource != null){
+            setSalveDataSource(dataSource);
+        }
         try {
             NamedParameterJdbcTemplate jdbcTemplate = null;
             if (splicingParam.dataSource != null) {

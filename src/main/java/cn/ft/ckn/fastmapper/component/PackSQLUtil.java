@@ -41,8 +41,6 @@ public class PackSQLUtil {
                     }
                     columnToProperty.put(columnName, propertyName);
                     columns.add(columnName);
-                } else {
-                    throw new RuntimeException("Column annotation is necessary!");
                 }
             }
         }
@@ -57,7 +55,7 @@ public class PackSQLUtil {
         Table annotation = objClass.getAnnotation(Table.class);
         String table = annotation.name();
         stringBuilder.append(table);
-        System.out.println(JSONUtil.toJsonStr(splicingParam.whereCondition));
+        //System.out.println(JSONUtil.toJsonStr(splicingParam.whereCondition));
         if (splicingParam.whereCondition.size() > 0 || FastMapperConfig.isOpenLogicDeletedAuto) {
             stringBuilder.append(System.lineSeparator());
             stringBuilder.append("WHERE");
@@ -68,7 +66,7 @@ public class PackSQLUtil {
                 }
                 splicingParam.whereCondition.get(splicingParam.whereCondition.size()-1).isAnd=true;
             }
-            System.out.println(JSONUtil.toJsonStr(splicingParam.whereCondition));
+            //System.out.println(JSONUtil.toJsonStr(splicingParam.whereCondition));
             if (CollUtil.isNotEmpty(splicingParam.whereCondition)) {
                 for (int i = 0; i < splicingParam.whereCondition.size(); i++) {
                     stringBuilder.append(splicingParam.whereCondition.get(i).columnName);
