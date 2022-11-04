@@ -26,14 +26,14 @@ public class DataSourceContext {
      *
      * @param dataSource
      */
-    public synchronized static void bind(DataSource dataSource) {
+    public  static void bind(DataSource dataSource) {
         sourceFastThreadLocal.set(dataSource);
     }
 
     /**
      * 当前线程解绑数据源
      */
-    public synchronized static void unBind() {
+    public  static void unBind() {
         sourceFastThreadLocal.remove();
     }
 }

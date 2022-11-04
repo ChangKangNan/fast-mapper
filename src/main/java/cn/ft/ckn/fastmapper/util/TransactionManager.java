@@ -44,9 +44,7 @@ public class TransactionManager {
         TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.remove();
     }
 
-    public static synchronized void initTransaction(DataSource dataSource){
-        // TransactionSynchronizationManager.initSynchronization();
-        // TransactionSynchronizationManager.clear();
+    public static  void initTransaction(DataSource dataSource){
         try {
             Connection connection = DataSourceUtils.getConnection(dataSource);
             connection.setAutoCommit(false);

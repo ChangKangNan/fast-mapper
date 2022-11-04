@@ -5,16 +5,16 @@ import ${table.pojoPackagePath}.fm.action.${table.pojoActionName};
 public class ${table.pojoMapperName} {
     private ${table.pojoMapperName}() {}
 
-    public static ${table.pojoActionName}.InsertMapper INSERT() {
+    public static ${table.pojoActionName}.InsertMapper lambdaInsert() {
     return new ${table.pojoActionName}.InsertMapper(new SplicingParam());
   }
-    public static ${table.pojoActionName}.BaseSelectMapper SELECT() {
+    public static ${table.pojoActionName}.BaseSelectMapper lambdaQuery() {
         return new ${table.pojoActionName}.BaseSelectMapper(new SplicingParam());
   }
-    public static ${table.pojoActionName}.BaseUpdateMapper UPDATE() {
+    public static ${table.pojoActionName}.BaseUpdateMapper lambdaUpdate() {
         return new ${table.pojoActionName}.BaseUpdateMapper(new SplicingParam());
   }
-    public static ${table.pojoActionName}.BaseDeletedMapper DELETE() {
+    public static ${table.pojoActionName}.BaseDeletedMapper lambdaDelete() {
         return new ${table.pojoActionName}.BaseDeletedMapper(new SplicingParam());
   }
 }
