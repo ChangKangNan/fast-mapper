@@ -14,7 +14,7 @@ public class DataSourceContext {
     private static FastThreadLocal<DataSource> sourceFastThreadLocal = new FastThreadLocal<>();
 
     /**
-     * 获取当时数据源
+     * 获取当前线程数据源
      * @return
      */
     public static DataSource getDataSource() {
