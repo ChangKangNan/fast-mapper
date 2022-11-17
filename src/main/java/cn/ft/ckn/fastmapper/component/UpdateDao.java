@@ -7,7 +7,9 @@ import cn.ft.ckn.fastmapper.util.ValueUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.CharPool;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.persistence.Column;
@@ -37,8 +39,35 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
         this.returnObj = returnObj;
     }
 
+    public UpdateDao(Class<T> obj) {
+        super(null, new SplicingParam());
+        this.splicingParam = new SplicingParam();
+        classObj = obj;
+        returnObj = null;
+    }
+
     public  UpdateValue<T, R> value() {
         return new UpdateValue<>(splicingParam,classObj,returnObj);
+    }
+
+    public void updateByPrimaryKey(T t) {
+        Field[] fields = classObj.getDeclaredFields();
+        boolean exist = false;
+        for (Field field : fields) {
+            Id id = field.getAnnotation(Id.class);
+            if (id != null) {
+                Column fieldAnnotation = field.getAnnotation(Column.class);
+                exist = true;
+                String pk = fieldAnnotation != null ? fieldAnnotation.name() : field.getName();
+                Object value = ReflectUtil.getFieldValue(t, field.getName());
+                this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(pk, value, Expression.Equal.expression, splicingParam.isAnd));
+                break;
+            }
+        }
+        if (!exist) {
+            return;
+        }
+        update(t);
     }
 
     public void update(T t) {
