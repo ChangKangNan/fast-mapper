@@ -32,10 +32,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     public PageInfo<Map<String,Object>> findPage(StringBuilder sql, Integer pageNumber, Integer pageSize,Map<String,Object> params) {
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         StringBuilder countSQL=new StringBuilder("SELECT count(*) ");
-        int indexOf = sql.toString().indexOf("from");
-        if(indexOf<0){
-            indexOf = sql.toString().indexOf("From");
-        }
+        int indexOf = sql.toString().toLowerCase().indexOf("from");
         countSQL.append(sql.substring(indexOf));
         Integer totalCount = jdbcTemplate.queryForObject(countSQL.toString(), new HashMap<>(), Integer.class);
         if (pageNumber != null && pageSize != null) {
