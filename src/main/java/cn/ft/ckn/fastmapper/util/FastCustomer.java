@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 自定义sql查询与更新
  * @author ckn
  * @date 2022/8/5
  */
@@ -29,7 +30,8 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         return new FastCustomer(new SplicingParam());
     }
 
-    public PageInfo<Map<String,Object>> findPage(StringBuilder sql, Integer pageNumber, Integer pageSize,Map<String,Object> params) {
+    public PageInfo<Map<String,Object>> findPage(String prepareSql, Integer pageNumber, Integer pageSize,Map<String,Object> params) {
+        StringBuilder sql =new StringBuilder(prepareSql);
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         StringBuilder countSQL=new StringBuilder("SELECT count(*) ");
         int indexOf = sql.toString().toLowerCase().indexOf("from");
@@ -61,12 +63,30 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         }
     }
 
-    public <R>List<R> findAll(StringBuilder sql,Class<R> returnObj){
+    public <R>List<R> findAll(String sql,Map<String,Object> params,Class<R> returnObj){
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         try {
-            List<R> list = jdbcTemplate.queryForList(sql.toString(), new HashMap<>(), returnObj);
+            List<R> list = jdbcTemplate.query(sql,params, new BeanPropertyRowMapper<>(returnObj));
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql,params)
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
+            }
+            return list;
+        }catch (Exception e){
             if (FastMapperConfig.isOpenSQLPrint) {
                 SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                        , SQLUtil.printResult(""));
+            }
+            return new ArrayList<>();
+        }
+    }
+
+    public <R>List<R> findAll(String sql,Class<R> returnObj){
+        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        try {
+            List<R> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(returnObj));
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql,new HashMap<>())
                         , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
             }
             return list;
@@ -92,9 +112,37 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         ClassPathResource resource = new ClassPathResource(sqlPath);
         String sql = IoUtil.read(resource.getStream()).toString();
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        Map<String,Object> params=new HashMap<>();
-        params.put("id",6);
-        List<E> query = jdbcTemplate.query(sql,params,new BeanPropertyRowMapper<>(rowMapperClass));
-        return query;
+        return jdbcTemplate.query(sql,parameters,new BeanPropertyRowMapper<>(rowMapperClass));
+    }
+
+    /**
+     * 自定义sql执行
+     * @param sql
+     * @param parameters
+     * @return
+     */
+    public int execute(String sql,Map<String,Object> parameters){
+        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        int update = jdbcTemplate.update(sql, parameters);
+        if (FastMapperConfig.isOpenSQLPrint) {
+            SQLUtil.print(SQLUtil.printSql(sql,parameters)
+                    , SQLUtil.printResult(update));
+        }
+        return update;
+    }
+
+    /**
+     * 自定义sql执行
+     * @param sql
+     * @return
+     */
+    public int execute(String sql){
+        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        int update = jdbcTemplate.update(sql,new HashMap<>());
+        if (FastMapperConfig.isOpenSQLPrint) {
+            SQLUtil.print(sql
+                    , SQLUtil.printResult(update));
+        }
+        return update;
     }
 }
