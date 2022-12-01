@@ -47,31 +47,29 @@ public class DbUtil {
     public List<TableInfo> getAllTables(FileConfig fileConfig, DatabaseMetaData metaData, Set<String> tableNames)
             throws Exception {
         String dataSourceName = metaData.getConnection().getCatalog();
-        boolean isIgnore=true;
+        boolean isIgnore=fileConfig.getPrefix();
         ResultSet tables = metaData.getTables(dataSourceName, null, null, new String[]{"TABLE"});
         List<TableInfo> tableInfoList = new ArrayList<>();
         while (tables.next()){
             String table_name = tables.getString("TABLE_NAME");
             String tableDesc = tables.getString("REMARKS");
-            Iterator<String> iterator = tableNames.iterator();
-            while (iterator.hasNext()){
-                String tableName = iterator.next();
-                if(table_name.equals(tableName)){
-                    TableInfo tableInfo=new TableInfo();
-                    String beanName="";
-                    if(isIgnore){
-                        int indexOf = table_name.indexOf("_")+1;
+            for (String tableName : tableNames) {
+                if (table_name.equals(tableName)) {
+                    TableInfo tableInfo = new TableInfo();
+                    String beanName = "";
+                    if (isIgnore) {
+                        int indexOf = table_name.indexOf("_") + 1;
                         beanName = table_name.substring(indexOf);
-                    }else {
-                        beanName=table_name;
+                    } else {
+                        beanName = table_name;
                     }
                     tableInfo.setBeanName(StrUtil.toCamelCase(beanName));
                     tableInfo.setTableName(tableName);
                     tableInfo.setTableDesc(tableDesc);
-                    String pojoName=StrUtil.toCamelCase("_"+beanName);
+                    String pojoName = StrUtil.toCamelCase("_" + beanName);
                     tableInfo.setPojoName(pojoName);
-                    setAllColumns(tableInfo,metaData);
-                    setPackPath(fileConfig,tableInfo);
+                    setAllColumns(tableInfo, metaData);
+                    setPackPath(fileConfig, tableInfo);
                     tableInfoList.add(tableInfo);
                 }
             }
@@ -100,7 +98,7 @@ public class DbUtil {
             String fieldType = getFieldType(columnType, importPackages);
             info.setPropertyName(propertyName);
             info.setPropertyType(fieldType);
-            info.setKey(columnName.equals(keyColumnName)?true:false);
+            info.setKey(columnName.equals(keyColumnName));
             columnInfoList.add(info);
         }
         tableInfo.setColumns(columnInfoList);
