@@ -45,7 +45,11 @@ public class SQLUtil {
                 sql = StrUtil.replace(sql, ":" + param, getValue(o));
             }
         }
-        return  SQLUtils.formatMySql(sql);
+        try {
+            return SQLUtils.formatMySql(sql);
+        } catch (Exception e) {
+            return sql;
+        }
     }
 
   public  static String getValue(Object value) {

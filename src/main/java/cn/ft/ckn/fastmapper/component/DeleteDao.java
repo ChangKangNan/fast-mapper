@@ -3,6 +3,9 @@ package cn.ft.ckn.fastmapper.component;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.ft.ckn.fastmapper.util.TransactionManager;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.text.CharPool;
 import cn.hutool.core.util.ArrayUtil;
@@ -14,9 +17,8 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author ckn
@@ -46,7 +48,7 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R>{
             Column fieldAnnotation = objDeclaredField.getAnnotation(Column.class);
             if(fieldAnnotation !=null){
                 String name = fieldAnnotation.name();
-                if(StrUtil.equals(name,"update_time")){
+                if(StrUtil.equals(name,FastMapperConfig.updateTime)){
                     isExistUpdate=true;
                 }
                 if(StrUtil.equals(name,FastMapperConfig.logicDeletedColumn)){
@@ -71,20 +73,20 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R>{
                 if(isExistUpdate && FastMapperConfig.isOpenUpdateTimeAuto){
                     deletedSQL.append(StrUtil.C_COMMA);
                     deletedSQL.append(StrUtil.SPACE);
-                    deletedSQL.append("update_time");
+                    deletedSQL.append(FastMapperConfig.updateTime);
                     deletedSQL.append(Expression.Equal.expression);
                     deletedSQL.append(CharPool.COLON);
-                    deletedSQL.append("updateTime");
-                    paramMap.put("updateTime", new Date());
+                    deletedSQL.append(FastMapperConfig.updateTime);
+                    paramMap.put(FastMapperConfig.updateTime, new Date());
                     deletedSQL.append(StrUtil.SPACE);
                 }
             }else {
                     deletedSQL.append(StrUtil.SPACE);
-                    deletedSQL.append("update_time");
+                    deletedSQL.append(FastMapperConfig.updateTime);
                     deletedSQL.append(Expression.Equal.expression);
                     deletedSQL.append(CharPool.COLON);
-                    deletedSQL.append("updateTime");
-                    paramMap.put("updateTime", new Date());
+                    deletedSQL.append(FastMapperConfig.updateTime);
+                    paramMap.put(FastMapperConfig.updateTime, new Date());
                     deletedSQL.append(StrUtil.SPACE);
             }
         }else{
@@ -123,10 +125,19 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R>{
             deletedSQL.append(whereCondition.columnName);
             deletedSQL.append(whereCondition.expression);
             if(!Expression.Like.expression.equals(whereCondition.expression)){
-                if(Expression.In.expression.equals(whereCondition.expression)){
+                if(Expression.In.expression.equals(whereCondition.expression) || Expression.NotIn.expression.equals(whereCondition.expression)){
                     if (ArrayUtil.isArray(whereCondition.value)) {
                         deletedSQL.append(Expression.LeftBracket.expression);
-                        Object[] wrap = ArrayUtil.wrap(whereCondition.value);
+                        List<Object> values=new ArrayList<>();
+                        for (Object o : (Object[]) whereCondition.value) {
+                            if(o instanceof Collection){
+                                values.addAll((Collection) o);
+                            }else {
+                                values.add(o);
+                            }
+                        }
+                        values=values.stream().distinct().collect(Collectors.toList());
+                        Object[] wrap = ArrayUtil.wrap(values.toArray());
                         int i=0;
                         for (Object o : wrap) {
                             i++;
@@ -139,6 +150,7 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R>{
                         }
                         deletedSQL.append(Expression.RightBracket.expression);
                     }
+
                 }else {
                     deletedSQL.append(CharPool.COLON).append("where").append('_');
                     deletedSQL.append(whereCondition.columnName).append("_").append(endIndex);

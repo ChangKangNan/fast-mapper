@@ -2,6 +2,7 @@ package cn.ft.ckn.fastmapper.component;
 
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -30,20 +31,19 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
 
     public T one() {
         Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = PackSQLUtil.packageSQL(this.splicingParam, classObj);
-        Map<String, Object> key = mapStringBuilderPair.getKey();
-        StringBuilder sqlBuilder = mapStringBuilderPair.getValue();
-        sqlBuilder.append(System.lineSeparator());
-        sqlBuilder.append("LIMIT");
-        sqlBuilder.append(StrUtil.SPACE);
-        sqlBuilder.append("0,1");
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         try {
-            T queryForObject = jdbcTemplate.queryForObject(sqlBuilder.toString(), key, new BeanPropertyRowMapper<T>(classObj));
+            List<T> query = jdbcTemplate.query(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey(), new BeanPropertyRowMapper<T>(classObj));
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey())
-                        , SQLUtil.printResult(JSONUtil.toJsonStr(queryForObject)));
+                if(CollUtil.isNotEmpty(query)){
+                    SQLUtil.print(SQLUtil.printSql(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey())
+                            , SQLUtil.printResult(JSONUtil.toJsonStr(query.get(0))));
+                }
             }
-            return queryForObject;
+            if(CollUtil.isEmpty(query)){
+                return null;
+            }
+            return query.get(0);
         } catch (Exception e) {
             e.printStackTrace();
             if (FastMapperConfig.isOpenSQLPrint) {

@@ -54,6 +54,9 @@ public class FastMapperConfig {
      */
     public static Object logicDeletedColumnDeletedValue;
 
+    public static String createTime;
+    public static String updateTime;
+
     public static void setDeleted(Boolean isOpenLogicDeletedAuto, String logicDeletedColumn, Object logicDeletedColumnDefaultValue, Object deletedValue) {
         FastMapperConfig.isOpenLogicDeletedAuto = isOpenLogicDeletedAuto;
         FastMapperConfig.logicDeletedColumn = logicDeletedColumn;
@@ -65,5 +68,8 @@ public class FastMapperConfig {
         FastMapperConfig.isOpenCreateTimeAuto = isOpenCreateTimeAuto;
         FastMapperConfig.isOpenUpdateTimeAuto = isOpenUpdateTimeAuto;
     }
-
+    public static void setTimeColumn(String createTimeColumn, String updateTimeColumn) {
+        createTime=createTimeColumn;
+        updateTime=updateTimeColumn;
+    }
 }

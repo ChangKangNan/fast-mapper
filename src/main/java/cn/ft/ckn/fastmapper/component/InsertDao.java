@@ -50,7 +50,6 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
         Method methodCreateTime=null;
         Method methodUpdateTime=null;
         Method methodDeleted = null;
-        String deletedColumn = FastMapperConfig.logicDeletedColumn;
         Map<String,Object> params=new HashMap<>();
         List<ColumnParam> columnParams = new ArrayList<>();
         for (Field field : declaredFields) {
@@ -64,13 +63,13 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
             String firstLetter = fieldName.substring(0, 1).toUpperCase();
             String getterName = "get" + firstLetter + fieldName.substring(1);
             String setterName = "set" + firstLetter + fieldName.substring(1);
-            if(setterName.equals("setCreateTime")){
+            if(StrUtil.isNotBlank(FastMapperConfig.createTime) && FastMapperConfig.createTime.equals(columnName)){
                 methodCreateTime=ReflectUtil.getMethodByName(objClass, setterName);
             }
-            if(setterName.equals("setUpdateTime")){
+            if(StrUtil.isNotBlank(FastMapperConfig.updateTime) &&  FastMapperConfig.updateTime.equals(columnName)){
                 methodUpdateTime=ReflectUtil.getMethodByName(objClass, setterName);
             }
-            if(StrUtil.isNotBlank(deletedColumn)&&setterName.equals("set" + deletedColumn.substring(0, 1).toUpperCase() + deletedColumn.substring(1))){
+            if(StrUtil.isNotBlank(FastMapperConfig.logicDeletedColumn)&& FastMapperConfig.logicDeletedColumn.equals(columnName)){
                 methodDeleted=ReflectUtil.getMethodByName(objClass, setterName);
             }
             ColumnParam columnParam = new ColumnParam();
@@ -119,11 +118,11 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
             Date date = new Date();
             if(FastMapperConfig.isOpenCreateTimeAuto && methodCreateTime != null){
                 methodCreateTime.invoke(t, date);
-                params.put("createTime",date);
+                params.put(FastMapperConfig.createTime,date);
             }
             if(FastMapperConfig.isOpenUpdateTimeAuto && methodUpdateTime != null){
                 methodUpdateTime.invoke(t, date);
-                params.put("updateTime",date);
+                params.put(FastMapperConfig.updateTime,date);
             }
         }catch (Exception e){throw new RuntimeException("默认字段设置异常");}
         TransactionManager.initTransaction(dataSource);
@@ -155,7 +154,6 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
         Method methodCreateTime=null;
         Method methodUpdateTime=null;
         Method methodDeleted = null;
-        String deletedColumn = FastMapperConfig.logicDeletedColumn;
         for (Field field : declaredFields) {
             Column annotation = field.getAnnotation(Column.class);
             if (annotation == null || field.getName().equals("class")) {
@@ -164,13 +162,14 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
             String fieldName = field.getName();
             String firstLetter = fieldName.substring(0, 1).toUpperCase();
             String setterName = "set" + firstLetter + fieldName.substring(1);
-            if(setterName.equals("setCreateTime")){
+
+            if(StrUtil.isNotBlank(FastMapperConfig.createTime) && FastMapperConfig.createTime.equals(annotation.name())){
                 methodCreateTime=ReflectUtil.getMethodByName(objClass, setterName);
             }
-            if(setterName.equals("setUpdateTime")){
+            if(StrUtil.isNotBlank(FastMapperConfig.updateTime) &&  FastMapperConfig.updateTime.equals(annotation.name())){
                 methodUpdateTime=ReflectUtil.getMethodByName(objClass, setterName);
             }
-            if(StrUtil.isNotBlank(deletedColumn)&&setterName.equals("set" + deletedColumn.substring(0, 1).toUpperCase() + deletedColumn.substring(1))){
+            if(StrUtil.isNotBlank(FastMapperConfig.logicDeletedColumn)&& FastMapperConfig.logicDeletedColumn.equals(annotation.name())){
                 methodDeleted=ReflectUtil.getMethodByName(objClass, setterName);
             }
             String columnName = annotation.name();

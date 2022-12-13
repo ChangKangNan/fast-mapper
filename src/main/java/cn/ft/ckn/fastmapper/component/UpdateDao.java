@@ -17,10 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,6 +67,16 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
         update(t);
     }
 
+    public void updateOverride(T t){
+        List<ColumnParam> valueParams = ValueUtil.getColumns(t);
+        if(CollUtil.isNotEmpty(valueParams)){
+            for (ColumnParam valueParam : valueParams) {
+                splicingParam.valueList.add(new SplicingParam.Value(valueParam.getColumnName(),valueParam.getVal()));
+            }
+        }
+        execute();
+    }
+
     public void update(T t) {
         List<ColumnParam> valueParams = ValueUtil.getColumns(t);
         List<ColumnParam> columnParams = valueParams.stream().filter(ColumnParam::getHaveValue).collect(Collectors.toList());
@@ -94,7 +101,7 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
             Column fieldAnnotation = objDeclaredField.getAnnotation(Column.class);
             if(fieldAnnotation !=null){
                 String name = fieldAnnotation.name();
-                if(StrUtil.equals(name,"update_time")){
+                if(StrUtil.equals(name,FastMapperConfig.updateTime)){
                     isExistUpdate=true;
                 }
                 if(StrUtil.equals(name,FastMapperConfig.logicDeletedColumn)){
@@ -112,20 +119,36 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
         int endIndex=0;
         int uo=0;
         for (SplicingParam.Value value : splicingParam.valueList) {
+            endIndex++;
             if(value.columnName.equals(primaryName)){
                 uo++;
                 continue;
             }
-            updateSQL.append(Expression.LineSeparator.expression);
-            endIndex++;
-            updateSQL.append(value.columnName);
-            updateSQL.append(Expression.Equal.expression);
-            updateSQL.append(CharPool.COLON);
-            updateSQL.append(value.columnName);
-            paramMap.put(value.columnName, value.value);
-            if(endIndex!=splicingParam.valueList.size()){
-                updateSQL.append(StrUtil.C_COMMA);
+            if (!((isExistDeleted && StrUtil.equals(value.columnName, FastMapperConfig.logicDeletedColumn))
+                    || (isExistUpdate && FastMapperConfig.isOpenUpdateTimeAuto && StrUtil.equals(value.columnName,FastMapperConfig.updateTime))
+                    || (FastMapperConfig.isOpenCreateTimeAuto && StrUtil.equals(value.columnName,FastMapperConfig.createTime))
+            )) {
+                updateSQL.append(Expression.LineSeparator.expression);
+                updateSQL.append(value.columnName);
+                updateSQL.append(Expression.Equal.expression);
+                if (value.value != null) {
+                    updateSQL.append(CharPool.COLON);
+                    updateSQL.append(value.columnName);
+                    if (endIndex != splicingParam.valueList.size()) {
+                        updateSQL.append(StrUtil.C_COMMA);
+                    }
+                    paramMap.put(value.columnName, value.value);
+                } else {
+                    updateSQL.append(StrUtil.SPACE);
+                    updateSQL.append("null");
+                    if (endIndex != splicingParam.valueList.size()) {
+                        updateSQL.append(StrUtil.C_COMMA);
+                    }
+                }
             }
+        }
+        if(StrUtil.endWith(updateSQL.toString(),StrUtil.C_COMMA)){
+            updateSQL=new StringBuilder(updateSQL.substring(0,updateSQL.length()-1));
         }
         if(uo !=0 && splicingParam.valueList.size()==1){
             throw new RuntimeException("主键不能更新,本次更新无效!");
@@ -133,11 +156,11 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
         if(isExistUpdate && FastMapperConfig.isOpenUpdateTimeAuto){
             updateSQL.append(StrUtil.C_COMMA);
             updateSQL.append(StrUtil.SPACE);
-            updateSQL.append("update_time");
+            updateSQL.append(FastMapperConfig.updateTime);
             updateSQL.append(Expression.Equal.expression);
             updateSQL.append(CharPool.COLON);
-            updateSQL.append("update_time");
-            paramMap.put("update_time", new Date());
+            updateSQL.append(FastMapperConfig.updateTime);
+            paramMap.put(FastMapperConfig.updateTime, new Date());
             updateSQL.append(StrUtil.SPACE);
         }
         updateSQL.append(Expression.LineSeparator.expression);
@@ -162,10 +185,19 @@ public class UpdateDao<T, R> extends MapperDataSourceManger<R> {
             updateSQL.append(whereCondition.columnName);
             updateSQL.append(whereCondition.expression);
             if(!Expression.Like.expression.equals(whereCondition.expression)){
-                if(Expression.In.expression.equals(whereCondition.expression)){
+                if(Expression.In.expression.equals(whereCondition.expression) || Expression.NotIn.expression.equals(whereCondition.expression)){
                     if (ArrayUtil.isArray(whereCondition.value)) {
                         updateSQL.append(Expression.LeftBracket.expression);
-                        Object[] wrap = ArrayUtil.wrap(whereCondition.value);
+                        List<Object> values=new ArrayList<>();
+                        for (Object o : (Object[]) whereCondition.value) {
+                            if(o instanceof Collection){
+                                values.addAll((Collection) o);
+                            }else {
+                                values.add(o);
+                            }
+                        }
+                        values=values.stream().distinct().collect(Collectors.toList());
+                        Object[] wrap = ArrayUtil.wrap(values.toArray());
                         int j=0;
                         for (Object o : wrap) {
                             j++;

@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author ckn
@@ -70,10 +71,19 @@ public class PackSQLUtil {
                     stringBuilder.append(splicingParam.whereCondition.get(i).columnName);
                     stringBuilder.append(splicingParam.whereCondition.get(i).expression);
                     if(!Expression.Like.expression.equals(splicingParam.whereCondition.get(i).expression)){
-                        if(Expression.In.expression.equals(splicingParam.whereCondition.get(i).expression)){
+                        if(Expression.In.expression.equals(splicingParam.whereCondition.get(i).expression) || Expression.NotIn.expression.equals(splicingParam.whereCondition.get(i).expression)){
                             if (ArrayUtil.isArray(splicingParam.whereCondition.get(i).value)) {
                                 stringBuilder.append(Expression.LeftBracket.expression);
-                                Object[] wrap = ArrayUtil.wrap(splicingParam.whereCondition.get(i).value);
+                                List<Object> values=new ArrayList<>();
+                                for (Object o : (Object[]) splicingParam.whereCondition.get(i).value) {
+                                    if(o instanceof Collection){
+                                        values.addAll((Collection) o);
+                                    }else {
+                                        values.add(o);
+                                    }
+                                }
+                                values=values.stream().distinct().collect(Collectors.toList());
+                                Object[] wrap = ArrayUtil.wrap(values.toArray());
                                 int j=0;
                                 for (Object o : wrap) {
                                     j++;
