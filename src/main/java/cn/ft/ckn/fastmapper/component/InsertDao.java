@@ -34,6 +34,11 @@ public class InsertDao<T,R>  extends MapperDataSourceManger<R>{
         this.objClass=classObj;
     }
 
+    public InsertDao(Class<T> classObj) {
+        super(null,new SplicingParam());
+        this.objClass=classObj;
+    }
+
     public T insert(T t) {
         if (t == null) {
             throw new RuntimeException("不能为空!");
