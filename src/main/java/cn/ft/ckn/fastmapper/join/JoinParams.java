@@ -16,7 +16,7 @@ public class JoinParams{
     public Map<String, Map<String, String>> joins;
     public Map<String,String> relation;
     public Map<String,Integer> deeps;
-
+    public Class obj;
     public Boolean isMaster = true;
     public DataSource dataSource;
 

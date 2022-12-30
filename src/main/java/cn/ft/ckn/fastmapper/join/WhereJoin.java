@@ -1,5 +1,6 @@
 package cn.ft.ckn.fastmapper.join;
 
+import cn.ft.ckn.fastmapper.component.Page;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.component.SFunction;
 import cn.ft.ckn.fastmapper.util.ColumnUtil;
@@ -26,32 +27,36 @@ public class WhereJoin<T,R> {
         return this;
     }
 
-    public <L> FieldJoin<T,L> leftJoin(Class<L> joinClass, SFunction<T, ?> mainKey, SFunction<L, ?> joinKey){
+    public <L,K> FieldJoin<T,L> leftJoin(Class<L> joinClass, SFunction<T, K> mainKey, SFunction<L, K> joinKey){
         return new JoinCustomer<T>(params).leftJoin(joinClass,mainKey,joinKey);
     }
-    public <R> FieldJoin<T,R> rightJoin(Class<R> joinClass, SFunction<T, ?> mainKey, SFunction<R, ?> joinKey) {
+    public <R,K> FieldJoin<T,R> rightJoin(Class<R> joinClass, SFunction<T, K> mainKey, SFunction<R, K> joinKey) {
         return new JoinCustomer<T>(params).leftJoin(joinClass,mainKey,joinKey);
     }
-    public <I> FieldJoin<T,I> innerJoin(Class<I> joinClass , SFunction<T, ?> mainKey, SFunction<I, ?> joinKey) {
+    public <I,K> FieldJoin<T,I> innerJoin(Class<I> joinClass , SFunction<T, K> mainKey, SFunction<I, K> joinKey) {
         return new JoinCustomer<T>(params).leftJoin(joinClass,mainKey,joinKey);
     }
-    public <X> JoinCustomer<T> leftJoinGroup(JoinCustomer<X> leftGroup
-            , SFunction<T, ?> mainKey, SFunction<X, ?> joinKey) {
+    public <X,K> JoinCustomer<T> leftJoinGroup(JoinCustomer<X> leftGroup
+            , SFunction<T, K> mainKey, SFunction<X, K> joinKey) {
         return new JoinCustomer<T>(params).innerJoinGroup(leftGroup,mainKey,joinKey);
     }
-    public <Y> JoinCustomer<T> rightJoinGroup(JoinCustomer<Y> rightGroup
-            , SFunction<T, ?> mainKey, SFunction<Y, ?> joinKey){
+    public <Y,K> JoinCustomer<T> rightJoinGroup(JoinCustomer<Y> rightGroup
+            , SFunction<T, K> mainKey, SFunction<Y, K> joinKey){
         return new JoinCustomer<T>(params).innerJoinGroup(rightGroup,mainKey,joinKey);
     }
 
-    public <Z> JoinCustomer<T> innerJoinGroup(JoinCustomer<Z> innerGroup
-            , SFunction<T, ?> mainKey, SFunction<Z, ?> joinKey){
+    public <Z,K> JoinCustomer<T> innerJoinGroup(JoinCustomer<Z> innerGroup
+            , SFunction<T, K> mainKey, SFunction<Z, K> joinKey){
         return new JoinCustomer<T>(params).innerJoinGroup(innerGroup,mainKey,joinKey);
     }
 
 
     public PageInfo<Map<String, Object>> findPage(Integer pageNumber, Integer pageSize){
         return new JoinCustomer<T>(params).findPage(pageNumber,pageSize);
+    }
+
+    public PageInfo<Map<String, Object>> findPage(Page page){
+        return new JoinCustomer<T>(params).findPage(page.getPageNum(),page.getPageSize());
     }
 
     public  <R> List<R> findAll(Class<R> returnObj){
