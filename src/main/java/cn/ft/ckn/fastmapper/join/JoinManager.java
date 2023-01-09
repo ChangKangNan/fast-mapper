@@ -12,6 +12,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.druid.pool.DruidDataSource;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
@@ -165,6 +166,10 @@ public class JoinManager<T> {
     }
 
     public PageInfo<Map<String, Object>> findPage(Integer pageNumber, Integer pageSize){
+        Map<String, Object> parameters = new HashMap<>();
+        if(params.lastWhereParameters.size()>0){
+            parameters=params.lastWhereParameters;
+        }
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         StringBuilder sql=getSQL();
         StringBuilder countSQL=new StringBuilder("SELECT count(*) ");
@@ -173,7 +178,17 @@ public class JoinManager<T> {
             indexOf = sql.toString().indexOf("From");
         }
         countSQL.append(sql.substring(indexOf));
-        Integer totalCount = jdbcTemplate.queryForObject(countSQL.toString(), new HashMap<>(), Integer.class);
+        if(StrUtil.isNotBlank(params.lastSQL)){
+            countSQL.append(System.lineSeparator());
+            countSQL.append("where");
+            countSQL.append(StrUtil.SPACE);
+            countSQL.append(params.lastSQL);
+            sql.append(System.lineSeparator());
+            sql.append("where");
+            sql.append(StrUtil.SPACE);
+            sql.append(params.lastSQL);
+        }
+        Integer totalCount = jdbcTemplate.queryForObject(countSQL.toString(), parameters, Integer.class);
         if (pageNumber != null && pageSize != null) {
             sql.append(System.lineSeparator());
             sql.append("LIMIT");
@@ -184,10 +199,10 @@ public class JoinManager<T> {
             sql.append(pageSize);
         }
         try {
-            List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(),new HashMap<>());
+            List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(),parameters);
             PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(mapList, pageNumber, pageSize, totalCount);
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(),parameters)
                         , SQLUtil.printResult(JSONUtil.toJsonStr(mapPageInfo)));
             }
             return mapPageInfo;
@@ -201,23 +216,32 @@ public class JoinManager<T> {
     }
 
     public <R>List<R> findAll(Class<R> returnObj){
+        Map<String, Object> parameters = new HashMap<>();
+        if(params.lastWhereParameters.size()>0){
+            parameters=params.lastWhereParameters;
+        }
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         StringBuilder sql=getSQL();
+        if(StrUtil.isNotBlank(params.lastSQL)){
+            sql.append(System.lineSeparator());
+            sql.append("where");
+            sql.append(StrUtil.SPACE);
+            sql.append(params.lastSQL);
+        }
         try {
-            List<R> list = jdbcTemplate.queryForList(sql.toString(), new HashMap<>(), returnObj);
+            List<R> list = jdbcTemplate.query(sql.toString(), parameters, new BeanPropertyRowMapper<>(returnObj));
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), parameters)
                         , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
             }
             return list;
         }catch (Exception e){
             e.printStackTrace();
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(),parameters)
                         , SQLUtil.printResult(""));
             }
             return new ArrayList<>();
         }
     }
-
 }

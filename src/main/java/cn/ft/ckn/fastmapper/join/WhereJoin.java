@@ -59,6 +59,18 @@ public class WhereJoin<T,R> {
         return new JoinCustomer<T>(params).findPage(page.getPageNum(),page.getPageSize());
     }
 
+    /**
+     * case: tb.k=:key   map:{key:"value"}
+     * @param sql
+     * @param parameters
+     * @return
+     */
+    public JoinCustomer<T> lastWhere(String sql,Map<String,Object> parameters) {
+        params.lastSQL=sql;
+        params.lastWhereParameters=parameters;
+        return new JoinCustomer<T>(params);
+    }
+
     public  <R> List<R> findAll(Class<R> returnObj){
         return new JoinCustomer<T>(params).findAll(returnObj);
     }

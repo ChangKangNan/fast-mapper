@@ -167,13 +167,9 @@ public class JoinCustomer<T> extends JoinManager<T> {
         return this;
     }
 
-    public JoinCustomer<T> select(SFunction<T, ?>... fields) {
-        if (ArrayUtil.isArray(fields)) {
-            for (SFunction<T, ?> field : fields) {
-                String fieldName = ColumnUtil.getFieldName(field);
-                params.columns.add(params.mainTable + StrUtil.DOT + fieldName);
-            }
-        }
+    public JoinCustomer<T> select(SFunction<T, ?> field) {
+        String fieldName = ColumnUtil.getFieldName(field);
+        params.columns.add(params.mainTable + StrUtil.DOT + fieldName);
         return this;
     }
 

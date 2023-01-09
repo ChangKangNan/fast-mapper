@@ -19,6 +19,8 @@ public class JoinParams{
     public Class obj;
     public Boolean isMaster = true;
     public DataSource dataSource;
+    public String lastSQL;
+    public Map<String,Object> lastWhereParameters;
 
    public JoinParams(){
        where = new HashMap<>();
@@ -26,5 +28,6 @@ public class JoinParams{
        joins = new HashMap<>();
        relation=new HashMap<>();
        deeps=new HashMap<>();
+       lastWhereParameters=new HashMap<>();
     }
 }

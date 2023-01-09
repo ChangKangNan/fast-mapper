@@ -24,14 +24,10 @@ public class FieldJoin<T, R> {
         this.params = params;
     }
 
-    public WhereJoin<T, R> select(SFunction<R, ?>... fields) {
-        if (ArrayUtil.isArray(fields)) {
-            for (SFunction<R, ?> field : fields) {
-                String fieldName = ColumnUtil.getFieldName(field);
-                String className = ColumnUtil.getClassName(field);
-                params.columns.add(className + StrUtil.DOT + fieldName);
-            }
-        }
+    public WhereJoin<T, R> select(SFunction<R, ?> field) {
+        String fieldName = ColumnUtil.getFieldName(field);
+        String className = ColumnUtil.getClassName(field);
+        params.columns.add(className + StrUtil.DOT + fieldName);
         return new WhereJoin<>(params);
     }
 
@@ -43,6 +39,13 @@ public class FieldJoin<T, R> {
                 params.columns.add(className + StrUtil.DOT + fieldName);
             }
         }
+        return new WhereJoin<>(params);
+    }
+
+    public <V> WhereJoin<T, R> where(SFunction<R, V> field, V o) {
+        String fieldName = ColumnUtil.getFieldName(field);
+        String className = ColumnUtil.getClassName(field);
+        this.params.where.put(className + StrUtil.DOT + fieldName, o);
         return new WhereJoin<>(params);
     }
 
@@ -83,6 +86,18 @@ public class FieldJoin<T, R> {
 
     public JoinCustomer<T> getObj() {
         return new JoinCustomer<T>(params);
+    }
+
+    /**
+     * case: tb.k=:key   map:{key:"value"}
+     * @param sql
+     * @param parameters
+     * @return
+     */
+    public FieldJoin<T, R> lastWhere(String sql,Map<String,Object> parameters) {
+        params.lastSQL=sql;
+        params.lastWhereParameters=parameters;
+        return this;
     }
 
     public WhereJoin<T, R> selectAll() {
