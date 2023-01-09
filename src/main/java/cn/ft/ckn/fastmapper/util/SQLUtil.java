@@ -2,39 +2,39 @@ package cn.ft.ckn.fastmapper.util;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.druid.sql.SQLUtils;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Date;
 import java.util.Map;
 
-@Slf4j
 public class SQLUtil {
+    private static final Log log = LogFactory.getLog(SQLUtil.class);
 
-    static String getPrefix(){
+    static String getPrefix() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (StackTraceElement stackTraceElement : stackTrace) {
             String className = stackTraceElement.getClassName();
             String methodName = stackTraceElement.getMethodName();
             int lineNumber = stackTraceElement.getLineNumber();
-            if(!stackTraceElement.getClassName().startsWith("cn.ft.ckn.fastmapper.")
-            && !stackTraceElement.getClassName().startsWith("java.lang")
-            ){
+            if (!stackTraceElement.getClassName().startsWith("cn.ft.ckn.fastmapper.")
+                    && !stackTraceElement.getClassName().startsWith("java.lang")
+            ) {
                 return className + "." + methodName + "(" + lineNumber + ")     SQL执行↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓";
             }
         }
         return "";
     }
 
-    public static void print(String execute,String result){
+    public static void print(String execute, String result) {
         log.info(getPrefix()
-                + System.lineSeparator()+
+                + System.lineSeparator() +
                 "---------------------------------------------------------"
                 + System.lineSeparator()
-                +execute
+                + execute
                 + result
-                +System.lineSeparator()+
+                + System.lineSeparator() +
                 "---------------------------------------------------------");
     }
 
@@ -52,7 +52,7 @@ public class SQLUtil {
         }
     }
 
-  public  static String getValue(Object value) {
+    public static String getValue(Object value) {
         StringBuilder stringBuilder = new StringBuilder();
         if (value instanceof String || value instanceof Date) {
             stringBuilder.append("'");
@@ -69,6 +69,6 @@ public class SQLUtil {
     }
 
     public static String printResult(Object val) {
-        return System.lineSeparator()+"执行结果:[" + val+"]";
+        return System.lineSeparator() + "执行结果:[" + val + "]";
     }
 }
