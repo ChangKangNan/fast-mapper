@@ -4,20 +4,24 @@ import cn.ft.ckn.fastmapper.component.MapperDataSourceManger;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.component.SplicingParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 自定义sql查询与更新
+ *
  * @author ckn
  * @date 2022/8/5
  */
@@ -26,14 +30,15 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     public FastCustomer(SplicingParam splicingParam) {
         super(FastCustomer.class, splicingParam);
     }
-    public static FastCustomer create(){
+
+    public static FastCustomer create() {
         return new FastCustomer(new SplicingParam());
     }
 
-    public PageInfo<Map<String,Object>> findPage(String prepareSql, Integer pageNumber, Integer pageSize,Map<String,Object> params) {
-        StringBuilder sql =new StringBuilder(prepareSql);
+    public PageInfo<Map<String, Object>> findPage(String prepareSql, Integer pageNumber, Integer pageSize, Map<String, Object> params) {
+        StringBuilder sql = new StringBuilder(prepareSql);
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        StringBuilder countSQL=new StringBuilder("SELECT count(*) ");
+        StringBuilder countSQL = new StringBuilder("SELECT count(*) ");
         int indexOf = sql.toString().toLowerCase().indexOf("from");
         countSQL.append(sql.substring(indexOf));
         Integer totalCount = jdbcTemplate.queryForObject(countSQL.toString(), new HashMap<>(), Integer.class);
@@ -42,57 +47,57 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             sql.append("LIMIT");
             sql.append(StrUtil.SPACE);
             int pageNum = pageNumber - 1;
-            sql.append(pageNum*pageSize);
+            sql.append(pageNum * pageSize);
             sql.append(StrUtil.C_COMMA);
             sql.append(pageSize);
         }
         try {
-            List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(),params);
+            List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(), params);
             PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(mapList, pageNumber, pageSize, totalCount);
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),params)
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), params)
                         , SQLUtil.printResult(JSONUtil.toJsonStr(mapPageInfo)));
             }
             return mapPageInfo;
-        }catch (Exception e){
+        } catch (Exception e) {
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),params)
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), params)
                         , SQLUtil.printResult(""));
             }
-            return new PageInfo<>(new ArrayList<>(),pageNumber,pageSize,totalCount);
+            return new PageInfo<>(new ArrayList<>(), pageNumber, pageSize, totalCount);
         }
     }
 
-    public <R>List<R> findAll(String sql,Map<String,Object> params,Class<R> returnObj){
+    public <R> List<R> findAll(String sql, Map<String, Object> params, Class<R> returnObj) {
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         try {
-            List<R> list = jdbcTemplate.query(sql,params, new BeanPropertyRowMapper<>(returnObj));
+            List<R> list = jdbcTemplate.query(sql, params, new BeanPropertyRowMapper<>(returnObj));
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql,params)
+                SQLUtil.print(SQLUtil.printSql(sql, params)
                         , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
             }
             return list;
-        }catch (Exception e){
+        } catch (Exception e) {
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), new HashMap<>())
                         , SQLUtil.printResult(""));
             }
             return new ArrayList<>();
         }
     }
 
-    public <R>List<R> findAll(String sql,Class<R> returnObj){
+    public <R> List<R> findAll(String sql, Class<R> returnObj) {
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         try {
             List<R> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(returnObj));
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql,new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql, new HashMap<>())
                         , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
             }
             return list;
-        }catch (Exception e){
+        } catch (Exception e) {
             if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
+                SQLUtil.print(SQLUtil.printSql(sql.toString(), new HashMap<>())
                         , SQLUtil.printResult(""));
             }
             return new ArrayList<>();
@@ -112,20 +117,21 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         ClassPathResource resource = new ClassPathResource(sqlPath);
         String sql = IoUtil.read(resource.getStream()).toString();
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        return jdbcTemplate.query(sql,parameters,new BeanPropertyRowMapper<>(rowMapperClass));
+        return jdbcTemplate.query(sql, parameters, new BeanPropertyRowMapper<>(rowMapperClass));
     }
 
     /**
      * 自定义sql执行
+     *
      * @param sql
      * @param parameters
      * @return
      */
-    public int execute(String sql,Map<String,Object> parameters){
+    public int execute(String sql, Map<String, Object> parameters) {
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         int update = jdbcTemplate.update(sql, parameters);
         if (FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(SQLUtil.printSql(sql,parameters)
+            SQLUtil.print(SQLUtil.printSql(sql, parameters)
                     , SQLUtil.printResult(update));
         }
         return update;
@@ -133,16 +139,86 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
 
     /**
      * 自定义sql执行
+     *
      * @param sql
      * @return
      */
-    public int execute(String sql){
+    public int execute(String sql) {
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        int update = jdbcTemplate.update(sql,new HashMap<>());
+        int update = jdbcTemplate.update(sql, new HashMap<>());
         if (FastMapperConfig.isOpenSQLPrint) {
             SQLUtil.print(sql
                     , SQLUtil.printResult(update));
         }
         return update;
+    }
+
+    public void insert(String tableName, Map<String, Object> dataMap) {
+        StringBuilder insertSQLBuilder = new StringBuilder("INSERT INTO");
+        insertSQLBuilder.append(StrUtil.SPACE);
+        insertSQLBuilder.append(tableName);
+        List<String> columns = new ArrayList<>(dataMap.keySet());
+        insertSQLBuilder.append("(");
+        String join = String.join(StrUtil.COMMA, columns);
+        insertSQLBuilder.append(join);
+        insertSQLBuilder.append(")");
+        insertSQLBuilder.append("VALUES");
+        insertSQLBuilder.append("(");
+        String values = columns.stream().map(k -> convertParams(dataMap.get(k))).collect(Collectors.joining(StrUtil.COMMA));
+        insertSQLBuilder.append(values);
+        insertSQLBuilder.append(")");
+        final String finalSql = insertSQLBuilder.toString();
+        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        int update = jdbcTemplate.update(finalSql, new HashMap<>());
+        if (FastMapperConfig.isOpenSQLPrint) {
+            SQLUtil.print(finalSql
+                    , SQLUtil.printResult(update));
+        }
+    }
+
+    /**
+     * 类型参数转换
+     * object instanceof Integer || object instanceof Float ||
+     * object instanceof Double || object instanceof BigDecimal
+     * @param object
+     * @return
+     */
+    public String convertParams(Object object) {
+        if (object instanceof Number) {
+            return object + "";
+        } else if (object instanceof Date) {
+            try {
+                return "'"+DateUtil.format((Date)object, "yyyy-MM-dd HH:mm:ss")+"'";
+            }catch (Exception e){
+                return "'"+DateUtil.format((Date)object, "yyyy-MM-dd")+"'";
+            }
+        } else if (object instanceof LocalDate) {
+            LocalDate date=(LocalDate) object;
+            int year = date.getYear();
+            int month = date.getMonthValue();
+            int day = date.getDayOfMonth();
+            String monthVal = month >= 10 ? month + "" : "0" + month;
+            String dayVal = day >= 10 ? day + "" : "0" + month;
+            return "'"+year+"-"+monthVal+"-"+dayVal+"'";
+        } else if (object instanceof LocalDateTime) {
+            LocalDateTime dateTime=(LocalDateTime) object;
+            int year = dateTime.getYear();
+            int month = dateTime.getMonthValue();
+            int day = dateTime.getDayOfMonth();
+            int hour = dateTime.getHour();
+            int minute = dateTime.getMinute();
+            int second = dateTime.getSecond();
+            String monthVal = month >= 10 ? month + "" : "0" + month;
+            String dayVal = day >= 10 ? day + "" : "0" + month;
+            String hourVal = hour >= 10 ? hour + "" : "0" + hour;
+            String minuteVal = minute >= 10 ? minute + "" : "0" + minute;
+            String secondVal = second >= 10 ? second + "" : "0" + second;
+            return "'"+year+"-"+monthVal+"-"+dayVal+" "+hourVal+"-"+minuteVal+"-"+secondVal+"'";
+        }else if (object instanceof String) {
+            return "'" + object + "'";
+        } else if (object instanceof Boolean) {
+            return (Boolean) object ? "true" : "false";
+        }
+        return "";
     }
 }
