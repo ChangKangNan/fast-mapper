@@ -178,12 +178,10 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
 
     /**
      * 类型参数转换
-     * object instanceof Integer || object instanceof Float ||
-     * object instanceof Double || object instanceof BigDecimal
      * @param object
      * @return
      */
-    public String convertParams(Object object) {
+    private String convertParams(Object object) {
         if (object instanceof Number) {
             return object + "";
         } else if (object instanceof Date) {
