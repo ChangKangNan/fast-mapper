@@ -167,9 +167,10 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         DataSource dataSource = jdbcTemplate.getJdbcTemplate().getDataSource();
         List<String> columnList = new ArrayList<>();
+        Map<String,Object> mapDef=new HashMap<>();
         try {
             if (dataSource != null) {
-                columnList = getAllColumns(dataSource.getConnection(), tableName);
+                columnList = getAllColumns(dataSource.getConnection(), tableName,mapDef);
             }
         } catch (Exception e) {
             log.info("连接数据库失败!");
@@ -184,7 +185,13 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         insertSQLBuilder.append(")");
         insertSQLBuilder.append("VALUES");
         insertSQLBuilder.append("(");
-        String values = columnList.stream().map(k -> convertParams(dataMap.get(k))).collect(Collectors.joining(StrUtil.COMMA));
+        String values = columnList.stream().map(k -> {
+            Object o = dataMap.get(k);
+            if (o == null) {
+                o = mapDef.get(k);
+            }
+            return convertParams(o);
+        }).collect(Collectors.joining(StrUtil.COMMA));
         insertSQLBuilder.append(values);
         insertSQLBuilder.append(")");
         final String finalSql = insertSQLBuilder.toString();
@@ -196,13 +203,13 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     }
 
     /**
-     * 检索数据库字段
+     * 检索数据库字段,并嵌入默认值
      * @param connection
      * @param tableName
      * @return
      * @throws SQLException
      */
-    private List<String> getAllColumns(Connection connection,String tableName) throws SQLException {
+    private List<String> getAllColumns(Connection connection,String tableName,Map<String,Object> map) throws SQLException {
         List<String> columnList = new ArrayList<>();
         DatabaseMetaData metaData = connection.getMetaData();
         String dataSourceName = metaData.getConnection().getCatalog();
@@ -215,6 +222,10 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
                 String columnName;
                 while (columns.next()) {
                     columnName = columns.getString("COLUMN_NAME");
+                    Object columnDef = columns.getObject("COLUMN_DEF");
+                    if(columnDef !=null){
+                        map.put(columnName,columnDef);
+                    }
                     columnList.add(columnName);
                 }
             }
