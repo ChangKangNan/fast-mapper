@@ -1,5 +1,7 @@
 package cn.ft.ckn.fastmapper.util;
 
+import cn.ft.ckn.fastmapper.bean.ColumnInfo;
+import cn.ft.ckn.fastmapper.bean.TableInfo;
 import cn.ft.ckn.fastmapper.component.MapperDataSourceManger;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.component.SplicingParam;
@@ -10,10 +12,17 @@ import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -26,6 +35,7 @@ import java.util.stream.Collectors;
  * @date 2022/8/5
  */
 public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
+    private static final Log log = LogFactory.getLog(FastCustomer.class);
 
     public FastCustomer(SplicingParam splicingParam) {
         super(FastCustomer.class, splicingParam);
@@ -154,21 +164,30 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     }
 
     public void insert(String tableName, Map<String, Object> dataMap) {
+        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = jdbcTemplate.getJdbcTemplate().getDataSource();
+        List<String> columnList = new ArrayList<>();
+        try {
+            if (dataSource != null) {
+                columnList = getAllColumns(dataSource.getConnection(), tableName);
+            }
+        } catch (Exception e) {
+            log.info("连接数据库失败!");
+            return;
+        }
         StringBuilder insertSQLBuilder = new StringBuilder("INSERT INTO");
         insertSQLBuilder.append(StrUtil.SPACE);
         insertSQLBuilder.append(tableName);
-        List<String> columns = new ArrayList<>(dataMap.keySet());
         insertSQLBuilder.append("(");
-        String join = String.join(StrUtil.COMMA, columns);
+        String join = String.join(StrUtil.COMMA, columnList);
         insertSQLBuilder.append(join);
         insertSQLBuilder.append(")");
         insertSQLBuilder.append("VALUES");
         insertSQLBuilder.append("(");
-        String values = columns.stream().map(k -> convertParams(dataMap.get(k))).collect(Collectors.joining(StrUtil.COMMA));
+        String values = columnList.stream().map(k -> convertParams(dataMap.get(k))).collect(Collectors.joining(StrUtil.COMMA));
         insertSQLBuilder.append(values);
         insertSQLBuilder.append(")");
         final String finalSql = insertSQLBuilder.toString();
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         int update = jdbcTemplate.update(finalSql, new HashMap<>());
         if (FastMapperConfig.isOpenSQLPrint) {
             SQLUtil.print(finalSql
@@ -177,11 +196,40 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     }
 
     /**
+     * 检索数据库字段
+     * @param connection
+     * @param tableName
+     * @return
+     * @throws SQLException
+     */
+    private List<String> getAllColumns(Connection connection,String tableName) throws SQLException {
+        List<String> columnList = new ArrayList<>();
+        DatabaseMetaData metaData = connection.getMetaData();
+        String dataSourceName = metaData.getConnection().getCatalog();
+        ResultSet tables = metaData.getTables(dataSourceName, null, null, new String[]{"TABLE"});
+        while (tables.next()) {
+            String table_name = tables.getString("TABLE_NAME");
+            if (table_name.equals(tableName)) {
+                String catalog = metaData.getConnection().getCatalog();
+                ResultSet columns = metaData.getColumns(catalog, null, table_name, "%");
+                String columnName;
+                while (columns.next()) {
+                    columnName = columns.getString("COLUMN_NAME");
+                    columnList.add(columnName);
+                }
+            }
+        }
+        return columnList;
+    }
+    /**
      * 类型参数转换
      * @param object
      * @return
      */
     private String convertParams(Object object) {
+        if (object == null) {
+            return "null";
+        }
         if (object instanceof Number) {
             return object + "";
         } else if (object instanceof Date) {
