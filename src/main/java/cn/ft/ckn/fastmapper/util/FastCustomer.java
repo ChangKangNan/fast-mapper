@@ -222,7 +222,28 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
                 String columnName;
                 while (columns.next()) {
                     columnName = columns.getString("COLUMN_NAME");
-                    Object columnDef = columns.getObject("COLUMN_DEF");
+                    String columnType = columns.getString("TYPE_NAME");
+                    columnType = columnType.toLowerCase();
+                    Object columnDef = null;
+                    if (StrUtil.equalsAny(columnType, "varchar", "nvarchar", "char", "text", "mediumtext")) {
+                        columnDef = columns.getString("COLUMN_DEF");
+                    } else if (StrUtil.equalsAny(columnType, "tinyblob", "blob", "mediumblob", "longblob")) {
+                        columnDef = columns.getByte("COLUMN_DEF");
+                    } else if (StrUtil.equalsAny(columnType, "datetime", "date", "timestamp", "time", "year")) {
+                        columnDef = columns.getDate("COLUMN_DEF");
+                    } else if (StrUtil.equalsAny(columnType, "bit", "tinyint", "tinyint unsigned")) {
+                        columnDef = columns.getBoolean("COLUMN_DEF");
+                    } else if (StrUtil.equalsAny(columnType, "int", "smallint", "smallint unsigned")) {
+                        columnDef = columns.getInt("COLUMN_DEF");
+                    } else if (StrUtil.equalsAny(columnType, "bigint", "int unsigned")) {
+                        columnDef = columns.getLong("COLUMN_DEF");
+                    } else if (StrUtil.equalsAny(columnType, "float")) {
+                        columnDef = columns.getFloat("COLUMN_DEF");
+                    } else if (StrUtil.equalsAny(columnType, "double")) {
+                        columnDef = columns.getDouble("COLUMN_DEF");
+                    } else if (StrUtil.equalsAny(columnType, "decimal", "decimal unsigned")) {
+                        columnDef = columns.getBigDecimal("COLUMN_DEF");
+                    }
                     if(columnDef !=null){
                         map.put(columnName,columnDef);
                     }
