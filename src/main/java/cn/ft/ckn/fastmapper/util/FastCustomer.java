@@ -1,18 +1,14 @@
 package cn.ft.ckn.fastmapper.util;
 
-import cn.ft.ckn.fastmapper.bean.ColumnInfo;
-import cn.ft.ckn.fastmapper.bean.TableInfo;
 import cn.ft.ckn.fastmapper.component.MapperDataSourceManger;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.component.SplicingParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
-import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import org.apache.commons.logging.Log;
@@ -21,7 +17,6 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
