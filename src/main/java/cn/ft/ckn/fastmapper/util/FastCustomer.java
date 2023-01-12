@@ -253,7 +253,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             }
             final String finalSql = insertSQLBuilder.toString();
             int update = jdbcTemplate.update(finalSql, new HashMap<>());
-            if (list.size() < MAX_SHOW_COUNT && FastMapperConfig.isOpenSQLPrint) {
+            if (list.size() <= MAX_SHOW_COUNT && FastMapperConfig.isOpenSQLPrint) {
                 SQLUtil.print(finalSql
                         , SQLUtil.printResult(update));
             }
