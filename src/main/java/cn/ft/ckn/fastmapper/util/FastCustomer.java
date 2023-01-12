@@ -6,6 +6,8 @@ import cn.ft.ckn.fastmapper.component.MapperDataSourceManger;
 import cn.ft.ckn.fastmapper.component.PageInfo;
 import cn.ft.ckn.fastmapper.component.SplicingParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
@@ -36,7 +38,7 @@ import java.util.stream.Collectors;
  */
 public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     private static final Log log = LogFactory.getLog(FastCustomer.class);
-
+    private static final Integer MAX_SHOW_COUNT=50;
     public FastCustomer(SplicingParam splicingParam) {
         super(FastCustomer.class, splicingParam);
     }
@@ -163,6 +165,11 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         return update;
     }
 
+    /**
+     * 根据map数据插入
+     * @param tableName
+     * @param dataMap
+     */
     public void insert(String tableName, Map<String, Object> dataMap) {
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         DataSource dataSource = jdbcTemplate.getJdbcTemplate().getDataSource();
@@ -202,6 +209,57 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         }
     }
 
+    /**
+     * 批量插入
+     * @param tableName
+     * @param dataMaps
+     */
+    public void insertBatch(String tableName, List<Map<String, Object>> dataMaps) {
+        if(dataMaps.size()==0){return;}
+        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = jdbcTemplate.getJdbcTemplate().getDataSource();
+        List<String> columnList = new ArrayList<>();
+        Map<String,Object> mapDef=new HashMap<>();
+        try {
+            if (dataSource != null) {
+                columnList = getAllColumns(dataSource.getConnection(), tableName,mapDef);
+            }
+        } catch (Exception e) {
+            log.info("连接数据库失败!");
+            return;
+        }
+        log.info("开始批量插入!");
+        List<List<Map<String, Object>>> lists = ListUtil.split(dataMaps, 1000);
+        for (List<Map<String, Object>> list : lists) {
+            StringBuilder insertSQLBuilder = new StringBuilder("INSERT INTO");
+            insertSQLBuilder.append(StrUtil.SPACE);
+            insertSQLBuilder.append(tableName);
+            insertSQLBuilder.append("(");
+            String join = String.join(StrUtil.COMMA, columnList);
+            insertSQLBuilder.append(join);
+            insertSQLBuilder.append(")");
+            insertSQLBuilder.append("VALUES");
+            for (Map<String, Object> map : list) {
+                insertSQLBuilder.append("(");
+                String values = columnList.stream().map(k -> {
+                    Object o = map.get(k);
+                    if (o == null) {
+                        o = mapDef.get(k);
+                    }
+                    return convertParams(o);
+                }).collect(Collectors.joining(StrUtil.COMMA));
+                insertSQLBuilder.append(values);
+                insertSQLBuilder.append(")");
+            }
+            final String finalSql = insertSQLBuilder.toString();
+            int update = jdbcTemplate.update(finalSql, new HashMap<>());
+            if (list.size() > MAX_SHOW_COUNT && FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(finalSql
+                        , SQLUtil.printResult(update));
+            }
+        }
+        log.info("批量插入成功!");
+    }
     /**
      * 检索数据库字段,并嵌入默认值
      * @param connection
