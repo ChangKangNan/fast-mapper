@@ -197,6 +197,9 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             if (o == null) {
                 o = mapDef.get(k);
             }
+            if (o == null) {
+                return "null";
+            }
             return convertParams(o);
         }).collect(Collectors.joining(StrUtil.COMMA));
         insertSQLBuilder.append(values);
@@ -246,12 +249,16 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
                     if (o == null) {
                         o = mapDef.get(k);
                     }
+                    if (o == null) {
+                        return "null";
+                    }
                     return convertParams(o);
                 }).collect(Collectors.joining(StrUtil.COMMA));
                 insertSQLBuilder.append(values);
                 insertSQLBuilder.append(")");
+                insertSQLBuilder.append(StrUtil.COMMA);
             }
-            final String finalSql = insertSQLBuilder.toString();
+            final String finalSql = insertSQLBuilder.substring(0,insertSQLBuilder.length()-1);
             int update = jdbcTemplate.update(finalSql, new HashMap<>());
             if (list.size() <= MAX_SHOW_COUNT && FastMapperConfig.isOpenSQLPrint) {
                 SQLUtil.print(finalSql
@@ -281,29 +288,36 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
                 while (columns.next()) {
                     columnName = columns.getString("COLUMN_NAME");
                     String columnType = columns.getString("TYPE_NAME");
+                    boolean nullable = columns.getBoolean("IS_NULLABLE");
+                    boolean autoincrement = columns.getBoolean("IS_AUTOINCREMENT");
                     columnType = columnType.toLowerCase();
                     Object columnDef = null;
-                    if (StrUtil.equalsAny(columnType, "varchar", "nvarchar", "char", "text", "mediumtext")) {
-                        columnDef = columns.getString("COLUMN_DEF");
-                    } else if (StrUtil.equalsAny(columnType, "tinyblob", "blob", "mediumblob", "longblob")) {
-                        columnDef = columns.getByte("COLUMN_DEF");
-                    } else if (StrUtil.equalsAny(columnType, "datetime", "date", "timestamp", "time", "year")) {
-                        columnDef = columns.getDate("COLUMN_DEF");
-                    } else if (StrUtil.equalsAny(columnType, "bit", "tinyint", "tinyint unsigned")) {
-                        columnDef = columns.getBoolean("COLUMN_DEF");
-                    } else if (StrUtil.equalsAny(columnType, "int", "smallint", "smallint unsigned")) {
-                        columnDef = columns.getInt("COLUMN_DEF");
-                    } else if (StrUtil.equalsAny(columnType, "bigint", "int unsigned")) {
-                        columnDef = columns.getLong("COLUMN_DEF");
-                    } else if (StrUtil.equalsAny(columnType, "float")) {
-                        columnDef = columns.getFloat("COLUMN_DEF");
-                    } else if (StrUtil.equalsAny(columnType, "double")) {
-                        columnDef = columns.getDouble("COLUMN_DEF");
-                    } else if (StrUtil.equalsAny(columnType, "decimal", "decimal unsigned")) {
-                        columnDef = columns.getBigDecimal("COLUMN_DEF");
-                    }
-                    if(columnDef !=null){
-                        map.put(columnName,columnDef);
+                    if (!nullable) {
+                        if (StrUtil.equalsAny(columnType, "varchar", "nvarchar", "char", "text", "mediumtext")) {
+                            columnDef = columns.getString("COLUMN_DEF");
+                        } else if (StrUtil.equalsAny(columnType, "tinyblob", "blob", "mediumblob", "longblob")) {
+                            columnDef = columns.getByte("COLUMN_DEF");
+                        } else if (StrUtil.equalsAny(columnType, "datetime", "date", "timestamp", "time", "year")) {
+                            columnDef = columns.getDate("COLUMN_DEF");
+                        } else if (StrUtil.equalsAny(columnType, "bit", "tinyint", "tinyint unsigned")) {
+                            columnDef = columns.getBoolean("COLUMN_DEF");
+                        } else if (StrUtil.equalsAny(columnType, "int", "smallint", "smallint unsigned")) {
+                            columnDef = columns.getInt("COLUMN_DEF");
+                        } else if (StrUtil.equalsAny(columnType, "bigint", "int unsigned")) {
+                            columnDef = columns.getLong("COLUMN_DEF");
+                        } else if (StrUtil.equalsAny(columnType, "float")) {
+                            columnDef = columns.getFloat("COLUMN_DEF");
+                        } else if (StrUtil.equalsAny(columnType, "double")) {
+                            columnDef = columns.getDouble("COLUMN_DEF");
+                        } else if (StrUtil.equalsAny(columnType, "decimal", "decimal unsigned")) {
+                            columnDef = columns.getBigDecimal("COLUMN_DEF");
+                        }
+                        if (autoincrement) {
+                            columnDef = null;
+                        }
+                        if (columnDef != null) {
+                            map.put(columnName, columnDef);
+                        }
                     }
                     columnList.add(columnName);
                 }
