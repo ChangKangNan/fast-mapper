@@ -9,6 +9,7 @@ import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.text.StrBuilder;
@@ -38,11 +39,11 @@ import java.util.stream.Collectors;
  */
 public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     private static final Log log = LogFactory.getLog(FastCustomer.class);
-    private static final Integer MAX_SHOW_COUNT=50;
+    private static final Integer MAX_SHOW_COUNT=1000;
     public FastCustomer(SplicingParam splicingParam) {
         super(FastCustomer.class, splicingParam);
     }
-
+    public TimeInterval interval = new TimeInterval();
     public static FastCustomer create() {
         return new FastCustomer(new SplicingParam());
     }
@@ -232,7 +233,8 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             return;
         }
         log.info("开始批量插入!");
-        List<List<Map<String, Object>>> lists = ListUtil.split(dataMaps, 1000);
+        interval.start();
+        List<List<Map<String, Object>>> lists = ListUtil.split(dataMaps, MAX_SHOW_COUNT);
         for (List<Map<String, Object>> list : lists) {
             StringBuilder insertSQLBuilder = new StringBuilder("INSERT INTO");
             insertSQLBuilder.append(StrUtil.SPACE);
@@ -266,6 +268,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             }
         }
         log.info("批量插入成功!");
+        log.info("耗时:["+interval.intervalMs()+"]ms");
     }
     /**
      * 检索数据库字段,并嵌入默认值
