@@ -34,18 +34,23 @@ import java.util.stream.Collectors;
  */
 public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     private static final Log log = LogFactory.getLog(FastCustomer.class);
-    private static final Integer MAX_SHOW_COUNT=1000;
+    private static final Integer MAX_SHOW_COUNT = 1000;
+
     public FastCustomer(SplicingParam splicingParam) {
         super(FastCustomer.class, splicingParam);
     }
+
     public TimeInterval interval = new TimeInterval();
+
     public static FastCustomer create() {
         return new FastCustomer(new SplicingParam());
     }
 
     public PageInfo<Map<String, Object>> findPage(String prepareSql, Integer pageNumber, Integer pageSize, Map<String, Object> params) {
         StringBuilder sql = new StringBuilder(prepareSql);
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
         StringBuilder countSQL = new StringBuilder("SELECT count(*) ");
         int indexOf = sql.toString().toLowerCase().indexOf("from");
         countSQL.append(sql.substring(indexOf));
@@ -77,7 +82,9 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     }
 
     public <R> List<R> findAll(String sql, Map<String, Object> params, Class<R> returnObj) {
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
         try {
             List<R> list = jdbcTemplate.query(sql, params, new BeanPropertyRowMapper<>(returnObj));
             if (FastMapperConfig.isOpenSQLPrint) {
@@ -95,7 +102,9 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     }
 
     public <R> List<R> findAll(String sql, Class<R> returnObj) {
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
         try {
             List<R> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(returnObj));
             if (FastMapperConfig.isOpenSQLPrint) {
@@ -124,7 +133,9 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         //处理参数
         ClassPathResource resource = new ClassPathResource(sqlPath);
         String sql = IoUtil.read(resource.getStream()).toString();
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
         return jdbcTemplate.query(sql, parameters, new BeanPropertyRowMapper<>(rowMapperClass));
     }
 
@@ -136,7 +147,9 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
      * @return
      */
     public int execute(String sql, Map<String, Object> parameters) {
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
         int update = jdbcTemplate.update(sql, parameters);
         if (FastMapperConfig.isOpenSQLPrint) {
             SQLUtil.print(SQLUtil.printSql(sql, parameters)
@@ -152,7 +165,9 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
      * @return
      */
     public int execute(String sql) {
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
         int update = jdbcTemplate.update(sql, new HashMap<>());
         if (FastMapperConfig.isOpenSQLPrint) {
             SQLUtil.print(sql
@@ -163,18 +178,18 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
 
     /**
      * 根据map数据插入
+     *
      * @param tableName
      * @param dataMap
      */
     public void insert(String tableName, Map<String, Object> dataMap) {
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        DataSource dataSource = jdbcTemplate.getJdbcTemplate().getDataSource();
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
         List<String> columnList = new ArrayList<>();
-        Map<String,Object> mapDef=new HashMap<>();
+        Map<String, Object> mapDef = new HashMap<>();
         try {
-            if (dataSource != null) {
-                columnList = getAllColumns(dataSource.getConnection(), tableName,mapDef);
-            }
+            columnList = getAllColumns(dataSource.getConnection(), tableName, mapDef);
         } catch (Exception e) {
             log.info("连接数据库失败!");
             return;
@@ -209,20 +224,40 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
     }
 
     /**
+     * 查询map数据
+     * @param prepareSql
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> getQueryData(String prepareSql,Map<String, Object> params){
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
+        List<Map<String, Object>> mapList = jdbcTemplate.queryForList(prepareSql, params);
+        if (FastMapperConfig.isOpenSQLPrint) {
+            SQLUtil.print(SQLUtil.printSql(prepareSql, params)
+                    , SQLUtil.printResult(JSONUtil.toJsonStr(mapList)));
+        }
+        return mapList;
+    }
+
+    /**
      * 批量插入
+     *
      * @param tableName
      * @param dataMaps
      */
     public void insertBatch(String tableName, List<Map<String, Object>> dataMaps) {
-        if(dataMaps.size()==0){return;}
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        DataSource dataSource = jdbcTemplate.getJdbcTemplate().getDataSource();
+        if (dataMaps.size() == 0) {
+            return;
+        }
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
         List<String> columnList = new ArrayList<>();
-        Map<String,Object> mapDef=new HashMap<>();
+        Map<String, Object> mapDef = new HashMap<>();
         try {
-            if (dataSource != null) {
-                columnList = getAllColumns(dataSource.getConnection(), tableName,mapDef);
-            }
+            columnList = getAllColumns(dataSource.getConnection(), tableName, mapDef);
         } catch (Exception e) {
             log.info("连接数据库失败!");
             return;
@@ -255,7 +290,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
                 insertSQLBuilder.append(")");
                 insertSQLBuilder.append(StrUtil.COMMA);
             }
-            final String finalSql = insertSQLBuilder.substring(0,insertSQLBuilder.length()-1);
+            final String finalSql = insertSQLBuilder.substring(0, insertSQLBuilder.length() - 1);
             int update = jdbcTemplate.update(finalSql, new HashMap<>());
             if (list.size() <= MAX_SHOW_COUNT && FastMapperConfig.isOpenSQLPrint) {
                 SQLUtil.print(finalSql
@@ -263,16 +298,18 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             }
         }
         log.info("批量插入成功!");
-        log.info("耗时:["+interval.intervalMs()+"]ms");
+        log.info("耗时:[" + interval.intervalMs() + "]ms");
     }
+
     /**
      * 检索数据库字段,并嵌入默认值
+     *
      * @param connection
      * @param tableName
      * @return
      * @throws SQLException
      */
-    private List<String> getAllColumns(Connection connection,String tableName,Map<String,Object> map) throws SQLException {
+    private List<String> getAllColumns(Connection connection, String tableName, Map<String, Object> map) throws SQLException {
         List<String> columnList = new ArrayList<>();
         DatabaseMetaData metaData = connection.getMetaData();
         String dataSourceName = metaData.getConnection().getCatalog();
@@ -323,8 +360,10 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         }
         return columnList;
     }
+
     /**
      * 类型参数转换
+     *
      * @param object
      * @return
      */
@@ -336,20 +375,20 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             return object + "";
         } else if (object instanceof Date) {
             try {
-                return "'"+DateUtil.format((Date)object, "yyyy-MM-dd HH:mm:ss")+"'";
-            }catch (Exception e){
-                return "'"+DateUtil.format((Date)object, "yyyy-MM-dd")+"'";
+                return "'" + DateUtil.format((Date) object, "yyyy-MM-dd HH:mm:ss") + "'";
+            } catch (Exception e) {
+                return "'" + DateUtil.format((Date) object, "yyyy-MM-dd") + "'";
             }
         } else if (object instanceof LocalDate) {
-            LocalDate date=(LocalDate) object;
+            LocalDate date = (LocalDate) object;
             int year = date.getYear();
             int month = date.getMonthValue();
             int day = date.getDayOfMonth();
             String monthVal = month >= 10 ? month + "" : "0" + month;
             String dayVal = day >= 10 ? day + "" : "0" + month;
-            return "'"+year+"-"+monthVal+"-"+dayVal+"'";
+            return "'" + year + "-" + monthVal + "-" + dayVal + "'";
         } else if (object instanceof LocalDateTime) {
-            LocalDateTime dateTime=(LocalDateTime) object;
+            LocalDateTime dateTime = (LocalDateTime) object;
             int year = dateTime.getYear();
             int month = dateTime.getMonthValue();
             int day = dateTime.getDayOfMonth();
@@ -361,8 +400,8 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             String hourVal = hour >= 10 ? hour + "" : "0" + hour;
             String minuteVal = minute >= 10 ? minute + "" : "0" + minute;
             String secondVal = second >= 10 ? second + "" : "0" + second;
-            return "'"+year+"-"+monthVal+"-"+dayVal+" "+hourVal+"-"+minuteVal+"-"+secondVal+"'";
-        }else if (object instanceof String) {
+            return "'" + year + "-" + monthVal + "-" + dayVal + " " + hourVal + "-" + minuteVal + "-" + secondVal + "'";
+        } else if (object instanceof String) {
             return "'" + object + "'";
         } else if (object instanceof Boolean) {
             return (Boolean) object ? "true" : "false";
