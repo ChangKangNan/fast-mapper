@@ -229,7 +229,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
      * @param params
      * @return
      */
-    List<Map<String,Object>> getQueryData(String prepareSql,Map<String, Object> params){
+    public List<Map<String,Object>> findQueryData(String prepareSql,Map<String, Object> params){
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
