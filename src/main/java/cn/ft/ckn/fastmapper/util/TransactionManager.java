@@ -30,18 +30,15 @@ public class TransactionManager {
     }
 
     /**
-     * 全局事务连接关闭
+     * 全局事务连接关闭(druid自动回收连接)
      *
      * @throws SQLException
      */
     public static void clearThreadLocalTransaction() throws SQLException {
-        Stack<Connection> connections = transactionTreadLocal.get();
-        for (Connection conn : connections) {
-            conn.close();
-        }
         transactionTreadLocal.remove();
         transactionMapTreadLocal.remove();
         TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.remove();
+        TransactionSwitch.GLOBAL_TRANSACTION_ISOLATION.remove();
     }
 
     public static  void initTransaction(DataSource dataSource){
