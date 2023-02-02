@@ -51,6 +51,7 @@ public class TransactionManager {
             boolean transactionFlag = TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.get() != null && TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.get();
             if (transactionFlag) {
                 connection.setAutoCommit(false);
+                connection.setTransactionIsolation(TransactionSwitch.GLOBAL_TRANSACTION_ISOLATION.get());
                 Map<String, Connection> connectionMap = transactionMapTreadLocal.get();
                 Stack<Connection> connections = transactionTreadLocal.get();
                 if (connectionMap == null) {
