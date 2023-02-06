@@ -54,6 +54,32 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         }
     }
 
+    public int count(){
+        Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = PackSQLUtil.packageSQL(this.splicingParam, classObj);
+        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
+        String s = mapStringBuilderPair.getValue().toString();
+        int from = s.toUpperCase().indexOf("FROM");
+        String countSQL="select COUNT(*) AS counts "+s.substring(from);
+        try {
+            Integer count = jdbcTemplate.queryForObject(countSQL, mapStringBuilderPair.getKey(), Integer.class);
+            if (count == null) {
+                return -1;
+            }
+            if (FastMapperConfig.isOpenSQLPrint) {
+                    SQLUtil.print(SQLUtil.printSql(countSQL, mapStringBuilderPair.getKey())
+                            , SQLUtil.printResult(count));
+            }
+            return count;
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(countSQL, mapStringBuilderPair.getKey())
+                        , SQLUtil.printResult(-1));
+            }
+            return -1;
+        }
+    }
+
     public List<T> list() {
         Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = PackSQLUtil.packageSQL(this.splicingParam, classObj);
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
