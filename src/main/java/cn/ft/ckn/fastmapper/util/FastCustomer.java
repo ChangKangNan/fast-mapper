@@ -81,7 +81,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         }
     }
 
-    public <R> List<R> findAll(String sql, Map<String, Object> params, Class<R> returnObj) {
+    public <R> List<R> queryAll(String sql, Map<String, Object> params, Class<R> returnObj) {
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
@@ -101,7 +101,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         }
     }
 
-    public <R> List<R> findAll(String sql, Class<R> returnObj) {
+    public <R> List<R> queryAll(String sql, Class<R> returnObj) {
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
@@ -407,5 +407,39 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
             return (Boolean) object ? "true" : "false";
         }
         return "";
+    }
+
+    /**
+     * 单一返回值查询
+     * @param sql
+     * @param t
+     * @param <T>
+     * @return
+     */
+    public <T> T executeForObject(String sql,Class<T> t){
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
+        return jdbcTemplate.queryForObject(sql, new HashMap<>(), t);
+    }
+
+    /**
+     * 单一返回值查询
+     * @param sql
+     * @param params 参数集合
+     * @param t
+     * @param <T>
+     * @return
+     */
+    public <T> T executeForObject(String sql,Map<String, Object> params,Class<T> t){
+        DataSource dataSource = getDataSource();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        TransactionManager.initTransaction(dataSource);
+        T forObject = jdbcTemplate.queryForObject(sql, params, t);
+        if (FastMapperConfig.isOpenSQLPrint) {
+            SQLUtil.print(SQLUtil.printSql(sql, params)
+                    , SQLUtil.printResult(JSONUtil.toJsonStr(forObject)));
+        }
+        return forObject;
     }
 }
