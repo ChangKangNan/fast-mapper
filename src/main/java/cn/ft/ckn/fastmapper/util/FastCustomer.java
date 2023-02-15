@@ -46,7 +46,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         return new FastCustomer(new SplicingParam());
     }
 
-    public PageInfo<Map<String, Object>> findPage(String prepareSql, Integer pageNumber, Integer pageSize, Map<String, Object> params) {
+    public PageInfo<Map<String, Object>> queryDataForPage(String prepareSql, Integer pageNumber, Integer pageSize, Map<String, Object> params) {
         StringBuilder sql = new StringBuilder(prepareSql);
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -81,7 +81,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         }
     }
 
-    public <R> List<R> queryAll(String sql, Map<String, Object> params, Class<R> returnObj) {
+    public <R> List<R> queryDataForList(String sql, Map<String, Object> params, Class<R> returnObj) {
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
@@ -101,7 +101,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
         }
     }
 
-    public <R> List<R> queryAll(String sql, Class<R> returnObj) {
+    public <R> List<R> queryDataForList(String sql, Class<R> returnObj) {
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
@@ -229,7 +229,7 @@ public class FastCustomer extends MapperDataSourceManger<FastCustomer> {
      * @param params
      * @return
      */
-    public List<Map<String,Object>> findQueryData(String prepareSql,Map<String, Object> params){
+    public List<Map<String,Object>> queryDataForMap(String prepareSql,Map<String, Object> params){
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
