@@ -1,8 +1,8 @@
 //package cn.ft.ckn.test;
 //
 //import cn.ft.ckn.fastmapper.FastMapperApplication;
-//import cn.ft.ckn.fastmapper.component.PageInfo;
-//import cn.ft.ckn.fastmapper.component.SFunction;
+//import cn.ft.ckn.fastmapper.bean.PageInfo;
+//import cn.ft.ckn.fastmapper.annotation.SFunction;
 //import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 //import cn.ft.ckn.test.fm.action.OtherOpenAction;
 //import cn.ft.ckn.test.fm.bean.*;

@@ -1,8 +1,8 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.component.Page;
-import cn.ft.ckn.fastmapper.component.PageInfo;
-import cn.ft.ckn.fastmapper.component.SFunction;
+import cn.ft.ckn.fastmapper.bean.Page;
+import cn.ft.ckn.fastmapper.bean.PageInfo;
+import cn.ft.ckn.fastmapper.annotation.SFunction;
 import cn.ft.ckn.fastmapper.util.ColumnUtil;
 import cn.hutool.core.util.StrUtil;
 

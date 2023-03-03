@@ -1,9 +1,9 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.component.Expression;
-import cn.ft.ckn.fastmapper.component.PageInfo;
+import cn.ft.ckn.fastmapper.bean.Expression;
+import cn.ft.ckn.fastmapper.bean.PageInfo;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.ft.ckn.fastmapper.util.DataSourceContext;
+import cn.ft.ckn.fastmapper.transaction.context.DataSourceContext;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrBuilder;

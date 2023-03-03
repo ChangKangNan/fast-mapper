@@ -47,7 +47,7 @@ public class DbUtil {
     public List<TableInfo> getAllTables(FileConfig fileConfig, DatabaseMetaData metaData, Set<String> tableNames)
             throws Exception {
         String dataSourceName = metaData.getConnection().getCatalog();
-        boolean isIgnore=fileConfig.getPrefix();
+        boolean isIgnore=fileConfig.getIgnorePrefix();
         ResultSet tables = metaData.getTables(dataSourceName, null, null, new String[]{"TABLE"});
         List<TableInfo> tableInfoList = new ArrayList<>();
         while (tables.next()){
@@ -138,24 +138,19 @@ public class DbUtil {
         String separator = File.separator;
         String childModuleName = conf.getChildModuleName();
         StringBuilder javaBasePath =new StringBuilder();
-        String dir="main";
-        if(conf.getTest()){
-            dir="test";
-        }
-        if(StrUtil.isNotBlank(childModuleName)){
-            javaBasePath.append(System.getProperty("user.dir")).append(separator).append(childModuleName).append(separator).append("src").append(separator).append(dir).append(separator).append("java").append(separator).toString();
-        }else {
-            javaBasePath.append(System.getProperty("user.dir")).append(separator).append("src").append(separator).append(dir).append(separator).append("java").append(separator).toString();
+        String dir = conf.getTest() ? "test" : "main";
+        javaBasePath.append(System.getProperty("user.dir")).append(separator);
+        if (StrUtil.isNotBlank(childModuleName)) {
+            javaBasePath.append(childModuleName).append(separator).append("src").append(separator).append(dir).append(separator).append("java").append(separator);
+        } else {
+            javaBasePath.append("src").append(separator).append(dir).append(separator).append("java").append(separator);
         }
         String pojoPackagePath = conf.getBasePackage();
         tableInfo.setPojoPackagePath(pojoPackagePath);
-
         tableInfo.setPojoFilePath(javaBasePath + tableInfo.getPojoPackagePath().replace(".", separator)+separator+"fm"+separator +"bean"+separator+tableInfo.getPojoName() + ".java");
-        tableInfo.setPojoActionName(tableInfo.getPojoName().substring(0,1).toUpperCase()+
-                tableInfo.getPojoName().substring(1)+"Action");
+        tableInfo.setPojoActionName(StrUtil.upperFirst(tableInfo.getPojoName())+"Action");
         tableInfo.setPojoActionFilePath(javaBasePath + tableInfo.getPojoPackagePath().replace(".", separator)+separator+"fm"+separator+"action"+separator+tableInfo.getPojoActionName()+".java");
-        tableInfo.setPojoMapperName(tableInfo.getPojoName().substring(0,1).toUpperCase()+
-                tableInfo.getPojoName().substring(1)+"Mapper");
+        tableInfo.setPojoMapperName(StrUtil.upperFirst(tableInfo.getPojoName())+"Mapper");
         tableInfo.setPojoMapperFilePath(javaBasePath + tableInfo.getPojoPackagePath().replace(".", separator)+separator+"fm"+separator+"dao"+separator+tableInfo.getPojoMapperName()+".java");
  }
 
@@ -183,32 +178,31 @@ public class DbUtil {
 
     /**
      * 设置字段类型 MySql数据类型
-     *
+     * DATABASE TYPE -> JAVA TYPE
      * @param columnType 列类型字符串
      * @param packages   封装包信息
      * @return 数据类型
      */
     public static String getFieldType(String columnType, Set<String> packages) {
-        columnType = columnType.toLowerCase();
-        if (StrUtil.equalsAny(columnType,"varchar","nvarchar","char","text","mediumtext"))
+        if (StrUtil.equalsAnyIgnoreCase(columnType,"varchar","nvarchar","char","text","mediumtext"))
         {
             return "String";
-        } else if (StrUtil.equalsAny(columnType,"tinyblob","blob","mediumblob","longblob")) {
+        } else if (StrUtil.equalsAnyIgnoreCase(columnType,"tinyblob","blob","mediumblob","longblob")) {
             return "byte[]";
-        } else if (StrUtil.equalsAny(columnType,"datetime","date","timestamp","time","year")) {
+        } else if (StrUtil.equalsAnyIgnoreCase(columnType,"datetime","date","timestamp","time","year")) {
             packages.add("import java.util.Date;");
             return "Date";
-        } else if (StrUtil.equalsAny(columnType,"bit","tinyint","tinyint unsigned")) {
+        } else if (StrUtil.equalsAnyIgnoreCase(columnType,"bit","tinyint","tinyint unsigned")) {
             return "Boolean";
-        } else if (StrUtil.equalsAny(columnType,"int","smallint","smallint unsigned")) {
+        } else if (StrUtil.equalsAnyIgnoreCase(columnType,"int","smallint","smallint unsigned")) {
             return "Integer";
-        }  else if (StrUtil.equalsAny(columnType,"bigint","int unsigned")) {
+        }  else if (StrUtil.equalsAnyIgnoreCase(columnType,"bigint","int unsigned")) {
             return "Long";
-        } else if (StrUtil.equalsAny(columnType,"float")) {
+        } else if (StrUtil.equalsAnyIgnoreCase(columnType,"float")) {
             return "Float";
-        } else if (StrUtil.equalsAny(columnType,"double")) {
+        } else if (StrUtil.equalsAnyIgnoreCase(columnType,"double")) {
             return "Double";
-        } else if (StrUtil.equalsAny(columnType,"decimal","decimal unsigned")) {
+        } else if (StrUtil.equalsAnyIgnoreCase(columnType,"decimal","decimal unsigned")) {
             packages.add("import java.math.BigDecimal;");
             return "BigDecimal";
         }

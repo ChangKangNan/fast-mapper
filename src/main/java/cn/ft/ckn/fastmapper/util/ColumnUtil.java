@@ -1,6 +1,6 @@
 package cn.ft.ckn.fastmapper.util;
 
-import cn.ft.ckn.fastmapper.component.SFunction;
+import cn.ft.ckn.fastmapper.annotation.SFunction;
 import cn.hutool.core.util.StrUtil;
 
 import javax.persistence.Column;

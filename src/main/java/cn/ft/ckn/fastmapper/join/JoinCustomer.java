@@ -1,6 +1,6 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.component.SFunction;
+import cn.ft.ckn.fastmapper.annotation.SFunction;
 import cn.ft.ckn.fastmapper.util.ColumnUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
@@ -10,7 +10,6 @@ import cn.hutool.core.util.StrUtil;
 import javax.persistence.Column;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -1,5 +1,5 @@
 package ${table.pojoPackagePath}.fm.dao;
-import cn.ft.ckn.fastmapper.component.SplicingParam;
+import cn.ft.ckn.fastmapper.bean.SplicingParam;
 import ${table.pojoPackagePath}.fm.action.${table.pojoActionName};
 
 public class ${table.pojoMapperName} {

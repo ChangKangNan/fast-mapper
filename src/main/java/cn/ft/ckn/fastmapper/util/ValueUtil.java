@@ -1,6 +1,6 @@
 package cn.ft.ckn.fastmapper.util;
 
-import cn.ft.ckn.fastmapper.component.ColumnParam;
+import cn.ft.ckn.fastmapper.bean.ColumnParam;
 import cn.hutool.core.util.ReflectUtil;
 
 import javax.persistence.Column;
