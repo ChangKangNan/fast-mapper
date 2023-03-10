@@ -43,11 +43,11 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
 
     public TimeInterval interval = new TimeInterval();
 
-    public static SqlExecutorUtil create() {
+    public static SqlExecutorUtil build() {
         return new SqlExecutorUtil(new SplicingParam());
     }
 
-    public PageInfo<Map<String, Object>> queryDataForPage(String prepareSql, Integer pageNumber, Integer pageSize, Map<String, Object> params) {
+    public PageInfo<Map<String, Object>> queryPage(String prepareSql, Integer pageNumber, Integer pageSize, Map<String, Object> params) {
         StringBuilder sql = new StringBuilder(prepareSql);
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -82,7 +82,7 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
         }
     }
 
-    public <R> List<R> queryDataForList(String sql, Map<String, Object> params, Class<R> returnObj) {
+    public <R> List<R> queryList(String sql, Map<String, Object> params, Class<R> returnObj) {
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
@@ -102,7 +102,7 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
         }
     }
 
-    public <R> List<R> queryDataForList(String sql, Class<R> returnObj) {
+    public <R> List<R> queryList(String sql, Class<R> returnObj) {
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
@@ -125,14 +125,14 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
     /**
      * 通过 sql文件运行获得返回结果
      *
-     * @param sqlPath
+     * @param filePath
      * @param parameters
      * @param rowMapperClass
      * @return
      */
-    public <E> List<E> selectByFile(String sqlPath, Map<String, Object> parameters, Class<E> rowMapperClass) {
+    public <E> List<E> queryByFile(String filePath, Map<String, Object> parameters, Class<E> rowMapperClass) {
         //处理参数
-        ClassPathResource resource = new ClassPathResource(sqlPath);
+        ClassPathResource resource = new ClassPathResource(filePath);
         String sql = IoUtil.read(resource.getStream()).toString();
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -230,7 +230,7 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
      * @param params
      * @return
      */
-    public List<Map<String,Object>> queryDataForMap(String prepareSql,Map<String, Object> params){
+    public List<Map<String,Object>> queryMap(String prepareSql,Map<String, Object> params){
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);

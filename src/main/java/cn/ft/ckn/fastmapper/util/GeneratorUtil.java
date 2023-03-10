@@ -22,7 +22,7 @@ import java.util.Set;
 public class GeneratorUtil {
     private static final String TEMPLATE_PATH = "src/main/resources/template";
 
-    public static void GeneratorUtil(FileConfig config) {
+    public static void generate(FileConfig config) {
         try {
             Set<String> createTables = config.getCreateTables();
             Connection connection = DbUtil.getInstance().getConnection(config);
