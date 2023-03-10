@@ -7,7 +7,6 @@ import cn.ft.ckn.fastmapper.component.manager.MapperDataSourceManger;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.constants.SQLConstants;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
-import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.text.CharPool;
@@ -22,6 +21,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -138,13 +138,18 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         if (ArrayUtil.isEmpty(declaredFields)) {
             return new Pair<>(params, new StringBuilder());
         }
+        AtomicBoolean pk = new AtomicBoolean(false);
         Arrays.stream(declaredFields).filter(f -> f.getAnnotation(Column.class) != null)
+                .peek(p->{
+                    if(p.getAnnotation(Id.class) != null){
+                        pk.set(true);
+                    }
+                })
                 .forEach(t -> {
                     columnToProperty.put(t.getAnnotation(Column.class).name(), t.getName());
                     columns.add(t.getAnnotation(Column.class).name());
                 });
-        boolean pk = AnnotationUtil.hasAnnotation(objClass, Id.class);
-        if (!pk) {
+        if (!pk.get()) {
             throw new RuntimeException("Id annotation is necessary!");
         }
         stringBuilder.append(System.lineSeparator());
