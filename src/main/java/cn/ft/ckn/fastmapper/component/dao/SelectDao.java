@@ -45,8 +45,8 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         StringBuilder stringBuilder = mapStringBuilderPair.getValue();
         try {
-            stringBuilder.append(SQLConstants.LIMIT).append(StrUtil.SPACE).append("1");
-            T query = jdbcTemplate.queryForObject(mapStringBuilderPair.toString(), mapStringBuilderPair.getKey(), new BeanPropertyRowMapper<T>(classObj));
+            stringBuilder.append(StrUtil.SPACE).append(SQLConstants.LIMIT).append(StrUtil.SPACE).append("1");
+            T query = jdbcTemplate.queryForObject(stringBuilder.toString(), mapStringBuilderPair.getKey(), new BeanPropertyRowMapper<T>(classObj));
             if (FastMapperConfig.isOpenSQLPrint) {
                 if(query !=null){
                     SQLUtil.print(SQLUtil.printSql(stringBuilder.toString(), mapStringBuilderPair.getKey())
@@ -68,8 +68,8 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = packageSQL(this.splicingParam, classObj);
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         String s = mapStringBuilderPair.getValue().toString();
-        int from = s.toUpperCase().indexOf(SQLConstants.FORM);
-        String countSQL="select COUNT(*) AS counts "+s.substring(from);
+        int from = s.toUpperCase().indexOf(SQLConstants.FROM);
+        String countSQL="select COUNT(1) AS counts "+s.substring(from);
         try {
             Integer count = jdbcTemplate.queryForObject(countSQL, mapStringBuilderPair.getKey(), Integer.class);
             if (count == null) {
@@ -155,7 +155,7 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         stringBuilder.append(System.lineSeparator());
         stringBuilder.append(ArrayUtil.join(columns.toArray(), StrUtil.C_COMMA + System.lineSeparator()));
         stringBuilder.append(System.lineSeparator());
-        stringBuilder.append(SQLConstants.FORM);
+        stringBuilder.append(SQLConstants.FROM);
         stringBuilder.append(StrUtil.SPACE);
         Table annotation = objClass.getAnnotation(Table.class);
         String table = annotation.name();

@@ -97,7 +97,7 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R> {
         }else{
             deletedSQL=new StringBuilder(DELETE);
             deletedSQL.append(StrUtil.SPACE);
-            deletedSQL.append(FORM);
+            deletedSQL.append(FROM);
             deletedSQL.append(StrUtil.SPACE);
             deletedSQL.append(tableName);
             deletedSQL.append(Expression.LineSeparator.expression);

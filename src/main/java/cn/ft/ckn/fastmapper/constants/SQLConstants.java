@@ -5,7 +5,7 @@ package cn.ft.ckn.fastmapper.constants;
  * @date 2023/3/3
  */
 public class SQLConstants {
-    public static final String FORM="FORM";
+    public static final String FROM="FROM";
     public static final String ORDER_BY="ORDER BY";
     public static final String AND="AND";
     public static final String OR="OR";

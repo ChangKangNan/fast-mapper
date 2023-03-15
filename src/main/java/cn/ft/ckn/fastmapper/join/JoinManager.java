@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cn.ft.ckn.fastmapper.constants.SQLConstants.*;
+
 /**
  * @author ckn
  * @date 2022/8/11
@@ -111,11 +113,11 @@ public class JoinManager<T> {
                 }
             }
         }
-        StringBuilder sqlBuilder=new StringBuilder("SELECT");
+        StringBuilder sqlBuilder=new StringBuilder(SELECT);
         sqlBuilder.append(Expression.LineSeparator.expression);
         sqlBuilder.append(StrUtil.join(",",params.columns.toArray()));
         sqlBuilder.append(Expression.LineSeparator.expression);
-        sqlBuilder.append("from");
+        sqlBuilder.append(FROM);
         sqlBuilder.append(StrUtil.SPACE);
         sqlBuilder.append(params.mainTable);
         sqlBuilder.append(Expression.LineSeparator.expression);
@@ -145,14 +147,14 @@ public class JoinManager<T> {
             }
         }
         if(MapUtil.isNotEmpty(params.where)){
-            sqlBuilder.append("WHERE");
+            sqlBuilder.append(WHERE);
             sqlBuilder.append(StrUtil.SPACE);
             int i=0;
             for (String key : params.where.keySet()) {
                 i++;
                 if(i !=1){
                     sqlBuilder.append(Expression.LineSeparator.expression);
-                    sqlBuilder.append("and");
+                    sqlBuilder.append(AND);
                     sqlBuilder.append(StrUtil.SPACE);
                 }
                 Object obj = params.where.get(key);
@@ -172,26 +174,19 @@ public class JoinManager<T> {
         }
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         StringBuilder sql=getSQL();
-        StringBuilder countSQL=new StringBuilder("SELECT count(*) ");
-        int indexOf = sql.toString().indexOf("from");
-        if(indexOf<0){
-            indexOf = sql.toString().indexOf("From");
-        }
+        StringBuilder countSQL=new StringBuilder("SELECT count(1) ");
+        int indexOf = sql.toString().toUpperCase().indexOf(FROM);
         countSQL.append(sql.substring(indexOf));
         if(StrUtil.isNotBlank(params.lastSQL)){
             countSQL.append(System.lineSeparator());
-            countSQL.append("where");
+            countSQL.append(WHERE);
             countSQL.append(StrUtil.SPACE);
             countSQL.append(params.lastSQL);
-            sql.append(System.lineSeparator());
-            sql.append("where");
-            sql.append(StrUtil.SPACE);
-            sql.append(params.lastSQL);
         }
         Integer totalCount = jdbcTemplate.queryForObject(countSQL.toString(), parameters, Integer.class);
         if (pageNumber != null && pageSize != null) {
             sql.append(System.lineSeparator());
-            sql.append("LIMIT");
+            sql.append(LIMIT);
             sql.append(StrUtil.SPACE);
             int pageNum = pageNumber - 1;
             sql.append(pageNum*pageSize);
@@ -224,7 +219,7 @@ public class JoinManager<T> {
         StringBuilder sql=getSQL();
         if(StrUtil.isNotBlank(params.lastSQL)){
             sql.append(System.lineSeparator());
-            sql.append("where");
+            sql.append(WHERE);
             sql.append(StrUtil.SPACE);
             sql.append(params.lastSQL);
         }

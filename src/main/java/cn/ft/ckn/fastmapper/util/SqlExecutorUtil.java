@@ -27,6 +27,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static cn.ft.ckn.fastmapper.constants.SQLConstants.FROM;
+
 /**
  * 自定义sql查询与更新
  *
@@ -52,8 +54,8 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
-        StringBuilder countSQL = new StringBuilder("SELECT count(*) ");
-        int indexOf = sql.toString().toLowerCase().indexOf("from");
+        StringBuilder countSQL = new StringBuilder("SELECT count(1) ");
+        int indexOf = sql.toString().toUpperCase().indexOf(FROM);
         countSQL.append(sql.substring(indexOf));
         Integer totalCount = jdbcTemplate.queryForObject(countSQL.toString(), new HashMap<>(), Integer.class);
         if (pageNumber != null && pageSize != null) {
