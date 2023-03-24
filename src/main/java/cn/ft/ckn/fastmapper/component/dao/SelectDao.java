@@ -45,15 +45,18 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         StringBuilder stringBuilder = mapStringBuilderPair.getValue();
         try {
-            stringBuilder.append(StrUtil.SPACE).append(SQLConstants.LIMIT).append(StrUtil.SPACE).append("1");
-            T query = jdbcTemplate.queryForObject(stringBuilder.toString(), mapStringBuilderPair.getKey(), new BeanPropertyRowMapper<T>(classObj));
+            List<T> query = jdbcTemplate.query(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey(), new BeanPropertyRowMapper<T>(classObj));
             if (FastMapperConfig.isOpenSQLPrint) {
-                if(query !=null){
+                if (CollUtil.isNotEmpty(query)) {
                     SQLUtil.print(SQLUtil.printSql(stringBuilder.toString(), mapStringBuilderPair.getKey())
-                            , SQLUtil.printResult(JSONUtil.toJsonStr(query)));
+                            , SQLUtil.printResult(JSONUtil.toJsonStr(query.get(0))));
                 }
             }
-            return query;
+            if (CollUtil.isNotEmpty(query)) {
+                return query.get(0);
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             if (FastMapperConfig.isOpenSQLPrint) {

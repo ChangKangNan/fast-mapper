@@ -1,8 +1,8 @@
 package cn.ft.ckn.fastmapper.util;
 
-import cn.ft.ckn.fastmapper.component.manager.MapperDataSourceManger;
 import cn.ft.ckn.fastmapper.bean.PageInfo;
 import cn.ft.ckn.fastmapper.bean.SplicingParam;
+import cn.ft.ckn.fastmapper.component.manager.MapperDataSourceManger;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.transaction.TransactionManager;
 import cn.hutool.core.collection.ListUtil;
@@ -419,11 +419,15 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
      * @param <T>
      * @return
      */
-    public <T> T executeForObject(String sql,Class<T> t){
+    public <T> T executeForObject(String sql, Class<T> t) {
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
-        return jdbcTemplate.queryForObject(sql, new HashMap<>(), t);
+        try {
+            return jdbcTemplate.queryForObject(sql, new HashMap<>(), t);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -434,15 +438,23 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
      * @param <T>
      * @return
      */
-    public <T> T executeForObject(String sql,Map<String, Object> params,Class<T> t){
+    public <T> T executeForObject(String sql, Map<String, Object> params, Class<T> t) {
         DataSource dataSource = getDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
-        T forObject = jdbcTemplate.queryForObject(sql, params, t);
-        if (FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(SQLUtil.printSql(sql, params)
-                    , SQLUtil.printResult(JSONUtil.toJsonStr(forObject)));
+        try {
+            T forObject = jdbcTemplate.queryForObject(sql, params, t);
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql, params)
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(forObject)));
+            }
+            return forObject;
+        } catch (Exception e) {
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql, params)
+                        , SQLUtil.printResult(0));
+            }
+            return null;
         }
-        return forObject;
     }
 }
