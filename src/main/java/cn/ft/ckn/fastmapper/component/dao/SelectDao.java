@@ -50,6 +50,9 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
                 if (CollUtil.isNotEmpty(query)) {
                     SQLUtil.print(SQLUtil.printSql(stringBuilder.toString(), mapStringBuilderPair.getKey())
                             , SQLUtil.printResult(JSONUtil.toJsonStr(query.get(0))));
+                }else {
+                    SQLUtil.print(SQLUtil.printSql(stringBuilder.toString(), mapStringBuilderPair.getKey())
+                            , SQLUtil.printResult(0));
                 }
             }
             if (CollUtil.isNotEmpty(query)) {

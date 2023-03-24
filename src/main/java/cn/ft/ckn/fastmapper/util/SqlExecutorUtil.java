@@ -424,8 +424,17 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         TransactionManager.initTransaction(dataSource);
         try {
-            return jdbcTemplate.queryForObject(sql, new HashMap<>(), t);
+            T object = jdbcTemplate.queryForObject(sql, new HashMap<>(), t);
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql, new HashMap<>())
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(object)));
+            }
+            return object;
         } catch (Exception e) {
+            if (FastMapperConfig.isOpenSQLPrint) {
+                SQLUtil.print(SQLUtil.printSql(sql, new HashMap<>())
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(null)));
+            }
             return null;
         }
     }
