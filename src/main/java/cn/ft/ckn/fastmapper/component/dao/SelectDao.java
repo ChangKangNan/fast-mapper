@@ -2,11 +2,13 @@ package cn.ft.ckn.fastmapper.component.dao;
 
 import cn.ft.ckn.fastmapper.annotation.Pager;
 import cn.ft.ckn.fastmapper.bean.Expression;
-import cn.ft.ckn.fastmapper.bean.SplicingParam;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.component.manager.MapperDataSourceManger;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.constants.Operation;
 import cn.ft.ckn.fastmapper.constants.SQLConstants;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.text.CharPool;
@@ -28,20 +30,20 @@ import java.util.stream.Collectors;
  * @author ckn
  * @date 2022/7/28
  */
-public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<R> {
-    private final SplicingParam splicingParam;
+public class SelectDao<T,R> extends MapperDataSourceManger<R> implements Pager<R> {
+    private final FastMapperParam fastMapperParam;
     private final Class<T> classObj;
-    private final Class<R> returnObj;
+    private R r;
 
-    public SelectDao(SplicingParam splicingParam, Class<T> classObj, Class<R> returnObj) {
-        super(returnObj, splicingParam);
-        this.splicingParam = splicingParam;
+    public SelectDao(R r,Class<T> classObj) {
+        super(r);
+        this.fastMapperParam = BeanUtil.getProperty(r, Operation.PARAM);
         this.classObj = classObj;
-        this.returnObj = returnObj;
+        this.r=r;
     }
 
     public T one() {
-        Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = packageSQL(this.splicingParam, classObj);
+        Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = packageSQL(this.fastMapperParam, classObj);
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         StringBuilder stringBuilder = mapStringBuilderPair.getValue();
         try {
@@ -71,7 +73,7 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
     }
 
     public int count(){
-        Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = packageSQL(this.splicingParam, classObj);
+        Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = packageSQL(this.fastMapperParam, classObj);
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         String s = mapStringBuilderPair.getValue().toString();
         int from = s.toUpperCase().indexOf(SQLConstants.FROM);
@@ -97,7 +99,7 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
     }
 
     public List<T> list() {
-        Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = packageSQL(this.splicingParam, classObj);
+        Pair<Map<String, Object>, StringBuilder> mapStringBuilderPair = packageSQL(this.fastMapperParam, classObj);
         NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
         try {
             List<T> query = jdbcTemplate.query(mapStringBuilderPair.getValue().toString(), mapStringBuilderPair.getKey(), new BeanPropertyRowMapper<T>(classObj));
@@ -116,26 +118,21 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
     }
 
     public R page(Integer page, Integer pageSize) {
-        this.splicingParam.isOpenPage = true;
-        this.splicingParam.setPage(page);
-        this.splicingParam.setPageSize(pageSize);
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        this.fastMapperParam.isOpenPage = true;
+        this.fastMapperParam.setPage(page);
+        this.fastMapperParam.setPageSize(pageSize);
+        BeanUtil.setProperty(r,Operation.PARAM,this.fastMapperParam);
+        return r;
     }
+
     public R or() {
-        this.splicingParam.isAnd = false;
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        this.fastMapperParam.isAnd = false;
+        BeanUtil.setProperty(r,Operation.PARAM,this.fastMapperParam);
+        return r;
     }
 
 
-    private <T> Pair<Map<String, Object>, StringBuilder> packageSQL(SplicingParam splicingParam, Class<T> objClass) {
+    private <T> Pair<Map<String, Object>, StringBuilder> packageSQL(FastMapperParam FastMapperParam, Class<T> objClass) {
         StringBuilder stringBuilder = new StringBuilder(SQLConstants.SELECT);
         Field[] declaredFields = objClass.getDeclaredFields();
         Map<String, Object> params = new HashMap<>();
@@ -166,26 +163,26 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
         Table annotation = objClass.getAnnotation(Table.class);
         String table = annotation.name();
         stringBuilder.append(table);
-        if (CollUtil.isNotEmpty(splicingParam.whereCondition) || FastMapperConfig.isOpenLogicDeletedAuto) {
+        if (CollUtil.isNotEmpty(FastMapperParam.whereCondition) || FastMapperConfig.isOpenLogicDeletedAuto) {
             stringBuilder.append(System.lineSeparator());
             stringBuilder.append(SQLConstants.WHERE);
             stringBuilder.append(StrUtil.SPACE);
-            if (splicingParam.whereCondition.size() >= 2) {
-                for (int i = 0; i <= splicingParam.whereCondition.size() - 2; i++) {
-                    splicingParam.whereCondition.get(i).isAnd = splicingParam.whereCondition.get(i + 1).isAnd;
+            if (FastMapperParam.whereCondition.size() >= 2) {
+                for (int i = 0; i <= FastMapperParam.whereCondition.size() - 2; i++) {
+                    FastMapperParam.whereCondition.get(i).isAnd = FastMapperParam.whereCondition.get(i + 1).isAnd;
                 }
-                splicingParam.whereCondition.get(splicingParam.whereCondition.size() - 1).isAnd = true;
+                FastMapperParam.whereCondition.get(FastMapperParam.whereCondition.size() - 1).isAnd = true;
             }
-            if (CollUtil.isNotEmpty(splicingParam.whereCondition)) {
-                for (int i = 0; i < splicingParam.whereCondition.size(); i++) {
-                    stringBuilder.append(splicingParam.whereCondition.get(i).columnName);
-                    stringBuilder.append(splicingParam.whereCondition.get(i).expression);
-                    if (!Expression.Like.expression.equals(splicingParam.whereCondition.get(i).expression)) {
-                        if (Expression.In.expression.equals(splicingParam.whereCondition.get(i).expression) || Expression.NotIn.expression.equals(splicingParam.whereCondition.get(i).expression)) {
-                            if (ArrayUtil.isArray(splicingParam.whereCondition.get(i).value)) {
+            if (CollUtil.isNotEmpty(FastMapperParam.whereCondition)) {
+                for (int i = 0; i < FastMapperParam.whereCondition.size(); i++) {
+                    stringBuilder.append(FastMapperParam.whereCondition.get(i).columnName);
+                    stringBuilder.append(FastMapperParam.whereCondition.get(i).expression);
+                    if (!Expression.Like.expression.equals(FastMapperParam.whereCondition.get(i).expression)) {
+                        if (Expression.In.expression.equals(FastMapperParam.whereCondition.get(i).expression) || Expression.NotIn.expression.equals(FastMapperParam.whereCondition.get(i).expression)) {
+                            if (ArrayUtil.isArray(FastMapperParam.whereCondition.get(i).value)) {
                                 stringBuilder.append(Expression.LeftBracket.expression);
                                 List<Object> values = new ArrayList<>();
-                                for (Object o : (Object[]) splicingParam.whereCondition.get(i).value) {
+                                for (Object o : (Object[]) FastMapperParam.whereCondition.get(i).value) {
                                     if (o instanceof Collection) {
                                         values.addAll((Collection) o);
                                     } else {
@@ -198,24 +195,24 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
                                 for (Object o : wrap) {
                                     j++;
                                     stringBuilder.append(CharPool.COLON);
-                                    stringBuilder.append(splicingParam.whereCondition.get(i).columnName).append("_in_").append(j);
+                                    stringBuilder.append(FastMapperParam.whereCondition.get(i).columnName).append("_in_").append(j);
                                     stringBuilder.append(",");
-                                    params.put(splicingParam.whereCondition.get(i).columnName + "_in_" + j, o);
+                                    params.put(FastMapperParam.whereCondition.get(i).columnName + "_in_" + j, o);
                                 }
                                 stringBuilder = new StringBuilder(stringBuilder.substring(0, stringBuilder.length() - 1));
                                 stringBuilder.append(Expression.RightBracket.expression);
                             }
                         } else {
                             stringBuilder.append(CharPool.COLON);
-                            stringBuilder.append(splicingParam.whereCondition.get(i).columnName).append("_").append(i);
-                            params.put(splicingParam.whereCondition.get(i).columnName + "_" + i, splicingParam.whereCondition.get(i).value);
+                            stringBuilder.append(FastMapperParam.whereCondition.get(i).columnName).append("_").append(i);
+                            params.put(FastMapperParam.whereCondition.get(i).columnName + "_" + i, FastMapperParam.whereCondition.get(i).value);
                         }
                     } else {
-                        stringBuilder.append("'%").append(splicingParam.whereCondition.get(i).value).append("%'");
+                        stringBuilder.append("'%").append(FastMapperParam.whereCondition.get(i).value).append("%'");
                     }
-                    if (i != splicingParam.whereCondition.size() - 1) {
+                    if (i != FastMapperParam.whereCondition.size() - 1) {
                         stringBuilder.append(System.lineSeparator());
-                        if (splicingParam.whereCondition.get(i).isAnd) {
+                        if (FastMapperParam.whereCondition.get(i).isAnd) {
                             stringBuilder.append(SQLConstants.AND);
                         } else {
                             stringBuilder.append(SQLConstants.OR);
@@ -242,26 +239,26 @@ public class SelectDao<T, R> extends MapperDataSourceManger<R> implements Pager<
                 params.put(FastMapperConfig.logicDeletedColumn, FastMapperConfig.logicDeletedColumnDefaultValue);
             }
         }
-        if (CollUtil.isNotEmpty(splicingParam.orderByCondition)) {
+        if (CollUtil.isNotEmpty(FastMapperParam.orderByCondition)) {
             stringBuilder.append(System.lineSeparator());
             stringBuilder.append(SQLConstants.ORDER_BY);
             stringBuilder.append(StrUtil.SPACE);
-            for (int i = 0; i < splicingParam.orderByCondition.size(); i++) {
-                stringBuilder.append(splicingParam.orderByCondition.get(i).orderByName);
+            for (int i = 0; i < FastMapperParam.orderByCondition.size(); i++) {
+                stringBuilder.append(FastMapperParam.orderByCondition.get(i).orderByName);
                 stringBuilder.append(StrUtil.SPACE);
-                stringBuilder.append(splicingParam.orderByCondition.get(i).sequence);
-                if (i != splicingParam.orderByCondition.size() - 1) {
+                stringBuilder.append(FastMapperParam.orderByCondition.get(i).sequence);
+                if (i != FastMapperParam.orderByCondition.size() - 1) {
                     stringBuilder.append(StrUtil.C_COMMA);
                 }
             }
         }
-        if (splicingParam.isOpenPage) {
+        if (FastMapperParam.isOpenPage) {
             stringBuilder.append(System.lineSeparator());
             stringBuilder.append(SQLConstants.LIMIT);
             stringBuilder.append(StrUtil.SPACE);
-            stringBuilder.append((splicingParam.getPage() - 1) * splicingParam.getPageSize());
+            stringBuilder.append((FastMapperParam.getPage() - 1) * FastMapperParam.getPageSize());
             stringBuilder.append(StrUtil.C_COMMA);
-            stringBuilder.append(splicingParam.getPageSize());
+            stringBuilder.append(FastMapperParam.getPageSize());
         }
         return new Pair<>(params, stringBuilder);
     }

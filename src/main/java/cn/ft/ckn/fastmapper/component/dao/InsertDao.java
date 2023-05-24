@@ -2,7 +2,7 @@ package cn.ft.ckn.fastmapper.component.dao;
 
 import cn.ft.ckn.fastmapper.bean.ColumnParam;
 import cn.ft.ckn.fastmapper.component.manager.MapperDataSourceManger;
-import cn.ft.ckn.fastmapper.bean.SplicingParam;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.ft.ckn.fastmapper.transaction.TransactionManager;
@@ -31,13 +31,12 @@ import java.util.*;
 public class InsertDao<T,R>  extends MapperDataSourceManger<R> {
     Class<T> objClass;
 
-    public InsertDao(SplicingParam splicingParam, Class<T> classObj, Class<R> returnClass) {
-        super(returnClass,splicingParam);
+    public InsertDao(R r, Class<T> classObj) {
+        super(r);
         this.objClass=classObj;
     }
 
     public InsertDao(Class<T> classObj) {
-        super(null,new SplicingParam());
         this.objClass=classObj;
     }
 

@@ -5,19 +5,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 过程传递参数
  * @author ckn
- * @date 2022/8/1
  */
-public class SplicingParam {
+public class FastMapperParam {
+    /**
+     * 是否主数据源
+     */
     public Boolean isMaster = true;
+    /**
+     * 当前数据源
+     */
     public DataSource dataSource;
+    /**
+     * 逻辑删除保护是否关闭
+     */
     public Boolean isCloseDeleteProtect=Boolean.FALSE;
+    /**
+     * where条件封装
+     */
     public List<WhereCondition> whereCondition;
+    /**
+     * order by条件封装
+     */
     public List<OrderByCondition> orderByCondition;
+    /**
+     * 数据操作值封装
+     */
     public List<Value> valueList;
+    /**
+     * 连接符是否为and
+     */
     public Boolean isAnd=Boolean.TRUE;
 
-    public SplicingParam() {
+    void init(){
+        //初始化
         whereCondition = new ArrayList<>();
         orderByCondition = new ArrayList<>();
         valueList = new ArrayList<>();
@@ -25,8 +47,13 @@ public class SplicingParam {
         pageSize = 0;
     }
 
+    public FastMapperParam() {
+        init();
+    }
+
     private Integer page;
     private Integer pageSize;
+
     /**
      * 使否开启分页查询
      */

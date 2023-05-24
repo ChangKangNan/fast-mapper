@@ -5,5 +5,5 @@ package cn.ft.ckn.fastmapper.annotation;
  * @date 2022/8/1
  */
 public interface Pager<R> {
-    R page(Integer page,Integer pageSize);
+    R page(Integer page, Integer pageSize);
 }

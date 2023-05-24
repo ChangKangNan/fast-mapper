@@ -1,7 +1,7 @@
 package cn.ft.ckn.fastmapper.util;
 
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.PageInfo;
-import cn.ft.ckn.fastmapper.bean.SplicingParam;
 import cn.ft.ckn.fastmapper.component.manager.MapperDataSourceManger;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.transaction.TransactionManager;
@@ -39,14 +39,13 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
     private static final Log log = LogFactory.getLog(SqlExecutorUtil.class);
     private static final Integer MAX_SHOW_COUNT = 1000;
 
-    public SqlExecutorUtil(SplicingParam splicingParam) {
-        super(SqlExecutorUtil.class, splicingParam);
+    public SqlExecutorUtil() {
     }
 
     public TimeInterval interval = new TimeInterval();
 
     public static SqlExecutorUtil build() {
-        return new SqlExecutorUtil(new SplicingParam());
+        return new SqlExecutorUtil();
     }
 
     public PageInfo<Map<String, Object>> queryPage(String prepareSql, Integer pageNumber, Integer pageSize, Map<String, Object> params) {
@@ -126,11 +125,6 @@ public class SqlExecutorUtil extends MapperDataSourceManger<SqlExecutorUtil> {
 
     /**
      * 通过 sql文件运行获得返回结果
-     *
-     * @param filePath
-     * @param parameters
-     * @param rowMapperClass
-     * @return
      */
     public <E> List<E> queryByFile(String filePath, Map<String, Object> parameters, Class<E> rowMapperClass) {
         //处理参数

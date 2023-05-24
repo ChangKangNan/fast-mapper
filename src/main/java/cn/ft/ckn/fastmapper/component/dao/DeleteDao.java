@@ -2,14 +2,17 @@ package cn.ft.ckn.fastmapper.component.dao;
 
 import cn.ft.ckn.fastmapper.bean.Expression;
 import cn.ft.ckn.fastmapper.component.manager.MapperDataSourceManger;
-import cn.ft.ckn.fastmapper.bean.SplicingParam;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.constants.Operation;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.ft.ckn.fastmapper.transaction.TransactionManager;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.CharPool;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import lombok.SneakyThrows;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.persistence.Column;
@@ -26,20 +29,22 @@ import static cn.ft.ckn.fastmapper.constants.SQLConstants.*;
  * @date 2022/7/28
  */
 public class DeleteDao<T,R>  extends MapperDataSourceManger<R> {
-    private final SplicingParam splicingParam;
+    private final FastMapperParam fastMapperParam;
     private final Class<T> classObj;
-    private final Class<R> returnObj;
+    private R r;
 
-    public DeleteDao(SplicingParam splicingParam, Class<T> classObj, Class<R> returnObj) {
-        super(returnObj,splicingParam);
-        this.splicingParam = splicingParam;
+    public DeleteDao(R r,Class<T> classObj) {
+        super(r);
+        this.fastMapperParam = BeanUtil.getProperty(r, Operation.PARAM);
         this.classObj = classObj;
-        this.returnObj = returnObj;
+        this.r=r;
     }
+
     public DeleteDao<T,R> closeDeletedProtect(){
-        splicingParam.isCloseDeleteProtect=Boolean.TRUE;
+        this.fastMapperParam.isCloseDeleteProtect=Boolean.TRUE;
         return this;
     }
+
     public void delete(){
         Table table = classObj.getAnnotation(Table.class);
         Field[] classObjDeclaredFields = classObj.getDeclaredFields();
@@ -61,7 +66,7 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R> {
         Map<String, Object> paramMap = new HashMap<>();
         StringBuilder deletedSQL=new StringBuilder();
         int endIndex=0;
-        if((!splicingParam.isCloseDeleteProtect)&&((FastMapperConfig.isOpenLogicDeletedAuto && isExistDeleted) || (FastMapperConfig.isOpenUpdateTimeAuto && isExistUpdate))){
+        if((!this.fastMapperParam.isCloseDeleteProtect)&&((FastMapperConfig.isOpenLogicDeletedAuto && isExistDeleted) || (FastMapperConfig.isOpenUpdateTimeAuto && isExistUpdate))){
             deletedSQL.append(StrUtil.SPACE);
             deletedSQL.append(tableName);
             deletedSQL.append(StrUtil.SPACE);
@@ -103,9 +108,9 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R> {
             deletedSQL.append(Expression.LineSeparator.expression);
         }
         if(FastMapperConfig.isOpenLogicDeletedAuto && isExistDeleted){
-            long count = splicingParam.whereCondition.stream().filter(t -> t.columnName.equals(FastMapperConfig.logicDeletedColumn)).count();
+            long count = this.fastMapperParam.whereCondition.stream().filter(t -> t.columnName.equals(FastMapperConfig.logicDeletedColumn)).count();
             if(count==0){
-                splicingParam.whereCondition.add(new SplicingParam.WhereCondition(FastMapperConfig.logicDeletedColumn,
+                this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(FastMapperConfig.logicDeletedColumn,
                         FastMapperConfig.logicDeletedColumnDefaultValue, Expression.Equal.expression,true));
             }
         }
@@ -123,13 +128,13 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R> {
     }
 
     private void whereConcat(Map<String, Object> paramMap, StringBuilder deletedSQL, int endIndex) {
-        if(splicingParam.whereCondition.size()>=2){
-            for (int i = 0; i <= splicingParam.whereCondition.size()-2; i++) {
-                splicingParam.whereCondition.get(i).isAnd= splicingParam.whereCondition.get(i+1).isAnd;
+        if(this.fastMapperParam.whereCondition.size()>=2){
+            for (int i = 0; i <= this.fastMapperParam.whereCondition.size()-2; i++) {
+                this.fastMapperParam.whereCondition.get(i).isAnd= this.fastMapperParam.whereCondition.get(i+1).isAnd;
             }
-            splicingParam.whereCondition.get(splicingParam.whereCondition.size()-1).isAnd=true;
+            this.fastMapperParam.whereCondition.get(this.fastMapperParam.whereCondition.size()-1).isAnd=true;
         }
-        for (SplicingParam.WhereCondition whereCondition : splicingParam.whereCondition) {
+        for (FastMapperParam.WhereCondition whereCondition : this.fastMapperParam.whereCondition) {
             endIndex++;
             deletedSQL.append(whereCondition.columnName);
             deletedSQL.append(whereCondition.expression);
@@ -168,7 +173,7 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R> {
             }else{
                 deletedSQL.append("'%").append(whereCondition.value).append("%'");
             }
-            if(endIndex!=splicingParam.whereCondition.size()){
+            if(endIndex!=this.fastMapperParam.whereCondition.size()){
                 deletedSQL.append(StrUtil.SPACE);
                 if(whereCondition.isAnd){
                     deletedSQL.append(AND);
@@ -179,12 +184,10 @@ public class DeleteDao<T,R>  extends MapperDataSourceManger<R> {
             }
         }
     }
+
     public R or() {
-        this.splicingParam.isAnd = false;
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        this.fastMapperParam.isAnd = false;
+        BeanUtil.setProperty(r,Operation.PARAM,fastMapperParam);
+        return r;
     }
 }

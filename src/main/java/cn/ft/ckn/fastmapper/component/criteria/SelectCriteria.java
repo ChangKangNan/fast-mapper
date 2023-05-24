@@ -2,164 +2,110 @@ package cn.ft.ckn.fastmapper.component.criteria;
 
 
 import cn.ft.ckn.fastmapper.bean.Expression;
-import cn.ft.ckn.fastmapper.bean.SplicingParam;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
+import cn.ft.ckn.fastmapper.constants.Operation;
+import cn.hutool.core.bean.BeanUtil;
 
 /**
  * @author ckn
- * @date 2022/6/8
  */
-public class SelectCriteria<T, R> {
-    SplicingParam splicingParam;
-    private String currentFieldName;
+public class SelectCriteria<T,R> {
+    FastMapperParam fastMapperParam;
+    String fieldName;
     Class<T> classObj;
-    Class<R> returnObj;
+    R returnObj;
 
-    public SelectCriteria(SplicingParam splicingParam, String fieldName, Class<T> classObj, Class<R> returnObj) {
-        this.splicingParam = splicingParam;
-        this.currentFieldName = fieldName;
-        this.returnObj = returnObj;
+    public SelectCriteria(R r, String fieldName, Class<T> classObj) {
+        this.fieldName = fieldName;
         this.classObj = classObj;
+        this.returnObj = r;
+        this.fastMapperParam = BeanUtil.getProperty(r, Operation.PARAM);
     }
 
-    void init(){
-        this.splicingParam.isAnd=Boolean.TRUE;
+    void init() {
+        fastMapperParam.isAnd = Boolean.TRUE;
+        BeanUtil.setProperty(returnObj,Operation.PARAM,fastMapperParam);
     }
 
     public R in(Object... value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.In.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.In.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R notIn(Object... value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.NotIn.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.NotIn.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R equal(Object value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.Equal.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.Equal.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R notEqual(Object value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.NotEqual.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.NotEqual.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R greater(Object value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.Greater.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.Greater.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R greaterOrEqual(Object value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.GreaterOrEqual.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.GreaterOrEqual.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R less(Object value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.Less.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.Less.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R lessOrEqual(Object value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.LessOrEqual.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.LessOrEqual.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R like(Object value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.Like.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.Like.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R notLike(Object value) {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, value, Expression.NotLike.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.NotLike.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R isNull() {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, null, Expression.IsNull.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, null, Expression.IsNull.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R isNotNull() {
-        this.splicingParam.whereCondition.add(new SplicingParam.WhereCondition(this.currentFieldName, null, Expression.IsNotNull.expression,splicingParam.isAnd));
+        fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, null, Expression.IsNotNull.expression, fastMapperParam.isAnd));
         init();
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        return returnObj;
     }
 
     public R asc() {
-        this.splicingParam.orderByCondition.add(new SplicingParam.OrderByCondition(this.currentFieldName, " ASC "));
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        fastMapperParam.orderByCondition.add(new FastMapperParam.OrderByCondition(this.fieldName, " ASC "));
+        return returnObj;
     }
 
     public R desc() {
-        this.splicingParam.orderByCondition.add(new SplicingParam.OrderByCondition(this.currentFieldName, " DESC "));
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        } catch (Exception e) {
-            return null;
-        }
+        fastMapperParam.orderByCondition.add(new FastMapperParam.OrderByCondition(this.fieldName, " DESC "));
+        return returnObj;
     }
 }

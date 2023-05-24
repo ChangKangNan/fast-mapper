@@ -1,8 +1,10 @@
 package cn.ft.ckn.fastmapper.component.manager;
 
-import cn.ft.ckn.fastmapper.bean.SplicingParam;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.constants.Operation;
 import cn.ft.ckn.fastmapper.transaction.context.DataSourceContext;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -16,13 +18,16 @@ import javax.sql.DataSource;
  * @date 2022/8/1
  */
 public class MapperDataSourceManger<R> {
-    private final SplicingParam splicingParam;
-    Class<R> returnObj;
+   protected final FastMapperParam fastMapperParam;
+    private R r;
 
+    public MapperDataSourceManger() {
+        this.fastMapperParam = new FastMapperParam();
+    }
 
-    public MapperDataSourceManger(Class<R> returnObj, SplicingParam splicingParam) {
-        this.returnObj = returnObj;
-        this.splicingParam = splicingParam;
+    public MapperDataSourceManger(R r) {
+        this.fastMapperParam = BeanUtil.getProperty(r, Operation.PARAM);
+        this.r=r;
     }
 
     private DataSource getMasterDataSource() {
@@ -34,21 +39,19 @@ public class MapperDataSourceManger<R> {
         return master;
     }
 
-    public R setSalveDataSource(DataSource dataSource){
-        splicingParam.isMaster = false;
-        splicingParam.dataSource = dataSource;
-        try {
-            return returnObj.getDeclaredConstructor(SplicingParam.class).newInstance(splicingParam);
-        }catch (Exception e){
-            return null;
-        }
+    public R setSalveDataSource(DataSource dataSource) {
+        fastMapperParam.isMaster = false;
+        fastMapperParam.dataSource = dataSource;
+        BeanUtil.setProperty(r, Operation.PARAM, fastMapperParam);
+        return r;
     }
+
     protected DataSource getDataSource() {
         DataSource dataSource = DataSourceContext.getDataSource();
         if(dataSource != null){
             return dataSource;
         }
-        return splicingParam.dataSource==null?getMasterDataSource():splicingParam.dataSource;
+        return fastMapperParam.dataSource==null?getMasterDataSource():fastMapperParam.dataSource;
     }
 
     protected NamedParameterJdbcTemplate getJdbcTemplate() {
@@ -58,9 +61,9 @@ public class MapperDataSourceManger<R> {
         }
         try {
             NamedParameterJdbcTemplate jdbcTemplate = null;
-            if (splicingParam.dataSource != null) {
-                if (!splicingParam.isMaster) {
-                    DruidDataSource druidDataSource = (DruidDataSource) splicingParam.dataSource;
+            if (fastMapperParam.dataSource != null) {
+                if (!fastMapperParam.isMaster) {
+                    DruidDataSource druidDataSource = (DruidDataSource) fastMapperParam.dataSource;
                     String key = StrBuilder.create(druidDataSource.getDriverClassName(), druidDataSource.getUrl(), druidDataSource.getUsername()
                             , druidDataSource.getPassword()).toString();
                     for (String compare : FastMapperConfig.dataSourceSalveTemplateMap.keySet()) {
@@ -69,7 +72,7 @@ public class MapperDataSourceManger<R> {
                         }
                     }
                     if (jdbcTemplate == null) {
-                        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(splicingParam.dataSource);
+                        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(fastMapperParam.dataSource);
                         FastMapperConfig.dataSourceSalveTemplateMap.putIfAbsent(key, namedParameterJdbcTemplate);
                         return namedParameterJdbcTemplate;
                     }

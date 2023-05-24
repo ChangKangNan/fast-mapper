@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 查询工具配置类
  * @author ckn
- * @date 2022/7/25
  */
 public class FastMapperConfig {
     /**
@@ -27,10 +27,10 @@ public class FastMapperConfig {
     public static final FastThreadLocal<DataSource> dataSourceMaster = new FastThreadLocal<>();
 
     /**
-     * 默认日志级别为INFO
+     * 是否打印SQL
      */
-    public static String logLevel = String.valueOf(LogLevel.INFO);
     public static Boolean isOpenSQLPrint = Boolean.FALSE;
+
     /**
      * 是否自动填充创建日期字段(默认系统当前时间)
      */
