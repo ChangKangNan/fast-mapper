@@ -1,6 +1,7 @@
-package cn.ft.ckn.fastmapper.expander;
+package cn.ft.ckn.fastmapper.aspect;
 
 import cn.ft.ckn.fastmapper.bean.SearchParam;
+import cn.ft.ckn.fastmapper.expander.MapperExpanderRunner;
 import cn.hutool.aop.aspects.SimpleAspect;
 import cn.hutool.core.date.TimeInterval;
 
@@ -22,7 +23,7 @@ public class MapperActuatorAspect extends SimpleAspect {
     public boolean before(Object target, Method method, Object[] args) {
         //执行计时
         interval.start();
-        return MapperExpanderRunner.runBeforeFastDaoExpander(SearchParam.get(), method.getName());
+        return MapperExpanderRunner.runBeforeExpander(SearchParam.get(), method.getName(),method);
     }
 
     /**
@@ -37,11 +38,19 @@ public class MapperActuatorAspect extends SimpleAspect {
      */
     @Override
     public boolean after(Object target, Method method, Object[] args, Object returnVal) {
-        //FastDaoParam封装打印
         SearchParam daoParam = SearchParam.get();
         daoParam.setSqlTime(interval.intervalMs());
         daoParam.setReturnVal(returnVal);
-        MapperExpanderRunner.runAfterFastDaoExpander(daoParam, method.getName());
+        MapperExpanderRunner.runAfterExpander(daoParam, method.getName(),method);
         return true;
     }
+
+    @Override
+    public boolean afterException(Object target, Method method, Object[] args, Throwable e) {
+        //继承此类后实现此方法
+        SearchParam daoParam = SearchParam.get();
+        MapperExpanderRunner.runAfterExceptionExpander(daoParam, method.getName(),method);
+        return true;
+    }
+
 }

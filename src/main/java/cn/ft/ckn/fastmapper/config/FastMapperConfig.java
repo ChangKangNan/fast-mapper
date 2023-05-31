@@ -80,7 +80,7 @@ public class FastMapperConfig {
             if (expanderClass.isInterface()) {
                 return;
             }
-            MapperExpanderRunner.addFastDaoExpander((Class<MapperExpander>) expanderClass);
+            MapperExpanderRunner.addExpander((Class<MapperExpander>) expanderClass);
         }
     }
 }

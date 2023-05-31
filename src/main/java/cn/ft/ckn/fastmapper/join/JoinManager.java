@@ -3,7 +3,7 @@ package cn.ft.ckn.fastmapper.join;
 import cn.ft.ckn.fastmapper.bean.*;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.ft.ckn.fastmapper.expander.MapperActuatorAspect;
+import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.map.MapUtil;

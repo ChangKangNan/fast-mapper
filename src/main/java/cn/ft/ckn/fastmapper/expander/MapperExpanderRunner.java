@@ -4,6 +4,7 @@ import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Singleton;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class MapperExpanderRunner {
     private static final String DELETE = "delete";
 
 
-    public static void addFastDaoExpander(Class<MapperExpander> expanderClass) {
+    public static void addExpander(Class<MapperExpander> expanderClass) {
         MapperExpander expander = Singleton.get(expanderClass);
         if (expander == null || CollUtil.isEmpty(expander.occasion())) {
             return;
@@ -47,40 +48,55 @@ public class MapperExpanderRunner {
         isExpander = Boolean.TRUE;
     }
 
-    public static boolean runBeforeFastDaoExpander(SearchParam param, String methodName) {
+    public static boolean runBeforeExpander(SearchParam param, String methodName, Method method) {
         if (!isExpander) {
             return true;
         }
-        List<Class<MapperExpander>> expanders = getExpanders(param, methodName);
+        List<Class<MapperExpander>> expanders = getExpanders(methodName);
         if (CollUtil.isEmpty(expanders)) {
             return true;
         }
 
         for (Class<MapperExpander> expanderClass : expanders) {
             MapperExpander expander = Singleton.get(expanderClass);
-            if (!expander.before(param)) {
+            if (!expander.before(param,method)) {
                 return false;
             }
         }
         return true;
     }
 
-    public static void runAfterFastDaoExpander(SearchParam param, String methodName) {
+    public static void runAfterExpander(SearchParam param, String methodName, Method method) {
         if (!isExpander) {
             return;
         }
-        List<Class<MapperExpander>> expanders = getExpanders(param, methodName);
+        List<Class<MapperExpander>> expanders = getExpanders(methodName);
         if (CollUtil.isEmpty(expanders)) {
             return;
         }
 
         for (Class<MapperExpander> expanderClass : expanders) {
-            Singleton.get(expanderClass).after(param);
+            Singleton.get(expanderClass).after(param,method);
+        }
+    }
+
+    public static void runAfterExceptionExpander(SearchParam param, String methodName, Method method) {
+        if (!isExpander) {
+            return;
+        }
+        List<Class<MapperExpander>> expanders = getExpanders(methodName);
+        if (CollUtil.isEmpty(expanders)) {
+            return;
+        }
+
+        for (Class<MapperExpander> expanderClass : expanders) {
+            Singleton.get(expanderClass).afterException(param,method);
         }
     }
 
 
-    private static List<Class<MapperExpander>> getExpanders(SearchParam param, String methodName) {
+
+    private static List<Class<MapperExpander>> getExpanders(String methodName) {
         List<Class<MapperExpander>> expanders = null;
         if (methodName.equals(INSERT)) {
             expanders = insertOccasion;
