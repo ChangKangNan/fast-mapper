@@ -2,15 +2,12 @@ package cn.ft.ckn.fastmapper.component.criteria;
 
 
 import cn.ft.ckn.fastmapper.bean.Expression;
-import cn.ft.ckn.fastmapper.bean.FastMapperParam;
-import cn.ft.ckn.fastmapper.constants.Operation;
-import cn.hutool.core.bean.BeanUtil;
+import cn.ft.ckn.fastmapper.bean.SearchParam;
 
 /**
  * @author ckn
  */
 public class DeletedCriteria<T, R> {
-    FastMapperParam fastMapperParam;
     String fieldName;
     Class<T> classObj;
     R returnObj;
@@ -19,84 +16,86 @@ public class DeletedCriteria<T, R> {
         this.fieldName = fieldName;
         this.classObj = classObj;
         this.returnObj = r;
-        this.fastMapperParam = BeanUtil.getProperty(r, Operation.PARAM);
     }
 
     void init() {
-        this.fastMapperParam.isAnd = Boolean.TRUE;
-        BeanUtil.setProperty(returnObj,Operation.PARAM,fastMapperParam);
+        SearchParam.get().isAnd = Boolean.TRUE;
     }
 
     public R in(Object... value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.In.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.In.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R notIn(Object... value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.NotIn.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.NotIn.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R equal(Object value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.Equal.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.Equal.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R notEqual(Object value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.NotEqual.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.NotEqual.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R greater(Object value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.Greater.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.Greater.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R greaterOrEqual(Object value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.GreaterOrEqual.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.GreaterOrEqual.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R less(Object value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.Less.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.Less.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R lessOrEqual(Object value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.LessOrEqual.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.LessOrEqual.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R like(Object value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.Like.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.Like.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R notLike(Object value) {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, value, Expression.NotLike.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.NotLike.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R isNull() {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, null, Expression.IsNull.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, null, Expression.IsNull.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R isNotNull() {
-        this.fastMapperParam.whereCondition.add(new FastMapperParam.WhereCondition(this.fieldName, null, Expression.IsNotNull.expression, fastMapperParam.isAnd));
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, null, Expression.IsNotNull.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
-
+    
+    public R or() {
+        SearchParam.get().isAnd = false;
+        return returnObj;
+    }
 }

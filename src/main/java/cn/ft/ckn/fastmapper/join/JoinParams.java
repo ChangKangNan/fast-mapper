@@ -17,8 +17,6 @@ public class JoinParams{
     public Map<String,String> relation;
     public Map<String,Integer> deeps;
     public Class obj;
-    public Boolean isMaster = true;
-    public DataSource dataSource;
     public String lastSQL;
     public Map<String,Object> lastWhereParameters;
 

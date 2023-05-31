@@ -1,5 +1,7 @@
 package cn.ft.ckn.fastmapper.config;
 
+import cn.ft.ckn.fastmapper.expander.MapperExpander;
+import cn.ft.ckn.fastmapper.expander.MapperExpanderRunner;
 import io.netty.util.concurrent.FastThreadLocal;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -71,5 +73,14 @@ public class FastMapperConfig {
     public static void setTimeColumn(String createTimeColumn, String updateTimeColumn) {
         createTime=createTimeColumn;
         updateTime=updateTimeColumn;
+    }
+
+    public static void addMapperExpander(Class<? extends MapperExpander> expanderClass) {
+        if (expanderClass != null) {
+            if (expanderClass.isInterface()) {
+                return;
+            }
+            MapperExpanderRunner.addFastDaoExpander((Class<MapperExpander>) expanderClass);
+        }
     }
 }

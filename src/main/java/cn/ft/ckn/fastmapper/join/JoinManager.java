@@ -1,18 +1,15 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.bean.Expression;
-import cn.ft.ckn.fastmapper.bean.PageInfo;
+import cn.ft.ckn.fastmapper.bean.*;
+import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.ft.ckn.fastmapper.transaction.context.DataSourceContext;
+import cn.ft.ckn.fastmapper.expander.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
+import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.druid.pool.DruidDataSource;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
@@ -25,75 +22,27 @@ import static cn.ft.ckn.fastmapper.constants.SQLConstants.*;
 
 /**
  * @author ckn
- * @date 2022/8/11
  */
 public class JoinManager<T> {
     public JoinParams params;
+    private final DaoActuator<T> daoActuator;
 
     public JoinManager(JoinParams params) {
+        SearchParam.init(new TableMapper<>());
         this.params=params;
-    }
-
-    private DataSource getMasterDataSource() {
-        DataSource master = FastMapperConfig.dataSourceMaster.get();
-        if (master == null) {
-            master = SpringUtil.getBean(DataSource.class);
-            FastMapperConfig.dataSourceMaster.set(master);
-        }
-        return master;
+        daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
     }
 
     public JoinCustomer<T> setSalveDataSource(DataSource dataSource) {
-        params.isMaster = false;
-        params.dataSource = dataSource;
+        DataSourceConnection.setSlaveDataSource(dataSource);
         return new JoinCustomer<T>(params);
     }
 
     protected NamedParameterJdbcTemplate getJdbcTemplate() {
-        DataSource dataSource = DataSourceContext.getDataSource();
-        if(dataSource != null){
-            setSalveDataSource(dataSource);
-        }
-        try {
-            NamedParameterJdbcTemplate jdbcTemplate = null;
-            if (params.dataSource != null) {
-                if (!params.isMaster) {
-                    DruidDataSource druidDataSource = (DruidDataSource) params.dataSource;
-                    String key = StrBuilder.create(druidDataSource.getDriverClassName(), druidDataSource.getUrl(), druidDataSource.getUsername()
-                            , druidDataSource.getPassword()).toString();
-                    for (String compare : FastMapperConfig.dataSourceSalveTemplateMap.keySet()) {
-                        if (StrUtil.equals(key, compare)) {
-                            jdbcTemplate = FastMapperConfig.dataSourceSalveTemplateMap.get(compare);
-                        }
-                    }
-                    if (jdbcTemplate == null) {
-                        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(params.dataSource);
-                        FastMapperConfig.dataSourceSalveTemplateMap.putIfAbsent(key, namedParameterJdbcTemplate);
-                        return namedParameterJdbcTemplate;
-                    }
-                } else {
-                    jdbcTemplate = FastMapperConfig.dataSourceMasterTemplate.get();
-                    if (jdbcTemplate == null) {
-                        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(getMasterDataSource());
-                        FastMapperConfig.dataSourceMasterTemplate.set(namedParameterJdbcTemplate);
-                        return namedParameterJdbcTemplate;
-                    }
-                }
-            } else {
-                jdbcTemplate = FastMapperConfig.dataSourceMasterTemplate.get();
-                if (jdbcTemplate == null) {
-                    NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(getMasterDataSource());
-                    FastMapperConfig.dataSourceMasterTemplate.set(namedParameterJdbcTemplate);
-                    return namedParameterJdbcTemplate;
-                }
-            }
-            return jdbcTemplate;
-        } catch (Exception e) {
-            throw new RuntimeException("获取数据库连接失败!");
-        }
+        return DataSourceConnection.getJdbcTemplate();
     }
 
-    StringBuilder getSQL(){
+   private StringBuilder getSQL(){
         List<String> tables=new ArrayList<>();
         if(MapUtil.isNotEmpty(params.deeps)){
             int deep=1;
@@ -210,33 +159,21 @@ public class JoinManager<T> {
         }
     }
 
-    public <R>List<R> findAll(Class<R> returnObj){
+    public <T> List<T> findAll(Class<T> returnObj) {
         Map<String, Object> parameters = new HashMap<>();
-        if(params.lastWhereParameters.size()>0){
-            parameters=params.lastWhereParameters;
+        if (params.lastWhereParameters.size() > 0) {
+            parameters = params.lastWhereParameters;
         }
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        StringBuilder sql=getSQL();
-        if(StrUtil.isNotBlank(params.lastSQL)){
+        StringBuilder sql = getSQL();
+        if (StrUtil.isNotBlank(params.lastSQL)) {
             sql.append(System.lineSeparator());
             sql.append(WHERE);
             sql.append(StrUtil.SPACE);
             sql.append(params.lastSQL);
         }
-        try {
-            List<R> list = jdbcTemplate.query(sql.toString(), parameters, new BeanPropertyRowMapper<>(returnObj));
-            if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(), parameters)
-                        , SQLUtil.printResult(JSONUtil.toJsonStr(list)));
-            }
-            return list;
-        }catch (Exception e){
-            e.printStackTrace();
-            if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),parameters)
-                        , SQLUtil.printResult(""));
-            }
-            return new ArrayList<>();
-        }
+        SearchParam.get().setExecuteSql(sql.toString());
+        SearchParam.get().getTableMapper().setObjClass(returnObj);
+        SearchParam.get().setParamMap(parameters);
+        return (List<T>) daoActuator.select();
     }
 }

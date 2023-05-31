@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class JoinCustomer<T> extends JoinManager<T> {
+
     public JoinCustomer(Class<T> main) {
         super(new JoinParams());
         Table mainClassAnnotation = main.getAnnotation(Table.class);
