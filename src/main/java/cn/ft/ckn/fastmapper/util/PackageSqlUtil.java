@@ -103,6 +103,7 @@ public class PackageSqlUtil {
         StrBuilder sql = StrUtil.strBuilder(INSERT,StrUtil.SPACE, tableMapper.getTableName()).append(CRLF);
         if (insertList.size() == 1) {
             sql.append(SET);
+            sql.append(CRLF);
             for (String fieldName : fieldNames) {
                 Object in = insertList.get(0);
                 Object fieldValue = BeanUtil.getFieldValue(in, fieldName);
