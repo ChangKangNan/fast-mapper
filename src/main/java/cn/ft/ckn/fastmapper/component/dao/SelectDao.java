@@ -15,10 +15,10 @@ import java.util.List;
  */
 public class SelectDao<T,R> implements Pager<R> {
     private final Class<T> classObj;
-    private R r;
+    private Class<R> r;
     private final DaoActuator<T> daoActuator;
 
-    public SelectDao(R r, Class<T> classObj) {
+    public SelectDao(Class<R> r, Class<T> classObj) {
         TableMapper.init(classObj);
         this.classObj = classObj;
         this.r=r;
@@ -41,12 +41,12 @@ public class SelectDao<T,R> implements Pager<R> {
         SearchParam.get().setOpenPage(true);
         SearchParam.get().setPage(page);
         SearchParam.get().setPageSize(pageSize);
-        return r;
+        return (R)this;
     }
 
     public R or() {
         SearchParam.get().isAnd = false;
-        return r;
+        return (R)this;
     }
 
 }

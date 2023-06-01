@@ -14,13 +14,13 @@ import java.util.List;
 /**
  * @author ckn
  */
-public class InsertDao<T, R> {
-    private R r;
+public class InsertDao<T,R>{
+    private Class<R> r;
     private final DaoActuator<T> daoActuator;
 
-    public InsertDao(R r,Class<T> classObj) {
+    public InsertDao(Class<R> r,Class<T> classObj) {
         TableMapper.init(classObj);
-        this.r = r;
+        this.r=r;
         daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
     }
 
@@ -36,6 +36,6 @@ public class InsertDao<T, R> {
 
     public R setSlaveDataSource(DataSource dataSource) {
         DataSourceConnection.setSlaveDataSource(dataSource);
-        return r;
+        return (R)this;
     }
 }

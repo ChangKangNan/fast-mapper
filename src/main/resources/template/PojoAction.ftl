@@ -4,21 +4,20 @@ import ${table.pojoPackagePath}.fm.bean.${table.pojoName};
 
 public class ${table.pojoActionName} {
 public static class InsertMapper extends InsertDao<${table.pojoName}, InsertMapper> {
-        public InsertMapper(FastMapperParam FastMapperParam){
-        super(FastMapperParam,${table.pojoName}.class, InsertMapper.class);
+        public InsertMapper(){
+        super(InsertMapper.class,${table.pojoName}.class);
         }
 }
 
 public static class BaseSelectMapper extends BaseSelectAction<${table.pojoName}, BaseSelectMapper> {
-        public BaseSelectMapper(FastMapperParam FastMapperParam) {
-        super(FastMapperParam,${table.pojoName}.class, BaseSelectMapper.class);
+        public BaseSelectMapper() {
+        super(BaseSelectMapper.class,${table.pojoName}.class);
         }
 
 <#list table.columns as p>
 
         public SelectCriteria<${table.pojoName}, BaseSelectMapper> ${p.propertyName}() {
-        this.fieldName="${p.columnName}";
-        return new SelectCriteria<>(this.FastMapperParam, this.fieldName,${table.pojoName}.class, BaseSelectMapper.class);
+        return new SelectCriteria<>(this,"${p.columnName}",${table.pojoName}.class);
         }
 
 </#list>
@@ -26,29 +25,27 @@ public static class BaseSelectMapper extends BaseSelectAction<${table.pojoName},
 
 public static class BaseUpdateMapper extends BaseUpdateAction<${table.pojoName}, BaseUpdateMapper> {
 
-        public BaseUpdateMapper(FastMapperParam FastMapperParam) {
-            super(FastMapperParam,${table.pojoName}.class, BaseUpdateMapper.class);
+        public BaseUpdateMapper() {
+        super(BaseUpdateMapper.class,${table.pojoName}.class);
         }
 <#list table.columns as p>
 
         public UpdateCriteria<${table.pojoName}, BaseUpdateMapper> ${p.propertyName}() {
-        this.fieldName="${p.columnName}";
-        return new UpdateCriteria<>(this.FastMapperParam,this.fieldName,${table.pojoName}.class, BaseUpdateMapper.class);
+        return new UpdateCriteria<>(this,"${p.columnName}",${table.pojoName}.class);
         }
 
 </#list>
 }
 
 public static class BaseDeletedMapper extends BaseDeletedAction<${table.pojoName}, BaseDeletedMapper> {
-        public BaseDeletedMapper(FastMapperParam FastMapperParam) {
-        super(FastMapperParam,${table.pojoName}.class, BaseDeletedMapper.class);
+        public BaseDeletedMapper() {
+        super(BaseDeletedMapper.class,${table.pojoName}.class);
         }
 
 <#list table.columns as p>
 
         public DeletedCriteria<${table.pojoName}, BaseDeletedMapper> ${p.propertyName}() {
-        this.fieldName="${p.columnName}";
-        return new DeletedCriteria<>(this.FastMapperParam,this.fieldName,${table.pojoName}.class, BaseDeletedMapper.class);
+        return new DeletedCriteria<>(this,"${p.columnName}",${table.pojoName}.class);
         }
 
 </#list>

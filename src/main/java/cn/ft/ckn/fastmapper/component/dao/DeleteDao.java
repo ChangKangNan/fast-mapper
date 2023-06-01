@@ -12,18 +12,18 @@ import cn.hutool.aop.ProxyUtil;
  * @date 2022/7/28
  */
 public class DeleteDao<T,R>{
-    private R r;
+    private Class<R> r;
     private final DaoActuator<T> daoActuator;
 
-    public DeleteDao(R r,Class<T> classObj) {
+    public DeleteDao(Class<R> r,Class<T> classObj) {
         TableMapper.init(classObj);
-        this.r = r;
+        this.r=r;
         daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
     }
 
     public R closeDeletedProtect(){
         SearchParam.get().setCloseDeleteProtect(true);
-        return r;
+        return (R) this;
     }
 
     public void delete(){

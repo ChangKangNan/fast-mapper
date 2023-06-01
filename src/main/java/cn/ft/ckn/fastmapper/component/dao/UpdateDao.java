@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
  */
 public class UpdateDao<T, R>{
     private final Class<T> classObj;
-    private R r;
+    private final Class<R> r;
     private final DaoActuator<T> daoActuator;
 
-    public UpdateDao(R r, Class<T> classObj) {
+    public UpdateDao(Class<R> r, Class<T> classObj) {
         TableMapper.init(classObj);
         this.classObj = classObj;
         this.r = r;
@@ -32,11 +32,12 @@ public class UpdateDao<T, R>{
 
     public UpdateDao(Class<T> obj) {
         classObj = obj;
+        this.r = null;
         this.daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
     }
 
     public UpdateValue<T, R> value() {
-        return new UpdateValue<>(r,classObj,daoActuator);
+        return new UpdateValue<>((R)this,classObj,daoActuator);
     }
 
     public void updateByPrimaryKey(T t) {
@@ -83,6 +84,6 @@ public class UpdateDao<T, R>{
 
     public R or() {
         SearchParam.get().isAnd = false;
-        return r;
+        return (R)this;
     }
 }
