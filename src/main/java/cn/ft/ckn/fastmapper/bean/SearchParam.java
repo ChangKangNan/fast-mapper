@@ -176,7 +176,7 @@ public class SearchParam<T> {
             this.isAnd=isAnd;
         }
     }
-    public static class Value {
+    public static class Value{
         public String columnName;
         public Object value;
 

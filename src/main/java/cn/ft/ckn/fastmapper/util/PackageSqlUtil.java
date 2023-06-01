@@ -150,7 +150,9 @@ public class PackageSqlUtil {
             sql.append(UPDATE);
         }
         sql.append(StrUtil.SPACE).append(tableMapper.getTableName());
+        sql.append(CRLF);
         if(!closeDeleteProtect && count>0){
+            sql.append(SET).append(StrUtil.SPACE);
             sql.append(logicDeletedColumn).append(EQUAL).append(logicDeletedColumnDeletedValue);
         }
         return sql;
@@ -237,7 +239,7 @@ public class PackageSqlUtil {
         for (int i = 0; i < updateValueList.size(); i++) {
             SearchParam.Value value = updateValueList.get(i);
             sql.append(value.columnName).append(EQUAL);
-            packParam(sql,paramMap,value,paramIndex);
+            packParam(sql,paramMap,value.value,paramIndex);
             if(i !=updateValueList.size()-1){
                 sql.append(StrUtil.C_COMMA);
             }

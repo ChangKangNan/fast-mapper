@@ -9,6 +9,7 @@ import cn.ft.ckn.fastmapper.expander.MapperExpander;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 
 import java.lang.reflect.Method;
@@ -45,7 +46,7 @@ public class CustomActuatorAspect implements MapperExpander {
                 }
             } else {
                 List<SearchParam.Value> updateValueList = param.getUpdateValueList();
-                updateValueList.add(new SearchParam.Value(FastMapperConfig.updateTime, new Date()));
+                updateValueList.add(new SearchParam.Value(FastMapperConfig.updateTime, DateUtil.format(new Date(),"yyyy-MM-dd hh:mm:ss")));
             }
         }
         boolean setWhereBool = StrUtil.equalsAnyIgnoreCase(methodName, ExpanderOccasion.SELECT.name(), ExpanderOccasion.UPDATE.name(), ExpanderOccasion.DELETE.name());
@@ -54,7 +55,7 @@ public class CustomActuatorAspect implements MapperExpander {
             if (CollUtil.isEmpty(whereConditions)) {
                 return true;
             }
-            String primaryKey = param.getTableMapper().getPrimaryKey();
+         //   String primaryKey = param.getTableMapper().getPrimaryKey();
             long existDelete = whereConditions.stream().filter(w -> StrUtil.equals(w.columnName, FastMapperConfig.logicDeletedColumn)).count();
           //long existPk = whereConditions.stream().filter(w -> StrUtil.equals(w.columnName, primaryKey)).count();
             if (existDelete == 0) {
