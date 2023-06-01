@@ -1,5 +1,7 @@
 package ${table.pojoPackagePath}.fm.action;
-import cn.ft.ckn.fastmapper.component.*;
+import cn.ft.ckn.fastmapper.component.action.*;
+import cn.ft.ckn.fastmapper.component.criteria.*;
+import cn.ft.ckn.fastmapper.component.dao.*;
 import ${table.pojoPackagePath}.fm.bean.${table.pojoName};
 
 public class ${table.pojoActionName} {

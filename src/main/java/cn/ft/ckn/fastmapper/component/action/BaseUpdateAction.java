@@ -7,7 +7,7 @@ import cn.ft.ckn.fastmapper.component.dao.UpdateDao;
  */
 public class BaseUpdateAction<T, R> extends UpdateDao<T, R> {
 
-    public BaseUpdateAction(Class<T> classObj, Class<R> r) {
+    public BaseUpdateAction(Class<R> r,Class<T> classObj) {
         super(r, classObj);
     }
 

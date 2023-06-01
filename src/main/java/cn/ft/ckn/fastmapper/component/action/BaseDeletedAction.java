@@ -7,7 +7,7 @@ import cn.ft.ckn.fastmapper.component.dao.DeleteDao;
  */
 public class BaseDeletedAction<T,R> extends DeleteDao<T,R> {
 
-    public BaseDeletedAction(Class<T> classObj,Class<R> r){
+    public BaseDeletedAction(Class<R> r,Class<T> classObj){
         super(r,classObj);
     }
 
