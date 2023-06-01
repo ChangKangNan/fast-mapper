@@ -4,11 +4,11 @@ import cn.ft.ckn.fastmapper.bean.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import io.netty.util.concurrent.FastThreadLocal;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import sun.reflect.misc.MethodUtil;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -57,9 +57,9 @@ public class DataSourceConnection {
     private static String getSlaveKey(DataSource dataSource){
         Class<? extends DataSource> dataSourceClass = dataSource.getClass();
         try {
-            String username = (String) MethodUtil.getMethod(dataSourceClass, "getUsername", null).invoke(dataSourceClass);
-            String password = (String) MethodUtil.getMethod(dataSourceClass, "getPassword", null).invoke(dataSourceClass);
-            String url = (String) MethodUtil.getMethod(dataSourceClass, "getUrl", null).invoke(dataSourceClass);
+            String username = (String) ReflectUtil.getMethod(dataSourceClass, "getUsername").invoke(dataSourceClass);
+            String password = (String) ReflectUtil.getMethod(dataSourceClass, "getPassword").invoke(dataSourceClass);
+            String url = (String) ReflectUtil.getMethod(dataSourceClass, "getUrl").invoke(dataSourceClass);
             return new StrBuilder(username).append(password).append(url).toString();
         }catch (Exception e){
             throw new RuntimeException(e);
