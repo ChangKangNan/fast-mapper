@@ -7,6 +7,7 @@ import cn.ft.ckn.fastmapper.bean.TableMapper;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.hutool.aop.ProxyUtil;
+import cn.hutool.core.collection.CollUtil;
 
 import java.util.List;
 
@@ -26,7 +27,11 @@ public class SelectDao<T,R> implements Pager<R> {
     }
 
     public T one() {
-        return daoActuator.select().get(0);
+        List<T> select = daoActuator.select();
+        if(CollUtil.isEmpty(select)){
+            return null;
+        }
+        return select.get(0);
     }
 
     public int count(){

@@ -181,7 +181,9 @@ public class PackageSqlUtil {
         for (int i = 0; i < whereConditions.size(); i++) {
             SearchParam.WhereCondition whereCondition = whereConditions.get(i);
             if (i != 0 && whereCondition.isAnd) {
+                sql.append(CRLF);
                 sql.append(AND);
+                sql.append(StrUtil.SPACE);
             }
             sql.append(whereCondition.columnName);
             sql.append(whereCondition.expression);
@@ -210,7 +212,6 @@ public class PackageSqlUtil {
                         sql.append(RIGHT_BRACKETS);
                     }
                 } else {
-                    sql.append(whereCondition.columnName).append(EQUAL);
                     packParam(sql, paramMap, whereCondition.value, paramIndex);
                 }
             } else {

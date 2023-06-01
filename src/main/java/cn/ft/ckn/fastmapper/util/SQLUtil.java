@@ -1,5 +1,6 @@
 package cn.ft.ckn.fastmapper.util;
 
+import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.sql.SQLUtils;
@@ -34,7 +35,9 @@ public class SQLUtil {
                 + System.lineSeparator()
                 + execute
                 + result
-                + System.lineSeparator() +
+                + System.lineSeparator()
+                + "执行时间:["+ SearchParam.get().getSqlTime() +"ms]"
+                + System.lineSeparator()+
                 "---------------------------------------------------------");
     }
 

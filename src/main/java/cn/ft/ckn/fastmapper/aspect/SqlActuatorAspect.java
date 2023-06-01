@@ -4,6 +4,7 @@ import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.expander.ExpanderOccasion;
 import cn.ft.ckn.fastmapper.expander.MapperExpander;
+import cn.ft.ckn.fastmapper.util.PackageSqlUtil;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.json.JSONUtil;
@@ -24,7 +25,7 @@ public class SqlActuatorAspect  implements MapperExpander {
     @Override
     public void after(SearchParam param, Method method) {
         if(FastMapperConfig.isOpenSQLPrint){
-            SQLUtil.print(SQLUtil.printSql(param.getExecuteSql(),param.getParamMap())
+            SQLUtil.print(SQLUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()),param.getParamMap())
                     , SQLUtil.printResult(JSONUtil.toJsonStr(param.getReturnVal())));
         }
 
@@ -33,7 +34,7 @@ public class SqlActuatorAspect  implements MapperExpander {
     @Override
     public void afterException(SearchParam param, Method method) {
         if(FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(SQLUtil.printSql(param.getExecuteSql(), param.getParamMap())
+            SQLUtil.print(SQLUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()), param.getParamMap())
                     , SQLUtil.printResult(""));
         }
     }
