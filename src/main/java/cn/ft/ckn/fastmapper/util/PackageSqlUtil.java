@@ -39,7 +39,7 @@ public class PackageSqlUtil {
     public static final String INSERT_PARAM_TYPE = "insert_param_";
     public static final String PARAM_PREFIX_1 = "#{";
     public static final String PARAM_PREFIX_2 = "${";
-    public static final String PARAM_SUFFIX = "} ";
+    public static final String PARAM_SUFFIX = "}"+StrUtil.SPACE;
     public static final String JDBC_SQL_CONVERSION_RE_RULE = "[#][{](\\w*)[}]";
     public static final String JDBC_SQL_CONVERSION_RE_RULE_2 = "[$][{](\\w*)[}]";
     public static final String JDBC_SQL_CONVERSION_RE_RESULT = ":$1";
@@ -116,14 +116,15 @@ public class PackageSqlUtil {
         }else {
             sql.append(LEFT_BRACKETS);
             List<String> showFields = tableMapper.getShowFields();
-            sql.append(String.join(StrUtil.COMMA, showFields));
+            List<String> columns = showFields.stream().map(fieldToColumn::get).collect(Collectors.toList());
+            sql.append(String.join(StrUtil.COMMA, columns));
             sql.append(RIGHT_BRACKETS).append(VALUES).append(CRLF);
             for (int i = 0; i < insertList.size(); i++) {
                 sql.append(LEFT_BRACKETS);
                 for (int j = 0; j < fieldNames.size(); j++) {
                     Object fieldValue = BeanUtil.getFieldValue(insertList.get(i), fieldNames.get(j));
                     packParam(sql, paramMap, fieldValue, paramIndex);
-                    if (i < fieldNames.size() - 1) {
+                    if (j < fieldNames.size() - 1) {
                         sql.append(StrUtil.C_COMMA);
                     }
                 }

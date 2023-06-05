@@ -27,7 +27,8 @@ public class JdbcDaoActuator<T> implements DaoActuator<T> {
         MapperInsertProvider.insert(param);
         List<T> insertList = param.getInsertList();
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        DataSourceConnection.getJdbcTemplate().update(PackageSqlUtil.sqlConversion(param.getExecuteSql()), new MapSqlParameterSource(param.getParamMap()), keyHolder);
+        String sqlConversion = PackageSqlUtil.sqlConversion(param.getExecuteSql());
+        DataSourceConnection.getJdbcTemplate().update(sqlConversion, new MapSqlParameterSource(param.getParamMap()), keyHolder);
         if (insertList.size() == 1) {
             BeanUtil.setFieldValue(param.getInsertList().get(0), param.getTableMapper().getPrimaryKey(), Objects.requireNonNull(keyHolder.getKey()).longValue());
         }else {

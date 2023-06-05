@@ -34,7 +34,8 @@ public class SqlActuatorAspect  implements MapperExpander {
     @Override
     public void afterException(SearchParam param, Method method) {
         if(FastMapperConfig.isOpenSQLPrint) {
-            SQLUtil.print(SQLUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()), param.getParamMap())
+            String sqlConversion = PackageSqlUtil.sqlConversion(param.getExecuteSql());
+            SQLUtil.print(SQLUtil.printSql(sqlConversion, param.getParamMap())
                     , SQLUtil.printResult(""));
         }
     }
