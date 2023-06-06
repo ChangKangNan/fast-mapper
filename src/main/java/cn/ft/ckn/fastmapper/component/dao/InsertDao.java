@@ -29,9 +29,9 @@ public class InsertDao<T,R>{
         return daoActuator.insert().get(0);
     }
 
-    public void insertBatch(List<T> collection) {
+    public List<T> insertBatch(List<T> collection) {
         SearchParam.get().setInsertList((List<Object>) collection);
-        daoActuator.insert();
+        return daoActuator.insert();
     }
 
     public R setSlaveDataSource(DataSource dataSource) {

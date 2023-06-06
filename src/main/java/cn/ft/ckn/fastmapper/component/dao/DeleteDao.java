@@ -1,10 +1,10 @@
 package cn.ft.ckn.fastmapper.component.dao;
 
+import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.bean.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.bean.TableMapper;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
-import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.hutool.aop.ProxyUtil;
 
 /**
@@ -26,7 +26,7 @@ public class DeleteDao<T,R>{
         return (R) this;
     }
 
-    public void delete(){
-        daoActuator.delete();
+    public Integer delete(){
+      return daoActuator.delete();
     }
 }

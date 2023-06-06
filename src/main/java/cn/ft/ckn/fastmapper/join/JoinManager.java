@@ -1,18 +1,17 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.bean.*;
-import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
-import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
+import cn.ft.ckn.fastmapper.bean.DaoActuator;
+import cn.ft.ckn.fastmapper.bean.Expression;
+import cn.ft.ckn.fastmapper.bean.SearchParam;
+import cn.ft.ckn.fastmapper.bean.TableMapper;
+import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,15 +30,6 @@ public class JoinManager<T> {
         SearchParam.init(new TableMapper<>());
         this.params=params;
         daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
-    }
-
-    public JoinCustomer<T> setSalveDataSource(DataSource dataSource) {
-        DataSourceConnection.setSlaveDataSource(dataSource);
-        return new JoinCustomer<T>(params);
-    }
-
-    protected NamedParameterJdbcTemplate getJdbcTemplate() {
-        return DataSourceConnection.getJdbcTemplate();
     }
 
    private StringBuilder getSQL(){
@@ -116,50 +106,7 @@ public class JoinManager<T> {
         return sqlBuilder;
     }
 
-    public PageInfo<Map<String, Object>> findPage(Integer pageNumber, Integer pageSize){
-        Map<String, Object> parameters = new HashMap<>();
-        if(params.lastWhereParameters.size()>0){
-            parameters=params.lastWhereParameters;
-        }
-        NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplate();
-        StringBuilder sql=getSQL();
-        StringBuilder countSQL=new StringBuilder("SELECT count(1) ");
-        int indexOf = sql.toString().toUpperCase().indexOf(FROM);
-        countSQL.append(sql.substring(indexOf));
-        if(StrUtil.isNotBlank(params.lastSQL)){
-            countSQL.append(System.lineSeparator());
-            countSQL.append(WHERE);
-            countSQL.append(StrUtil.SPACE);
-            countSQL.append(params.lastSQL);
-        }
-        Integer totalCount = jdbcTemplate.queryForObject(countSQL.toString(), parameters, Integer.class);
-        if (pageNumber != null && pageSize != null) {
-            sql.append(System.lineSeparator());
-            sql.append(LIMIT);
-            sql.append(StrUtil.SPACE);
-            int pageNum = pageNumber - 1;
-            sql.append(pageNum*pageSize);
-            sql.append(StrUtil.C_COMMA);
-            sql.append(pageSize);
-        }
-        try {
-            List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql.toString(),parameters);
-            PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(mapList, pageNumber, pageSize, totalCount);
-            if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),parameters)
-                        , SQLUtil.printResult(JSONUtil.toJsonStr(mapPageInfo)));
-            }
-            return mapPageInfo;
-        }catch (Exception e){
-            if (FastMapperConfig.isOpenSQLPrint) {
-                SQLUtil.print(SQLUtil.printSql(sql.toString(),new HashMap<>())
-                        , SQLUtil.printResult(""));
-            }
-            return new PageInfo<>(new ArrayList<>(),pageNumber,pageSize,totalCount);
-        }
-    }
-
-    public <T> List<T> findAll(Class<T> returnObj) {
+    public <T> List<T> find(Class<T> returnObj) {
         Map<String, Object> parameters = new HashMap<>();
         if (params.lastWhereParameters.size() > 0) {
             parameters = params.lastWhereParameters;
@@ -174,6 +121,6 @@ public class JoinManager<T> {
         SearchParam.get().setExecuteSql(sql.toString());
         SearchParam.get().getTableMapper().setObjClass(returnObj);
         SearchParam.get().setParamMap(parameters);
-        return (List<T>) daoActuator.select();
+        return (List<T>)daoActuator.select();
     }
 }

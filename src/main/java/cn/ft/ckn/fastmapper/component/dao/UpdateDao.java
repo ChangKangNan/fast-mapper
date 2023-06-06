@@ -1,9 +1,9 @@
 package cn.ft.ckn.fastmapper.component.dao;
 
+import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.bean.*;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.component.dao.set.UpdateValue;
-import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.util.ValueUtil;
 import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -40,7 +40,7 @@ public class UpdateDao<T, R>{
         return new UpdateValue<>((R)this,classObj,daoActuator);
     }
 
-    public void updateByPrimaryKey(T t) {
+    public Integer updateByPrimaryKey(T t) {
         Field[] fields = classObj.getDeclaredFields();
         boolean exist = false;
         for (Field field : fields) {
@@ -55,22 +55,22 @@ public class UpdateDao<T, R>{
             }
         }
         if (!exist) {
-            return;
+            return 0;
         }
-       daoActuator.update();
+      return daoActuator.update();
     }
 
-    public void updateOverride(T t){
+    public Integer updateOverride(T t){
         List<ColumnParam> valueParams = ValueUtil.getColumns(t);
         if(CollUtil.isNotEmpty(valueParams)){
             for (ColumnParam valueParam : valueParams) {
                 SearchParam.get().getUpdateValueList().add(new SearchParam.Value(valueParam.getColumnName(),valueParam.getVal()));
             }
         }
-        daoActuator.update();
+       return daoActuator.update();
     }
 
-    public void update(T t) {
+    public Integer update(T t) {
         List<ColumnParam> valueParams = ValueUtil.getColumns(t);
         List<ColumnParam> columnParams = valueParams.stream().filter(ColumnParam::getHaveValue).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(columnParams)){
@@ -78,7 +78,7 @@ public class UpdateDao<T, R>{
                 SearchParam.get().getUpdateValueList().add(new SearchParam.Value(valueParam.getColumnName(),valueParam.getVal()));
             }
         }
-        daoActuator.update();
+       return daoActuator.update();
     }
 
 

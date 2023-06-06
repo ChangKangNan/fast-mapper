@@ -1,7 +1,5 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.bean.Page;
-import cn.ft.ckn.fastmapper.bean.PageInfo;
 import cn.ft.ckn.fastmapper.annotation.SFunction;
 import cn.ft.ckn.fastmapper.util.ColumnUtil;
 import cn.hutool.core.util.StrUtil;
@@ -50,20 +48,8 @@ public class WhereJoin<T,R> {
         return new JoinCustomer<T>(params).innerJoinGroup(innerGroup,mainKey,joinKey);
     }
 
-
-    public PageInfo<Map<String, Object>> findPage(Integer pageNumber, Integer pageSize){
-        return new JoinCustomer<T>(params).findPage(pageNumber,pageSize);
-    }
-
-    public PageInfo<Map<String, Object>> findPage(Page page){
-        return new JoinCustomer<T>(params).findPage(page.getPageNum(),page.getPageSize());
-    }
-
     /**
      * case: tb.k=:key   map:{key:"value"}
-     * @param sql
-     * @param parameters
-     * @return
      */
     public JoinCustomer<T> lastWhere(String sql,Map<String,Object> parameters) {
         params.lastSQL=sql;
@@ -71,8 +57,8 @@ public class WhereJoin<T,R> {
         return new JoinCustomer<T>(params);
     }
 
-    public  <R> List<R> findAll(Class<R> returnObj){
-        return new JoinCustomer<T>(params).findAll(returnObj);
+    public  <R> List<R> find(Class<R> returnObj){
+        return new JoinCustomer<T>(params).find(returnObj);
     }
 
     public JoinCustomer<T> getObj(){

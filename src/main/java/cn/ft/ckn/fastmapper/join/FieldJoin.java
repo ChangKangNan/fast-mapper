@@ -60,10 +60,6 @@ public class FieldJoin<T, R> {
         return new JoinCustomer<T>(params).leftJoin(joinClass, mainKey, joinKey);
     }
 
-    public PageInfo<Map<String, Object>> findPage(Integer pageNumber, Integer pageSize) {
-        return new JoinCustomer<T>(params).findPage(pageNumber, pageSize);
-    }
-
     public <X, K> JoinCustomer<T> leftJoinGroup(JoinCustomer<X> leftGroup
             , SFunction<T, K> mainKey, SFunction<X, K> joinKey) {
         return new JoinCustomer<T>(params).innerJoinGroup(leftGroup, mainKey, joinKey);
@@ -79,8 +75,8 @@ public class FieldJoin<T, R> {
         return new JoinCustomer<T>(params).innerJoinGroup(innerGroup, mainKey, joinKey);
     }
 
-    public <R> List<R> findAll(Class<R> returnObj) {
-        return new JoinCustomer<T>(params).findAll(returnObj);
+    public <R> List<R> find(Class<R> returnObj) {
+        return new JoinCustomer<T>(params).find(returnObj);
     }
 
     public JoinCustomer<T> getObj() {

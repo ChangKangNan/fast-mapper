@@ -4,6 +4,7 @@ import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.expander.MapperExpanderRunner;
 import cn.hutool.aop.aspects.SimpleAspect;
 import cn.hutool.core.date.TimeInterval;
+import cn.hutool.core.util.StrUtil;
 
 import java.lang.reflect.Method;
 
@@ -23,6 +24,15 @@ public class MapperActuatorAspect extends SimpleAspect {
     public boolean before(Object target, Method method, Object[] args) {
         //执行计时
         interval.start();
+        if(StrUtil.equals(method.getName().toUpperCase(), SearchParam.OperationType.INSERT.name())){
+            SearchParam.get().setOperationType(SearchParam.OperationType.INSERT);
+        }else if(StrUtil.equals(method.getName().toUpperCase(), SearchParam.OperationType.UPDATE.name())){
+            SearchParam.get().setOperationType(SearchParam.OperationType.UPDATE);
+        }else if(StrUtil.equals(method.getName().toUpperCase(), SearchParam.OperationType.DELETE.name())){
+            SearchParam.get().setOperationType(SearchParam.OperationType.DELETE);
+        }else if(StrUtil.equals(method.getName().toUpperCase(), SearchParam.OperationType.SELECT.name())){
+            SearchParam.get().setOperationType(SearchParam.OperationType.SELECT);
+        }
         return MapperExpanderRunner.runBeforeExpander(SearchParam.get(), method.getName(),method);
     }
 

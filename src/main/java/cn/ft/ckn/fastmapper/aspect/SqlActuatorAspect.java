@@ -7,6 +7,7 @@ import cn.ft.ckn.fastmapper.expander.MapperExpander;
 import cn.ft.ckn.fastmapper.util.PackageSqlUtil;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 
 import java.lang.reflect.Method;
@@ -25,10 +26,14 @@ public class SqlActuatorAspect  implements MapperExpander {
     @Override
     public void after(SearchParam param, Method method) {
         if(FastMapperConfig.isOpenSQLPrint){
-            SQLUtil.print(SQLUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()),param.getParamMap())
-                    , SQLUtil.printResult(JSONUtil.toJsonStr(param.getReturnVal())));
+            if(StrUtil.equals(param.getOperationType().name(),SearchParam.OperationType.SELECT.name())){
+                SQLUtil.print(SQLUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()),param.getParamMap())
+                        , SQLUtil.printResult(JSONUtil.toJsonStr(param.getReturnVal() == null ? "" : param.getReturnVal())));
+            }else {
+                SQLUtil.print(SQLUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()),param.getParamMap())
+                        , SQLUtil.printResult(param.getReturnVal()));
+            }
         }
-
     }
 
     @Override
@@ -36,7 +41,7 @@ public class SqlActuatorAspect  implements MapperExpander {
         if(FastMapperConfig.isOpenSQLPrint) {
             String sqlConversion = PackageSqlUtil.sqlConversion(param.getExecuteSql());
             SQLUtil.print(SQLUtil.printSql(sqlConversion, param.getParamMap())
-                    , SQLUtil.printResult(""));
+                    , SQLUtil.printResult("查询异常无结果"));
         }
     }
 

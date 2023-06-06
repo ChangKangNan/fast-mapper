@@ -160,7 +160,7 @@ public class SearchParam<T> {
         isCloseDeleteProtect = action;
     }
 
-    public static enum OperationType{
+    public enum OperationType{
         INSERT,SELECT,UPDATE,DELETE
     }
 
