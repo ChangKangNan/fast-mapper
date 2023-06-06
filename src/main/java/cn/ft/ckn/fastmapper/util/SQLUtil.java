@@ -21,6 +21,8 @@ public class SQLUtil {
             int lineNumber = stackTraceElement.getLineNumber();
             if (!stackTraceElement.getClassName().startsWith("cn.ft.ckn.fastmapper.")
                     && !stackTraceElement.getClassName().startsWith("java.lang")
+                    && !stackTraceElement.getClassName().startsWith("cn.hutool.aop.interceptor.")
+                    && !stackTraceElement.getClassName().startsWith("cn.ft.ckn.fastmapper.component.")
             ) {
                 return className + "." + methodName + "(" + lineNumber + ")     SQL执行↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓";
             }
