@@ -3,6 +3,7 @@ package cn.ft.ckn.fastmapper.component.dao.jdbc;
 import cn.ft.ckn.fastmapper.bean.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import cn.ft.ckn.fastmapper.transaction.context.DataSourceContext;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -32,6 +33,9 @@ public class DataSourceConnection {
         SearchParam searchParam = SearchParam.get();
         Boolean master = searchParam.getMaster();
         NamedParameterJdbcTemplate jdbcTemplate = null;
+        if (DataSourceContext.getDataSource() != null) {
+            return DataSourceContext.getTemplate();
+        }
         if (master) {
             jdbcTemplate = jdbcTemplateThreadLocal.get();
             if (jdbcTemplate == null) {
