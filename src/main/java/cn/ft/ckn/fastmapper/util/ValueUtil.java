@@ -39,11 +39,11 @@ public class ValueUtil {
                 columnParam.setVal(invoke);
                 boolean b = invoke != null;
                 columnParam.setHaveValue(b);
+                columnParam.setType(field.getType());
+                columnParam.setColumnName(columnName);
+                columnParam.setFieldName(fieldName);
+                columnParams.add(columnParam);
             }
-            columnParam.setType(field.getType());
-            columnParam.setColumnName(columnName);
-            columnParam.setFieldName(fieldName);
-            columnParams.add(columnParam);
         }
         return columnParams;
     }

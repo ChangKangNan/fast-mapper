@@ -2,6 +2,7 @@ package cn.ft.ckn.fastmapper.component.dao.jdbc;
 
 import cn.ft.ckn.fastmapper.bean.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
+import cn.ft.ckn.fastmapper.component.dao.mybatis.MybatisDaoActuator;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.transaction.context.DataSourceContext;
 import cn.hutool.core.text.StrBuilder;
@@ -109,7 +110,7 @@ public class DataSourceConnection {
         return master;
     }
 
-    private static Class<? extends DaoActuator> daoActuator = JdbcDaoActuator.class;
+    private static Class<? extends DaoActuator> daoActuator = MybatisDaoActuator.class;
 
     public static <T> DaoActuator<T> getDaoActuator() {
         try {
