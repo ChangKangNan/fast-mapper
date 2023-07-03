@@ -190,7 +190,9 @@ public class PackageSqlUtil {
                 sql.append(StrUtil.SPACE);
             }
             sql.append(whereCondition.columnName);
+            sql.append(StrUtil.SPACE);
             sql.append(whereCondition.expression);
+            sql.append(StrUtil.SPACE);
             if (!Expression.Like.expression.equals(whereCondition.expression)) {
                 if (StrUtil.equalsAny(whereCondition.expression, Expression.In.expression, Expression.NotIn.expression)) {
                     if (ArrayUtil.isArray(whereCondition.value)) {
