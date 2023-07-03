@@ -9,6 +9,7 @@ import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.collection.CollUtil;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -51,6 +52,13 @@ public class SelectDao<T,R> implements Pager<R> {
 
     public R or() {
         SearchParam.get().isAnd = false;
+        return (R)this;
+    }
+
+    public R setSalveDataSource(DataSource dataSource){
+        SearchParam searchParam = SearchParam.get();
+        searchParam.setMaster(false);
+        DataSourceConnection.setSlaveDataSource(dataSource);
         return (R)this;
     }
 

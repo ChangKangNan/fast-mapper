@@ -13,8 +13,8 @@ import io.netty.util.concurrent.FastThreadLocal;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * @author ckn
@@ -59,16 +59,38 @@ public class DataSourceConnection {
         return jdbcTemplate;
     }
 
-    private static String getSlaveKey(DataSource dataSource){
+    private static String getSlaveKey(DataSource dataSource) {
         Class<? extends DataSource> dataSourceClass = dataSource.getClass();
-        try {
-            String username = (String) ReflectUtil.getMethod(dataSourceClass, "getUsername").invoke(dataSourceClass);
-            String password = (String) ReflectUtil.getMethod(dataSourceClass, "getPassword").invoke(dataSourceClass);
-            String url = (String) ReflectUtil.getMethod(dataSourceClass, "getUrl").invoke(dataSourceClass);
-            return new StrBuilder(username).append(password).append(url).toString();
-        }catch (Exception e){
-            throw new RuntimeException(e);
+        Field[] fields = dataSourceClass.getDeclaredFields();
+        String username = null;
+        String password = null;
+        String jdbcUrl = null;
+        for (Field field : fields) {
+            // 设置字段可访问， 否则无法访问private修饰的变量值
+            field.setAccessible(true);
+            try {
+                // 获取字段名称
+                String fieldName = field.getName();
+
+                // 获取指定对象的当前字段的值
+                Object fieldVal = field.get(dataSource);
+                if (StrUtil.equals(fieldName, "username")) {
+                    username = fieldVal + "";
+                }
+                if (StrUtil.equals(fieldName, "password")) {
+                    password = fieldVal + "";
+                }
+                if (StrUtil.equals(fieldName, "jdbcUrl")) {
+                    jdbcUrl = fieldVal + "";
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
+        if (StrUtil.isNotBlank(username) && StrUtil.isNotBlank(password) && StrUtil.isNotBlank(jdbcUrl)) {
+            return new StrBuilder(username).append(password).append(jdbcUrl).toString();
+        }
+        return "";
     }
 
     public static NamedParameterJdbcTemplate dataSource() {

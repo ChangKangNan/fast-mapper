@@ -7,6 +7,8 @@ import cn.ft.ckn.fastmapper.bean.TableMapper;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
 import cn.hutool.aop.ProxyUtil;
 
+import javax.sql.DataSource;
+
 /**
  * @author ckn
  * @date 2022/7/28
@@ -28,5 +30,12 @@ public class DeleteDao<T,R>{
 
     public Integer delete(){
       return daoActuator.delete();
+    }
+
+    public R setSalveDataSource(DataSource dataSource){
+        SearchParam searchParam = SearchParam.get();
+        searchParam.setMaster(false);
+        DataSourceConnection.setSlaveDataSource(dataSource);
+        return (R)this;
     }
 }

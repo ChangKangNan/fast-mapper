@@ -38,4 +38,11 @@ public class InsertDao<T,R>{
         DataSourceConnection.setSlaveDataSource(dataSource);
         return (R)this;
     }
+
+    public R setSalveDataSource(DataSource dataSource){
+        SearchParam searchParam = SearchParam.get();
+        searchParam.setMaster(false);
+        DataSourceConnection.setSlaveDataSource(dataSource);
+        return (R)this;
+    }
 }

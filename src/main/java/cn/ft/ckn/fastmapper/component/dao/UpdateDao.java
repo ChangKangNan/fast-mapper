@@ -11,6 +11,7 @@ import cn.hutool.core.util.ReflectUtil;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,6 +85,13 @@ public class UpdateDao<T, R>{
 
     public R or() {
         SearchParam.get().isAnd = false;
+        return (R)this;
+    }
+
+    public R setSalveDataSource(DataSource dataSource){
+        SearchParam searchParam = SearchParam.get();
+        searchParam.setMaster(false);
+        DataSourceConnection.setSlaveDataSource(dataSource);
         return (R)this;
     }
 }
