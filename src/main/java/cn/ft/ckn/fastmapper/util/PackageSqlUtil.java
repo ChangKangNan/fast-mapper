@@ -221,8 +221,7 @@ public class PackageSqlUtil {
                     packParam(sql, paramMap, whereCondition.value, paramIndex);
                 }
             } else {
-                sql.append(whereCondition.columnName).append(LIKE);
-                packParam(sql, paramMap, "'%" + whereCondition.value + "%", paramIndex);
+                packParam(sql, paramMap, "%" + whereCondition.value + "%", paramIndex);
             }
         }
 

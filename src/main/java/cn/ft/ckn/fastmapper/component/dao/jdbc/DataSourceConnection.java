@@ -110,7 +110,7 @@ public class DataSourceConnection {
         return master;
     }
 
-    private static Class<? extends DaoActuator> daoActuator = MybatisDaoActuator.class;
+    private static Class<? extends DaoActuator> daoActuator = JdbcDaoActuator.class;
 
     public static <T> DaoActuator<T> getDaoActuator() {
         try {
