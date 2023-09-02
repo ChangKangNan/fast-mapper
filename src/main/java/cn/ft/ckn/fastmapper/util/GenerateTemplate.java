@@ -1,6 +1,6 @@
 package cn.ft.ckn.fastmapper.util;
 
-import cn.ft.ckn.fastmapper.bean.FileConfig;
+import cn.ft.ckn.fastmapper.bean.GenerateTemplateConfig;
 import cn.ft.ckn.fastmapper.bean.TableInfo;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
@@ -19,10 +19,10 @@ import java.util.Set;
  * @author ckn
  * @date 2021/10/18
  */
-public class GeneratorUtil {
+public class GenerateTemplate {
     private static final String TEMPLATE_PATH = "src/main/resources/template";
 
-    public static void generate(FileConfig config) {
+    public static void generate(GenerateTemplateConfig config) {
         try {
             Set<String> createTables = config.getCreateTables();
             Connection connection = DbUtil.getInstance().getConnection(config);
@@ -46,12 +46,12 @@ public class GeneratorUtil {
             Writer out = null;
             try {
                 // step2 获取模版路径
-                configuration.setClassLoaderForTemplateLoading(GeneratorUtil.class.getClassLoader(), "/template");
+                configuration.setClassLoaderForTemplateLoading(GenerateTemplate.class.getClassLoader(), "/template");
                 configuration.setDefaultEncoding("UTF-8");
                 configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
                 // step3 创建数据模型
                 info.setPojoName(info.getPojoName());
-                Map<String, Object> dataMap = new HashMap<String, Object>();
+                Map<String, Object> dataMap = new HashMap<>();
                 dataMap.put("table", info);
                 // step4 加载模版文件
                 Template template = configuration.getTemplate(fileName);
@@ -75,6 +75,10 @@ public class GeneratorUtil {
                 }
                 File file = new File(filePath);
                 if (!file.exists()) {
+                    //父级目录不存在则自动创建
+                    if (!file.getParentFile().exists()) {
+                        file.getParentFile().mkdirs();
+                    }
                     out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
                     // step6 输出文件
                     template.process(dataMap, out);

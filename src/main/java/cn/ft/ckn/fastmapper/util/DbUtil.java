@@ -2,7 +2,7 @@ package cn.ft.ckn.fastmapper.util;
 
 
 import cn.ft.ckn.fastmapper.bean.ColumnInfo;
-import cn.ft.ckn.fastmapper.bean.FileConfig;
+import cn.ft.ckn.fastmapper.bean.GenerateTemplateConfig;
 import cn.ft.ckn.fastmapper.bean.TableInfo;
 import cn.hutool.core.util.StrUtil;
 
@@ -44,27 +44,26 @@ public class DbUtil {
      * @return 获取到的表属性映射
      * @throws Exception 异常
      */
-    public List<TableInfo> getAllTables(FileConfig fileConfig, DatabaseMetaData metaData, Set<String> tableNames)
+    public List<TableInfo> getAllTables(GenerateTemplateConfig fileConfig, DatabaseMetaData metaData, Set<String> tableNames)
             throws Exception {
         String dataSourceName = metaData.getConnection().getCatalog();
-        boolean isIgnore=fileConfig.getIgnorePrefix();
+        boolean isIgnore = fileConfig.getIgnorePrefix();
         ResultSet tables = metaData.getTables(dataSourceName, null, null, new String[]{"TABLE"});
         List<TableInfo> tableInfoList = new ArrayList<>();
         while (tables.next()){
             String table_name = tables.getString("TABLE_NAME");
             String tableDesc = tables.getString("REMARKS");
             for (String tableName : tableNames) {
-                if (table_name.equals(tableName)) {
+                if (StrUtil.equalsAny(tableName,table_name,"all")) {
                     TableInfo tableInfo = new TableInfo();
                     String beanName = "";
                     if (isIgnore) {
-                        int indexOf = table_name.indexOf("_") + 1;
-                        beanName = table_name.substring(indexOf);
+                        beanName = table_name.substring(table_name.indexOf("_") + 1);
                     } else {
                         beanName = table_name;
                     }
                     tableInfo.setBeanName(StrUtil.toCamelCase(beanName));
-                    tableInfo.setTableName(tableName);
+                    tableInfo.setTableName(table_name);
                     tableInfo.setTableDesc(tableDesc);
                     String pojoName = StrUtil.toCamelCase("_" + beanName);
                     tableInfo.setPojoName(pojoName);
@@ -89,7 +88,7 @@ public class DbUtil {
             columnName = columns.getString("COLUMN_NAME");
             columnType = columns.getString("TYPE_NAME");
             remarks = columns.getString("remarks");
-            remarks = remarks.replaceAll("\\s*|\r|\n|\t", "");
+            remarks = remarks.replaceAll("\\s*|\r\n|\r|\n|\t", "");
             ColumnInfo info = new ColumnInfo();
             info.setColumnName(columnName);
             info.setColumnType(columnType);
@@ -134,7 +133,7 @@ public class DbUtil {
      * @param conf      配置信息
      * @param tableInfo 表信息
      */
-    public void setPackPath(FileConfig conf, TableInfo tableInfo) {
+    public void setPackPath(GenerateTemplateConfig conf, TableInfo tableInfo) {
         String separator = File.separator;
         String childModuleName = conf.getChildModuleName();
         StringBuilder javaBasePath =new StringBuilder();
@@ -161,7 +160,7 @@ public class DbUtil {
      * @return 数据库连接
      * @throws ClassNotFoundException 错误
      */
-    public Connection getConnection(FileConfig fileConfig) throws ClassNotFoundException {
+    public Connection getConnection(GenerateTemplateConfig fileConfig) throws ClassNotFoundException {
         Connection connection = null;
         try {
             String driverClass = fileConfig.getDriverClass();
@@ -184,7 +183,7 @@ public class DbUtil {
      * @return 数据类型
      */
     public static String getFieldType(String columnType, Set<String> packages) {
-        if (StrUtil.equalsAnyIgnoreCase(columnType,"varchar","nvarchar","char","text","mediumtext"))
+        if (StrUtil.equalsAnyIgnoreCase(columnType,"varchar","nvarchar","char","text","mediumtext","longtext"))
         {
             return "String";
         } else if (StrUtil.equalsAnyIgnoreCase(columnType,"tinyblob","blob","mediumblob","longblob")) {
@@ -196,7 +195,7 @@ public class DbUtil {
             return "Boolean";
         } else if (StrUtil.equalsAnyIgnoreCase(columnType,"int","smallint","smallint unsigned")) {
             return "Integer";
-        }  else if (StrUtil.equalsAnyIgnoreCase(columnType,"bigint","int unsigned")) {
+        }  else if (StrUtil.equalsAnyIgnoreCase(columnType,"bigint","bigint unsigned","int unsigned")) {
             return "Long";
         } else if (StrUtil.equalsAnyIgnoreCase(columnType,"float")) {
             return "Float";

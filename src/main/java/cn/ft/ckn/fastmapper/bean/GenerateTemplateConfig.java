@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * @author kangnan.chang
  */
-public class FileConfig {
+public class GenerateTemplateConfig {
     /**
      * 需要生成模型的表名
      */
@@ -16,7 +16,7 @@ public class FileConfig {
     /**
      * 是否生成在测试类中
      */
-    private Boolean isTest =Boolean.FALSE;
+    private Boolean isTest = Boolean.FALSE;
     /**
      * 是否覆盖
      */
