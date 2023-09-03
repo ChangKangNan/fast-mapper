@@ -2,6 +2,7 @@ package cn.ft.ckn.fastmapper.bean;
 
 import cn.hutool.core.collection.CollUtil;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +21,7 @@ public class GenerateTemplateConfig {
     /**
      * 是否覆盖
      */
-    private Boolean isReplace=Boolean.TRUE;
+    private Boolean isReplace = Boolean.TRUE;
     /**
      * 子模块路径 xxx.xxx.xxx
      */
@@ -70,7 +71,7 @@ public class GenerateTemplateConfig {
     /**
      * 是否忽略前缀
      */
-    private Boolean ignorePrefix=Boolean.FALSE;
+    private Boolean ignorePrefix = Boolean.FALSE;
 
     public Boolean getIgnorePrefix() {
         return ignorePrefix;
@@ -123,9 +124,7 @@ public class GenerateTemplateConfig {
      */
     public void setCreateTables(String... tables) {
         createTables = new HashSet<>();
-        for (String table : tables) {
-            createTables.add(table);
-        }
+        Collections.addAll(createTables, tables);
     }
 
     /**
@@ -139,6 +138,7 @@ public class GenerateTemplateConfig {
 
     /**
      * 生成模板的包路径
+     *
      * @param basePackage 包路径地址 xxx.xxx.xxx
      */
     public void setBasePackage(String basePackage) {
@@ -147,9 +147,10 @@ public class GenerateTemplateConfig {
 
     /**
      * 设置数据库连接信息
-     * @param url 数据库连接
-     * @param user 用户名
-     * @param password 密码
+     *
+     * @param url         数据库连接
+     * @param user        用户名
+     * @param password    密码
      * @param driverClass 数据库驱动
      */
     public void setDBInfo(String url, String user, String password, String driverClass) {

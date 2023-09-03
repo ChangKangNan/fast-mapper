@@ -25,17 +25,6 @@ public class DbUtil {
     }
 
     /**
-     * 获取需要生成代码的表信息
-     *
-     * @param metaData        参数
-     * @param tableNames      表名称
-     * @param underline2Camel 是否进行转换
-     * @return 表信息
-     * @throws SQLException 错误
-     */
-    private Map<String, TableInfo> beanTableInfoAll = new HashMap<>();
-
-    /**
      * 获取所有表属性信息
      *
      * @param fileConfig       配置
