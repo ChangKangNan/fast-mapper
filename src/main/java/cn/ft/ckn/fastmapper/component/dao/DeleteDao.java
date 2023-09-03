@@ -1,11 +1,9 @@
 package cn.ft.ckn.fastmapper.component.dao;
 
-import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.bean.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.bean.TableMapper;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
-import cn.hutool.aop.ProxyUtil;
 
 import javax.sql.DataSource;
 
@@ -20,7 +18,7 @@ public class DeleteDao<T,R>{
     public DeleteDao(Class<R> r,Class<T> classObj) {
         TableMapper.init(classObj);
         this.r=r;
-        daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
+        daoActuator = DataSourceConnection.getDaoActuator();
     }
 
     public R closeDeletedProtect(){

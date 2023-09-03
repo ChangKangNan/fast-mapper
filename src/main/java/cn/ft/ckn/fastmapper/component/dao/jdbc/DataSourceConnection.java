@@ -1,12 +1,12 @@
 package cn.ft.ckn.fastmapper.component.dao.jdbc;
 
+import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.bean.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
-import cn.ft.ckn.fastmapper.component.dao.mybatis.MybatisDaoActuator;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.transaction.context.DataSourceContext;
+import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.text.StrBuilder;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import io.netty.util.concurrent.FastThreadLocal;
@@ -14,7 +14,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author ckn
@@ -136,7 +137,7 @@ public class DataSourceConnection {
 
     public static <T> DaoActuator<T> getDaoActuator() {
         try {
-            return daoActuator.newInstance();
+            return ProxyUtil.proxy(daoActuator.newInstance(), MapperActuatorAspect.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

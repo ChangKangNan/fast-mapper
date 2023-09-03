@@ -28,13 +28,13 @@ public class UpdateDao<T, R>{
         TableMapper.init(classObj);
         this.classObj = classObj;
         this.r = r;
-        this.daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
+        this.daoActuator = DataSourceConnection.getDaoActuator();
     }
 
     public UpdateDao(Class<T> obj) {
         classObj = obj;
         this.r = null;
-        this.daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
+        this.daoActuator = DataSourceConnection.getDaoActuator();
     }
 
     public UpdateValue<T, R> value() {

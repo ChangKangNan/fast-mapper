@@ -45,8 +45,7 @@ public class MybatisDaoActuator<T> implements DaoActuator<T> {
         if(CollUtil.isEmpty(select)){
             return new ArrayList<>();
         }
-        List<T> list = JSONObject.parseArray(JSONObject.toJSONString(select), param.getTableMapper().getObjClass());
-        return list;
+        return JSONObject.parseArray(JSONObject.toJSONString(select), param.getTableMapper().getObjClass());
     }
 
     @Override

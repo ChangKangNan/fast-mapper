@@ -1,6 +1,7 @@
 package cn.ft.ckn.fastmapper.component.dao.jdbc;
 
-import cn.ft.ckn.fastmapper.bean.*;
+import cn.ft.ckn.fastmapper.bean.DaoActuator;
+import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.component.provider.MapperDeleteProvider;
 import cn.ft.ckn.fastmapper.component.provider.MapperInsertProvider;
 import cn.ft.ckn.fastmapper.component.provider.MapperSelectProvider;
@@ -52,11 +53,7 @@ public class JdbcDaoActuator<T> implements DaoActuator<T> {
     public Integer count() {
         SearchParam<T> param = SearchParam.get();
         MapperSelectProvider.findCount(param);
-        try {
-            return DataSourceConnection.getJdbcTemplate().queryForObject(PackageSqlUtil.sqlConversion(param.getExecuteSql()), param.getParamMap(), Integer.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return DataSourceConnection.getJdbcTemplate().queryForObject(PackageSqlUtil.sqlConversion(param.getExecuteSql()), param.getParamMap(), Integer.class);
     }
 
     @Override

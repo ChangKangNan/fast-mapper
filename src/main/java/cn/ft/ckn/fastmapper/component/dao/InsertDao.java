@@ -4,8 +4,6 @@ import cn.ft.ckn.fastmapper.bean.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.bean.TableMapper;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
-import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
-import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.collection.ListUtil;
 
 import javax.sql.DataSource;
@@ -21,7 +19,7 @@ public class InsertDao<T,R>{
     public InsertDao(Class<R> r,Class<T> classObj) {
         TableMapper.init(classObj);
         this.r=r;
-        daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
+        daoActuator = DataSourceConnection.getDaoActuator();
     }
 
     public T insert(T t) {
