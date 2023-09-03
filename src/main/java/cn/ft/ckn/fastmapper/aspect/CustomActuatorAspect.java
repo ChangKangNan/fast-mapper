@@ -55,9 +55,7 @@ public class CustomActuatorAspect implements MapperExpander {
             if (CollUtil.isEmpty(whereConditions)) {
                 return true;
             }
-         //   String primaryKey = param.getTableMapper().getPrimaryKey();
             long existDelete = whereConditions.stream().filter(w -> StrUtil.equals(w.columnName, FastMapperConfig.logicDeletedColumn)).count();
-          //long existPk = whereConditions.stream().filter(w -> StrUtil.equals(w.columnName, primaryKey)).count();
             if (existDelete == 0) {
                 whereConditions.add(new SearchParam.WhereCondition(FastMapperConfig.logicDeletedColumn, FastMapperConfig.logicDeletedColumnDefaultValue, Expression.Equal.expression, true));
             }

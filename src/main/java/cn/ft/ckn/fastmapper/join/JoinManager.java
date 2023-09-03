@@ -6,6 +6,7 @@ import cn.ft.ckn.fastmapper.bean.Expression;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.bean.TableMapper;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
+import cn.ft.ckn.fastmapper.constants.SQLConstants;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
 import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.map.MapUtil;
@@ -74,7 +75,7 @@ public class JoinManager<T> {
                 for (String link : map.keySet()) {
                     i++;
                     if(i !=1){
-                        sqlBuilder.append("and");
+                        sqlBuilder.append(AND);
                     }
                     String s = map.get(link);
                     sqlBuilder.append(link);
@@ -106,9 +107,9 @@ public class JoinManager<T> {
         return sqlBuilder;
     }
 
-    public <T> List<T> find(Class<T> returnObj) {
+    public <X> List<X> find(Class<X> returnObj) {
         Map<String, Object> parameters = new HashMap<>();
-        if (params.lastWhereParameters.size() > 0) {
+        if (!params.lastWhereParameters.isEmpty()) {
             parameters = params.lastWhereParameters;
         }
         StringBuilder sql = getSQL();
@@ -121,6 +122,6 @@ public class JoinManager<T> {
         SearchParam.get().setExecuteSql(sql.toString());
         SearchParam.get().getTableMapper().setObjClass(returnObj);
         SearchParam.get().setParamMap(parameters);
-        return (List<T>)daoActuator.select();
+        return (List<X>)daoActuator.select();
     }
 }

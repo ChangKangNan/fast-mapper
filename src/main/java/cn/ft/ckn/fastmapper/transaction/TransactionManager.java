@@ -41,37 +41,38 @@ public class TransactionManager {
         TransactionSwitch.GLOBAL_TRANSACTION_ISOLATION.remove();
     }
 
-    public static  void initTransaction(DataSource dataSource){
+    public static void initTransaction(DataSource dataSource) {
         try {
             Connection connection = DataSourceUtils.getConnection(dataSource);
             String key = getKey(dataSource);
             boolean transactionFlag = TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.get() != null && TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.get();
-            if (transactionFlag) {
-                connection.setAutoCommit(false);
-                connection.setTransactionIsolation(TransactionSwitch.GLOBAL_TRANSACTION_ISOLATION.get());
-                Map<String, Connection> connectionMap = transactionMapTreadLocal.get();
-                Stack<Connection> connections = transactionTreadLocal.get();
-                if (connectionMap == null) {
-                    Map<String, Connection> map = new HashMap<>();
-                    map.put(key, connection);
-                    transactionMapTreadLocal.set(map);
-                    if(connections ==null){
-                        Stack<Connection> stack=new Stack<>();
-                        stack.push(connection);
-                        transactionTreadLocal.set(stack);
-                    }
+            if (!transactionFlag) {
+                return;
+            }
+            connection.setAutoCommit(false);
+            connection.setTransactionIsolation(TransactionSwitch.GLOBAL_TRANSACTION_ISOLATION.get());
+            Map<String, Connection> connectionMap = transactionMapTreadLocal.get();
+            Stack<Connection> connections = transactionTreadLocal.get();
+            if (connectionMap == null) {
+                Map<String, Connection> map = new HashMap<>();
+                map.put(key, connection);
+                transactionMapTreadLocal.set(map);
+                if (connections == null) {
+                    Stack<Connection> stack = new Stack<>();
+                    stack.push(connection);
+                    transactionTreadLocal.set(stack);
+                }
+            } else {
+                Connection conn = connectionMap.get(key);
+                if (conn == null) {
+                    connectionMap.put(key, connection);
+                    connections.add(connection);
                 } else {
-                    Connection conn = connectionMap.get(key);
-                    if (conn == null) {
-                        connectionMap.put(key, connection);
-                        connections.add(connection);
-                    } else {
-                        connectionMap.put(key, conn);
-                        connections.add(conn);
-                    }
+                    connectionMap.put(key, conn);
+                    connections.add(conn);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
