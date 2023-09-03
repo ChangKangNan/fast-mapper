@@ -6,6 +6,7 @@ import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 
 /**
+ * 装饰器模式
  * @author ckn
  * @date 2023/5/25
  */

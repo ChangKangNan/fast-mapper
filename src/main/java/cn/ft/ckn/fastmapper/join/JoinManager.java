@@ -1,14 +1,11 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.bean.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.Expression;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.bean.TableMapper;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
-import cn.ft.ckn.fastmapper.constants.SQLConstants;
 import cn.ft.ckn.fastmapper.util.SQLUtil;
-import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
@@ -30,7 +27,7 @@ public class JoinManager<T> {
     public JoinManager(JoinParams params) {
         SearchParam.init(new TableMapper<>());
         this.params=params;
-        daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
+        daoActuator = DataSourceConnection.getDaoActuator();
     }
 
    private StringBuilder getSQL(){

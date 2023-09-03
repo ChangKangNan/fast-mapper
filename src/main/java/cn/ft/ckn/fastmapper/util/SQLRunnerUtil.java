@@ -4,8 +4,6 @@ import cn.ft.ckn.fastmapper.bean.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
 import cn.ft.ckn.fastmapper.bean.TableMapper;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
-import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
-import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 
@@ -15,20 +13,20 @@ import java.util.List;
 
 /**
  * 自定义sql查询与更新
- *
+ * 门面模式
  * @author ckn
  */
-public class SQLRunner {
+public class SQLRunnerUtil {
     private DaoActuator daoActuator;
-    private static SQLRunner sqlExecutorUtil = new SQLRunner();
+    private static SQLRunnerUtil sqlExecutorUtil = new SQLRunnerUtil();
 
-    private SQLRunner() {
-        this.daoActuator = ProxyUtil.proxy(DataSourceConnection.getDaoActuator(), MapperActuatorAspect.class);
+    private SQLRunnerUtil() {
+        this.daoActuator = DataSourceConnection.getDaoActuator();
         TableMapper tableMapper = new TableMapper();
         SearchParam.init(tableMapper);
     }
 
-    public static SQLRunner build() {
+    public static SQLRunnerUtil build() {
         return sqlExecutorUtil;
     }
 
