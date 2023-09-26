@@ -7,6 +7,7 @@ import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.constants.SQLConstants;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ReUtil;
@@ -16,6 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static cn.ft.ckn.fastmapper.config.FastMapperConfig.*;
+import static cn.ft.ckn.fastmapper.constants.SQLConstants.OR;
 
 /**
  * 封装SQL工具类
@@ -182,15 +184,30 @@ public class PackageSqlUtil {
         }
         sql.append(CRLF);
         sql.append(WHERE).append(StrUtil.SPACE);
+        List<SearchParam.Bracket> brackets = searchParam.getBrackets();
         for (int i = 0; i < whereConditions.size(); i++) {
             SearchParam.WhereCondition whereCondition = whereConditions.get(i);
             if((!StrUtil.equalsAnyIgnoreCase(whereCondition.expression,Expression.IsNull.expression,Expression.IsNotNull.expression)) && whereCondition.value == null){
                 continue;
             }
-            if (i != 0 && whereCondition.isAnd) {
+            if (i != 0) {
                 sql.append(CRLF);
-                sql.append(AND);
+                if(whereCondition.isAnd){
+                    sql.append(AND);
+                }else {
+                    sql.append(OR);
+                }
                 sql.append(StrUtil.SPACE);
+            }
+
+            for (SearchParam.Bracket bracket : brackets) {
+                Integer leftIndex = bracket.getLeftIndex();
+                if(leftIndex != i){
+                    continue;
+                }
+                sql.append("(");
+                sql.append(CRLF);
+                break;
             }
             sql.append(whereCondition.columnName);
             sql.append(StrUtil.SPACE);
@@ -229,6 +246,15 @@ public class PackageSqlUtil {
                 }
             } else {
                 packParam(sql, paramMap, "%" + whereCondition.value + "%", paramIndex);
+            }
+            for (SearchParam.Bracket bracket : brackets) {
+                Integer rightIndex = bracket.getRightIndex();
+                if(rightIndex != i){
+                    continue;
+                }
+                sql.append(CRLF);
+                sql.append(")");
+                break;
             }
         }
 

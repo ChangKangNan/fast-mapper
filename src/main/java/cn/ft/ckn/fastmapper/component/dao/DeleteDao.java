@@ -6,6 +6,7 @@ import cn.ft.ckn.fastmapper.bean.TableMapper;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 /**
  * @author ckn
@@ -34,6 +35,24 @@ public class DeleteDao<T,R>{
         SearchParam searchParam = SearchParam.get();
         searchParam.setMaster(false);
         DataSourceConnection.setSlaveDataSource(dataSource);
+        return (R)this;
+    }
+
+    public R bracketPrefix() {
+        SearchParam.get().setBracket(SearchParam.Bracket.builder().leftIndex(SearchParam.get().getWhereCondition().size()).build());
+        return (R)this;
+    }
+
+    public R bracketSuffix() {
+        List<SearchParam.Bracket> brackets = SearchParam.get().getBrackets();
+        for (int i = brackets.size() - 1; i >= 0; i--) {
+            if (brackets.get(i).getRightIndex() != null) {
+                continue;
+            }
+            SearchParam.Bracket bracket = brackets.get(i);
+            bracket.setRightIndex(SearchParam.get().getWhereCondition().size()-1);
+            SearchParam.get().setBracket(bracket, i);
+        }
         return (R)this;
     }
 }

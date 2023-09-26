@@ -1,6 +1,9 @@
 package cn.ft.ckn.fastmapper.bean;
 
+import cn.hutool.core.collection.CollUtil;
 import io.netty.util.concurrent.FastThreadLocal;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +30,7 @@ public class SearchParam<T> {
         searchParam.whereCondition=new ArrayList<>();
         searchParam.updateValueList=new ArrayList<>();
         searchParam.orderByCondition=new ArrayList<>();
+        searchParam.brackets=new ArrayList<>();
         searchParam.setCloseDeleteProtect(Boolean.FALSE);
         searchParam.paramMap=new HashMap<>();
         return searchParam;
@@ -58,6 +62,11 @@ public class SearchParam<T> {
      * order by条件封装
      */
     private List<SearchParam.OrderByCondition> orderByCondition;
+
+    /**
+     * 组合条件
+     */
+    private List<SearchParam.Bracket> brackets;
 
     /**
      * 数据操作值封装
@@ -164,6 +173,13 @@ public class SearchParam<T> {
         INSERT,SELECT,UPDATE,DELETE
     }
 
+    @Data
+    @Builder
+    public static class Bracket{
+        private Integer leftIndex;
+        private Integer rightIndex;
+    }
+
     public static class WhereCondition {
         public String expression;
         public String columnName;
@@ -176,6 +192,7 @@ public class SearchParam<T> {
             this.isAnd=isAnd;
         }
     }
+
     public static class Value{
         public String columnName;
         public Object value;
@@ -250,5 +267,23 @@ public class SearchParam<T> {
 
     public void setExecuteSql(String executeSql) {
         this.executeSql = executeSql;
+    }
+
+    public List<Bracket> getBrackets() {
+        return brackets;
+    }
+
+    public void setBrackets(List<Bracket> brackets) {
+        this.brackets = brackets;
+    }
+
+    public void setBracket(Bracket bracket,int index) {
+       if(CollUtil.isEmpty(brackets)){
+           return;
+       }
+        brackets.set(index,bracket);
+    }
+    public void setBracket(Bracket bracket) {
+        brackets.add(bracket);
     }
 }
