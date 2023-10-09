@@ -5,7 +5,7 @@
      <dependency>
             <groupId>cn.ft.ckn</groupId>
             <artifactId>fast-mapper</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>2.0.0</version>
      </dependency>
 ```
 # 使用环境
@@ -16,37 +16,44 @@ JDK1.8+
 ![img.png](image/img.png)
 
 生成操作文件如下:
-
-![img_1.png](image/img_1.png)
-
-其中dbInfo为基本的数据库连接信息
-basePackage:基础包路径,根据自己项目中实际的修改即可
-生成文件总共三个:
-## 基础bean
-
-![img_2.png](image/img_2.png)
-
-## action文件
-
-![img_3.png](image/img_3.png)
-
-## dao文件
-
-![img_4.png](image/img_4.png)
-
+```
+public class GenerateTest {
+    public static void main(String[] args) {
+        GenerateTemplateConfig config=new GenerateTemplateConfig();
+        //基础目录
+        config.setBasePackage("pers.ckn.sp");
+        //无子模块项目则不无需填写
+        config.setChildModuleName("");
+        //数据库信息
+        config.setDBInfo("jdbc:mysql://localhost:3306/user?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useInformationSchema=true",
+                "root","123456","com.mysql.jdbc.Driver");
+        //生成的表集合
+        config.setCreateTables("user_info");
+        //是否生成在test目录下
+        config.setTest(false);
+        //开始生成
+        GenerateTemplate.generate(config);
+    }
+}
+```
 基础配置信息
-## 控制数据库操作日志输出
+## 项目配置信息
 ```
-FastMapperConfig.isOpenSQLPrint=true;
-```
-## 设置逻辑删除字段
-```
-FastMapperConfig.setDeleted(true,"deleted",false,true);
-```
-## 设置更新时间字段
-```
-FastMapperConfig.setTimeColumn("create_time","update_time");
-FastMapperConfig.setTimeAuto(true,true);
+@Component
+public class SearchConfig {
+    static {
+        //sql执行情况打印
+        FastMapperConfig.isOpenSQLPrint = true;
+        FastMapperConfig.addMapperExpander(SqlActuatorAspect.class);
+        //自定义逻辑删除，插入更新时间定义
+        FastMapperConfig.setDeleted(true,"deleted",false,true);
+        FastMapperConfig.setTimeAuto(true,true);
+        FastMapperConfig.setTimeColumn("create_time","update_time");
+        FastMapperConfig.addMapperExpander(CustomActuatorAspect.class);
+        //全局事务支持
+        FastMapperConfig.addMapperExpander(TransactionActuatorAspect.class);
+    }
+}
 ```
 ## 查询
 
