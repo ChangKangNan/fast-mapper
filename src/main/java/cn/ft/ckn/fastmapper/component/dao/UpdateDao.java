@@ -1,11 +1,9 @@
 package cn.ft.ckn.fastmapper.component.dao;
 
-import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.bean.*;
 import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.component.dao.set.UpdateValue;
 import cn.ft.ckn.fastmapper.util.ValueUtil;
-import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ReflectUtil;
 
@@ -62,7 +60,7 @@ public class UpdateDao<T, R>{
     }
 
     public Integer updateOverride(T t){
-        List<ColumnParam> valueParams = ValueUtil.getColumns(t);
+        List<ColumnParam> valueParams = ValueUtil.getColumns(t,classObj);
         if(CollUtil.isNotEmpty(valueParams)){
             for (ColumnParam valueParam : valueParams) {
                 SearchParam.get().getUpdateValueList().add(new SearchParam.Value(valueParam.getColumnName(),valueParam.getVal()));
@@ -72,7 +70,7 @@ public class UpdateDao<T, R>{
     }
 
     public Integer update(T t) {
-        List<ColumnParam> valueParams = ValueUtil.getColumns(t);
+        List<ColumnParam> valueParams = ValueUtil.getColumns(t,classObj);
         List<ColumnParam> columnParams = valueParams.stream().filter(ColumnParam::getHaveValue).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(columnParams)){
             for (ColumnParam valueParam : columnParams) {

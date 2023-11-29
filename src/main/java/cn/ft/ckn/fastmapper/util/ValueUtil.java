@@ -14,9 +14,8 @@ import java.util.List;
  * @date 2022/8/5
  */
 public class ValueUtil {
-    public static <T> List<ColumnParam> getColumns(T t) {
-        Class<T> aClass = (Class<T>) t.getClass();
-        Field[] declaredFields = aClass.getDeclaredFields();
+    public static <T> List<ColumnParam> getColumns(T t,Class cls) {
+        Field[] declaredFields = cls.getDeclaredFields();
         List<ColumnParam> columnParams = new ArrayList<>();
         for (Field field : declaredFields) {
             Column annotation = field.getAnnotation(Column.class);
@@ -32,7 +31,7 @@ public class ValueUtil {
             if (id == null) {
                 Object invoke = null;
                 try {
-                    invoke = ReflectUtil.getMethodByName(aClass, getterName).invoke(t);
+                    invoke = ReflectUtil.getMethodByName(cls, getterName).invoke(t);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
