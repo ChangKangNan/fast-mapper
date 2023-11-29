@@ -1,1 +1,0 @@
-select id,stock_name,deleted from stock where id=:id

@@ -1,0 +1,63 @@
+package com.ts.datasource;
+
+import cn.ft.ckn.fastmapper.aspect.SqlActuatorAspect;
+import cn.ft.ckn.fastmapper.config.FastMapperConfig;
+import com.alibaba.druid.pool.DruidDataSource;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import javax.sql.DataSource;
+
+/**
+ * @author ckn
+ * @date 2023/11/28
+ */
+@Configuration
+public class DruidConfig {
+    static {
+        FastMapperConfig.isOpenSQLPrint = true;
+        FastMapperConfig.addMapperExpander(SqlActuatorAspect.class);
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DataSource getMyDruidDataSource() {
+        return new DruidDataSource();
+    }
+}
+
+
+<dependency>
+       <groupId>cn.ft.ckn</groupId>
+        <artifactId>fast-mapper</artifactId>
+        <version>${FASTMAPPER.VERSION}</version>
+</dependency>
+
+
+
+
+package com.ts;
+
+
+import cn.ft.ckn.fastmapper.bean.GenerateTemplateConfig;
+import cn.ft.ckn.fastmapper.util.GenerateTemplate;
+
+/**
+ * @author ckn
+ */
+public class CreateFileTest {
+    public static void main(String[] args){
+
+        GenerateTemplateConfig config = new GenerateTemplateConfig();
+        //数据库连接
+        config.setDBInfo("jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useInformationSchema=true","root","123456","com.mysql.cj.jdbc.Driver");
+        //是否生成表前缀
+        config.setIgnorePrefix(true);
+        config.setChildModuleName("ts-producer-service");
+        //文件生成的包路径
+        config.setBasePackage("com.ts");
+        config.setCreateTables("course");
+        GenerateTemplate.generate(config);
+    }
+}
