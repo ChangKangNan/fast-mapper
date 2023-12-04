@@ -42,12 +42,7 @@ public class TableMapper<T> {
         tableMapper.setClassName(classObj.getSimpleName());
         List<Field> pks = Arrays.stream(declaredFields).filter(field -> field.getAnnotation(Id.class) != null).collect(Collectors.toList());
         if (CollUtil.isNotEmpty(pks)) {
-            Column annotation = pks.get(0).getAnnotation(Column.class);
-            if (annotation == null) {
-                tableMapper.setPrimaryKey(pks.get(0).getName());
-            } else {
-                tableMapper.setPrimaryKey(annotation.name());
-            }
+           tableMapper.setPrimaryKey(pks.get(0).getName());
         }
         SearchParam.init(tableMapper);
     }
