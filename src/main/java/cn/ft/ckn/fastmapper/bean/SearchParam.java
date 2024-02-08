@@ -170,7 +170,7 @@ public class SearchParam<T> {
     }
 
     public enum OperationType{
-        INSERT,SELECT,UPDATE,DELETE
+        INSERT,SELECT,UPDATE,DELETE,COUNT
     }
 
     @Data

@@ -187,7 +187,7 @@ public class PackageSqlUtil {
         List<SearchParam.Bracket> brackets = searchParam.getBrackets();
         for (int i = 0; i < whereConditions.size(); i++) {
             SearchParam.WhereCondition whereCondition = whereConditions.get(i);
-            if((!StrUtil.equalsAnyIgnoreCase(whereCondition.expression,Expression.IsNull.expression,Expression.IsNotNull.expression)) && whereCondition.value == null){
+            if ((!StrUtil.equalsAnyIgnoreCase(whereCondition.expression, Expression.IsNull.expression, Expression.IsNotNull.expression)) && whereCondition.value == null) {
                 continue;
             }
             if (i != 0) {

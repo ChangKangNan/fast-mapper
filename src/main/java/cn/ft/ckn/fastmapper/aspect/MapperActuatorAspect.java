@@ -30,7 +30,10 @@ public class MapperActuatorAspect extends SimpleAspect {
             SearchParam.get().setOperationType(SearchParam.OperationType.UPDATE);
         }else if(StrUtil.equals(method.getName().toUpperCase(), SearchParam.OperationType.DELETE.name())){
             SearchParam.get().setOperationType(SearchParam.OperationType.DELETE);
-        }else if(StrUtil.equals(method.getName().toUpperCase(), SearchParam.OperationType.SELECT.name())){
+        }else if(StrUtil.equalsAny(method.getName().toUpperCase(),
+                SearchParam.OperationType.SELECT.name(),
+                SearchParam.OperationType.COUNT.name()
+                )){
             SearchParam.get().setOperationType(SearchParam.OperationType.SELECT);
         }
         return MapperExpanderRunner.runBeforeExpander(SearchParam.get(), method.getName(),method);

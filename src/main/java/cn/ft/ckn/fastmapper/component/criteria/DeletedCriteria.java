@@ -3,6 +3,12 @@ package cn.ft.ckn.fastmapper.component.criteria;
 
 import cn.ft.ckn.fastmapper.bean.Expression;
 import cn.ft.ckn.fastmapper.bean.SearchParam;
+import cn.hutool.core.util.ArrayUtil;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ckn
@@ -23,13 +29,49 @@ public class DeletedCriteria<T, R> {
     }
 
     public R in(Object... value) {
-        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.In.expression, SearchParam.get().isAnd));
+        if (value == null || ArrayUtil.isEmpty(value)) {
+            init();
+            return returnObj;
+        }
+        List<Object> values = new ArrayList<>();
+        for (Object o : value) {
+            if (o instanceof Collection) {
+                values.addAll((Collection) o);
+            } else {
+                values.add(o);
+            }
+        }
+        values = values.stream().distinct().collect(Collectors.toList());
+        Object[] wrap = ArrayUtil.wrap(values.toArray());
+        if(ArrayUtil.isEmpty(wrap)){
+            init();
+            return returnObj;
+        }
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, wrap, Expression.NotIn.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R notIn(Object... value) {
-        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, value, Expression.NotIn.expression, SearchParam.get().isAnd));
+        if (value == null || ArrayUtil.isEmpty(value)) {
+            init();
+            return returnObj;
+        }
+        List<Object> values = new ArrayList<>();
+        for (Object o : value) {
+            if (o instanceof Collection) {
+                values.addAll((Collection) o);
+            } else {
+                values.add(o);
+            }
+        }
+        values = values.stream().distinct().collect(Collectors.toList());
+        Object[] wrap = ArrayUtil.wrap(values.toArray());
+        if(ArrayUtil.isEmpty(wrap)){
+            init();
+            return returnObj;
+        }
+        SearchParam.get().getWhereCondition().add(new SearchParam.WhereCondition(this.fieldName, wrap, Expression.NotIn.expression, SearchParam.get().isAnd));
         init();
         return returnObj;
     }
