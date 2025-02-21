@@ -1,7 +1,7 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.annotation.SFunction;
-import cn.ft.ckn.fastmapper.util.ColumnUtil;
+import cn.ft.ckn.fastmapper.anno.SFunction;
+import cn.ft.ckn.fastmapper.util.db.ColumnUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
@@ -27,7 +27,7 @@ public class JoinCustomer<T> extends JoinManager<T> {
         super(joinParams);
     }
 
-    public <L, K> FieldJoin<T, L> leftJoin(Class<L> joinClass
+    public <L, K> JoinField<T, L> leftJoin(Class<L> joinClass
             , SFunction<T, K> mainKey, SFunction<L, K> joinKey) {
         Table annotation = joinClass.getAnnotation(Table.class);
         String tableName = annotation.name();
@@ -39,11 +39,11 @@ public class JoinCustomer<T> extends JoinManager<T> {
         }});
         params.relation.put(tableName, "LEFT JOIN");
         params.deeps.put(tableName, 1);
-        return new FieldJoin<>(params);
+        return new JoinField<>(params);
     }
 
 
-    public <R, K> FieldJoin<T, R> rightJoin(Class<R> joinClass
+    public <R, K> JoinField<T, R> rightJoin(Class<R> joinClass
             , SFunction<T, K> mainKey, SFunction<R, K> joinKey) {
         Table annotation = joinClass.getAnnotation(Table.class);
         String tableName = annotation.name();
@@ -55,10 +55,10 @@ public class JoinCustomer<T> extends JoinManager<T> {
         }});
         params.relation.put(tableName, "RIGHT JOIN");
         params.deeps.put(tableName, 1);
-        return new FieldJoin<>(params);
+        return new JoinField<>(params);
     }
 
-    public <I, K> FieldJoin<T, I> innerJoin(Class<I> joinClass
+    public <I, K> JoinField<T, I> innerJoin(Class<I> joinClass
             , SFunction<T, K> mainKey, SFunction<I, K> joinKey) {
         Table annotation = joinClass.getAnnotation(Table.class);
         String tableName = annotation.name();
@@ -70,7 +70,7 @@ public class JoinCustomer<T> extends JoinManager<T> {
         }});
         params.relation.put(tableName, "INNER JOIN");
         params.deeps.put(tableName, 1);
-        return new FieldJoin<>(params);
+        return new JoinField<>(params);
     }
 
 

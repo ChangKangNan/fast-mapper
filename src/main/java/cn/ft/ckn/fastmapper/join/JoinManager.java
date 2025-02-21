@@ -1,11 +1,11 @@
 package cn.ft.ckn.fastmapper.join;
 
-import cn.ft.ckn.fastmapper.bean.DaoActuator;
-import cn.ft.ckn.fastmapper.bean.Expression;
-import cn.ft.ckn.fastmapper.bean.SearchParam;
-import cn.ft.ckn.fastmapper.bean.TableMapper;
-import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
-import cn.ft.ckn.fastmapper.util.SQLUtil;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
+import cn.ft.ckn.fastmapper.bean.db.TableMapper;
+import cn.ft.ckn.fastmapper.bean.em.Expression;
+import cn.ft.ckn.fastmapper.support.dao.DaoActuator;
+import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
+import cn.ft.ckn.fastmapper.util.log.LogUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static cn.ft.ckn.fastmapper.constants.SQLConstants.*;
+import static cn.ft.ckn.fastmapper.bean.constants.SQLConstants.*;
 
 /**
  * @author ckn
@@ -25,7 +25,7 @@ public class JoinManager<T> {
     private final DaoActuator<T> daoActuator;
 
     public JoinManager(JoinParams params) {
-        SearchParam.init(new TableMapper<>());
+        FastMapperParam.init(new TableMapper<>());
         this.params=params;
         daoActuator = DataSourceConnection.getDaoActuator();
     }
@@ -97,7 +97,7 @@ public class JoinManager<T> {
                 Object obj = params.where.get(key);
                 sqlBuilder.append(key);
                 sqlBuilder.append(Expression.Equal.expression);
-                sqlBuilder.append(SQLUtil.getValue(obj));
+                sqlBuilder.append(LogUtil.getValue(obj));
                 sqlBuilder.append(StrUtil.SPACE);
             }
         }
@@ -116,9 +116,9 @@ public class JoinManager<T> {
             sql.append(StrUtil.SPACE);
             sql.append(params.lastSQL);
         }
-        SearchParam.get().setExecuteSql(sql.toString());
-        SearchParam.get().getTableMapper().setObjClass(returnObj);
-        SearchParam.get().setParamMap(parameters);
+        FastMapperParam.get().setExecuteSql(sql.toString());
+        FastMapperParam.get().getTableMapper().setObjClass(returnObj);
+        FastMapperParam.get().setParamMap(parameters);
         return (List<X>)daoActuator.select();
     }
 }

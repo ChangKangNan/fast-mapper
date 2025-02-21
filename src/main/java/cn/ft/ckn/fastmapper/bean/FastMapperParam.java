@@ -1,0 +1,290 @@
+package cn.ft.ckn.fastmapper.bean;
+
+import cn.ft.ckn.fastmapper.bean.db.TableMapper;
+import cn.hutool.core.collection.CollUtil;
+import io.netty.util.concurrent.FastThreadLocal;
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author ckn
+ */
+public class FastMapperParam<T> {
+    private static FastThreadLocal<FastMapperParam> searchParamFastThreadLocal=new FastThreadLocal<>();
+
+    public static <T> FastMapperParam<T> init(TableMapper<T> tableMapper) {
+        //初始化默认查询信息
+        FastMapperParam<T> fastMapperParam = searchParamFastThreadLocal.get();
+        if (fastMapperParam == null) {
+            fastMapperParam = new FastMapperParam<>();
+            searchParamFastThreadLocal.set(fastMapperParam);
+        }
+        fastMapperParam.tableMapper=tableMapper;
+        fastMapperParam.insertList=new ArrayList<>();
+        fastMapperParam.operationType = null;
+        fastMapperParam.executeSql=null;
+        fastMapperParam.whereCondition=new ArrayList<>();
+        fastMapperParam.updateValueList=new ArrayList<>();
+        fastMapperParam.orderByCondition=new ArrayList<>();
+        fastMapperParam.brackets=new ArrayList<>();
+        fastMapperParam.setCloseDeleteProtect(Boolean.FALSE);
+        fastMapperParam.paramMap=new HashMap<>();
+        return fastMapperParam;
+    }
+
+    public static <T> FastMapperParam<T> get() {
+        return searchParamFastThreadLocal.get();
+    }
+
+    public static void setSearchParamFastThreadLocal(FastThreadLocal<FastMapperParam> searchParamFastThreadLocal) {
+        FastMapperParam.searchParamFastThreadLocal = searchParamFastThreadLocal;
+    }
+
+    private TableMapper tableMapper;
+
+    public Map<String, Object> getParamMap() {
+        return paramMap;
+    }
+
+    public void setParamMap(Map<String, Object> paramMap) {
+        this.paramMap = paramMap;
+    }
+
+    /**
+     * where条件封装
+     */
+    private List<FastMapperParam.WhereCondition> whereCondition;
+    /**
+     * order by条件封装
+     */
+    private List<FastMapperParam.OrderByCondition> orderByCondition;
+
+    /**
+     * 组合条件
+     */
+    private List<FastMapperParam.Bracket> brackets;
+
+    /**
+     * 数据操作值封装
+     */
+    private List<FastMapperParam.Value> updateValueList;
+
+    /**
+     * 插入集合
+     */
+    private List<T> insertList;
+
+    public Boolean isAnd=Boolean.TRUE;
+
+    /**
+     * 操作方式
+     */
+    private OperationType operationType;
+
+    private Boolean master = Boolean.TRUE;
+
+    public Boolean getMaster() {
+        return master;
+    }
+
+    public void setMaster(Boolean master) {
+        this.master = master;
+    }
+
+    /**
+     * 执行SQL
+     */
+    private String executeSql;
+
+
+    private Long sqlTime;
+
+    private Object returnVal;
+
+    private Integer page;
+    private Integer pageSize;
+
+    /**
+     * 使否开启分页查询
+     */
+    private Boolean isOpenPage = false;
+
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Boolean getOpenPage() {
+        return isOpenPage;
+    }
+
+    public void setOpenPage(Boolean openPage) {
+        isOpenPage = openPage;
+    }
+
+    public Long getSqlTime() {
+        return sqlTime;
+    }
+
+    public void setSqlTime(Long sqlTime) {
+        this.sqlTime = sqlTime;
+    }
+
+    public Object getReturnVal() {
+        return returnVal;
+    }
+
+    public void setReturnVal(Object returnVal) {
+        this.returnVal = returnVal;
+    }
+
+    /**
+     * 参数列表
+     */
+    private Map<String,Object> paramMap;
+
+
+    private Boolean isCloseDeleteProtect=Boolean.FALSE;
+
+    public Boolean getCloseDeleteProtect(){
+        return isCloseDeleteProtect;
+    }
+
+    public void setCloseDeleteProtect(Boolean action) {
+        isCloseDeleteProtect = action;
+    }
+
+    public enum OperationType{
+        INSERT,SELECT,UPDATE,DELETE,COUNT
+    }
+
+    @Data
+    @Builder
+    public static class Bracket{
+        private Integer leftIndex;
+        private Integer rightIndex;
+    }
+
+    public static class WhereCondition {
+        public String expression;
+        public String columnName;
+        public Object value;
+        public Boolean isAnd;
+        public WhereCondition(String columnName, Object value, String expression,Boolean isAnd) {
+            this.expression = expression;
+            this.columnName = columnName;
+            this.value = value;
+            this.isAnd=isAnd;
+        }
+    }
+
+    public static class Value{
+        public String columnName;
+        public Object value;
+
+        public Value(String columnName, Object value) {
+            this.columnName = columnName;
+            this.value = value;
+        }
+    }
+
+    public static class OrderByCondition {
+        public String orderByName;
+        public String sequence;
+
+        public OrderByCondition(String orderByName, String sequence) {
+            this.orderByName = orderByName;
+            this.sequence = sequence;
+        }
+    }
+
+    public TableMapper getTableMapper() {
+        return tableMapper;
+    }
+
+    public void setTableMapper(TableMapper tableMapper) {
+        this.tableMapper = tableMapper;
+    }
+
+    public List<WhereCondition> getWhereCondition() {
+        return whereCondition;
+    }
+
+    public void setWhereCondition(List<WhereCondition> whereCondition) {
+        this.whereCondition = whereCondition;
+    }
+
+    public List<OrderByCondition> getOrderByCondition() {
+        return orderByCondition;
+    }
+
+    public void setOrderByCondition(List<OrderByCondition> orderByCondition) {
+        this.orderByCondition = orderByCondition;
+    }
+
+    public List<Value> getUpdateValueList() {
+        return updateValueList;
+    }
+
+    public void setUpdateValueList(List<Value> updateValueList) {
+        this.updateValueList = updateValueList;
+    }
+
+    public List<T> getInsertList() {
+        return insertList;
+    }
+
+    public void setInsertList(List<T> insertList) {
+        this.insertList = insertList;
+    }
+
+    public OperationType getOperationType() {
+        return operationType;
+    }
+
+    public void setOperationType(OperationType operationType) {
+        this.operationType = operationType;
+    }
+
+    public String getExecuteSql() {
+        return executeSql;
+    }
+
+    public void setExecuteSql(String executeSql) {
+        this.executeSql = executeSql;
+    }
+
+    public List<Bracket> getBrackets() {
+        return brackets;
+    }
+
+    public void setBrackets(List<Bracket> brackets) {
+        this.brackets = brackets;
+    }
+
+    public void setBracket(Bracket bracket,int index) {
+       if(CollUtil.isEmpty(brackets)){
+           return;
+       }
+        brackets.set(index,bracket);
+    }
+    public void setBracket(Bracket bracket) {
+        brackets.add(bracket);
+    }
+}

@@ -40,7 +40,7 @@ public class DruidConfig {
 package com.ts;
 
 
-import cn.ft.ckn.fastmapper.bean.GenerateTemplateConfig;
+import cn.ft.ckn.fastmapper.bean.config.GenerateTemplateConfig;
 import cn.ft.ckn.fastmapper.util.GenerateTemplate;
 
 /**

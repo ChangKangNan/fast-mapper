@@ -1,6 +1,6 @@
 package cn.ft.ckn.fastmapper.aspect;
 
-import cn.ft.ckn.fastmapper.bean.SearchParam;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.expander.MapperExpanderRunner;
 import cn.hutool.aop.aspects.SimpleAspect;
 import cn.hutool.core.date.TimeInterval;
@@ -24,19 +24,19 @@ public class MapperActuatorAspect extends SimpleAspect {
     public boolean before(Object target, Method method, Object[] args) {
         //执行计时
         interval.start();
-        if(StrUtil.equals(method.getName().toUpperCase(), SearchParam.OperationType.INSERT.name())){
-            SearchParam.get().setOperationType(SearchParam.OperationType.INSERT);
-        }else if(StrUtil.equals(method.getName().toUpperCase(), SearchParam.OperationType.UPDATE.name())){
-            SearchParam.get().setOperationType(SearchParam.OperationType.UPDATE);
-        }else if(StrUtil.equals(method.getName().toUpperCase(), SearchParam.OperationType.DELETE.name())){
-            SearchParam.get().setOperationType(SearchParam.OperationType.DELETE);
+        if(StrUtil.equals(method.getName().toUpperCase(), FastMapperParam.OperationType.INSERT.name())){
+            FastMapperParam.get().setOperationType(FastMapperParam.OperationType.INSERT);
+        }else if(StrUtil.equals(method.getName().toUpperCase(), FastMapperParam.OperationType.UPDATE.name())){
+            FastMapperParam.get().setOperationType(FastMapperParam.OperationType.UPDATE);
+        }else if(StrUtil.equals(method.getName().toUpperCase(), FastMapperParam.OperationType.DELETE.name())){
+            FastMapperParam.get().setOperationType(FastMapperParam.OperationType.DELETE);
         }else if(StrUtil.equalsAny(method.getName().toUpperCase(),
-                SearchParam.OperationType.SELECT.name(),
-                SearchParam.OperationType.COUNT.name()
+                FastMapperParam.OperationType.SELECT.name(),
+                FastMapperParam.OperationType.COUNT.name()
                 )){
-            SearchParam.get().setOperationType(SearchParam.OperationType.SELECT);
+            FastMapperParam.get().setOperationType(FastMapperParam.OperationType.SELECT);
         }
-        return MapperExpanderRunner.runBeforeExpander(SearchParam.get(), method.getName(),method);
+        return MapperExpanderRunner.runBeforeExpander(FastMapperParam.get(), method.getName(),method);
     }
 
     /**
@@ -51,7 +51,7 @@ public class MapperActuatorAspect extends SimpleAspect {
      */
     @Override
     public boolean after(Object target, Method method, Object[] args, Object returnVal) {
-        SearchParam daoParam = SearchParam.get();
+        FastMapperParam daoParam = FastMapperParam.get();
         daoParam.setSqlTime(interval.intervalMs());
         daoParam.setReturnVal(returnVal);
         MapperExpanderRunner.runAfterExpander(daoParam, method.getName(),method);
@@ -61,7 +61,7 @@ public class MapperActuatorAspect extends SimpleAspect {
     @Override
     public boolean afterException(Object target, Method method, Object[] args, Throwable e) {
         //继承此类后实现此方法
-        SearchParam daoParam = SearchParam.get();
+        FastMapperParam daoParam = FastMapperParam.get();
         MapperExpanderRunner.runAfterExceptionExpander(daoParam, method.getName(),method);
         return true;
     }

@@ -1,13 +1,11 @@
 package cn.ft.ckn.fastmapper.join;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author ckn
- * @date 2022/8/11
  */
 public class JoinParams{
     public  Map<String, Object> where;

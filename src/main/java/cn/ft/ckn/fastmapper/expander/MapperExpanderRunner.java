@@ -1,6 +1,7 @@
 package cn.ft.ckn.fastmapper.expander;
 
-import cn.ft.ckn.fastmapper.bean.SearchParam;
+import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Singleton;
 
@@ -48,7 +49,7 @@ public class MapperExpanderRunner {
         isExpander = Boolean.TRUE;
     }
 
-    public static boolean runBeforeExpander(SearchParam param, String methodName, Method method) {
+    public static boolean runBeforeExpander(FastMapperParam param, String methodName, Method method) {
         if (!isExpander) {
             return true;
         }
@@ -66,7 +67,7 @@ public class MapperExpanderRunner {
         return true;
     }
 
-    public static void runAfterExpander(SearchParam param, String methodName, Method method) {
+    public static void runAfterExpander(FastMapperParam param, String methodName, Method method) {
         if (!isExpander) {
             return;
         }
@@ -80,7 +81,7 @@ public class MapperExpanderRunner {
         }
     }
 
-    public static void runAfterExceptionExpander(SearchParam param, String methodName, Method method) {
+    public static void runAfterExceptionExpander(FastMapperParam param, String methodName, Method method) {
         if (!isExpander) {
             return;
         }

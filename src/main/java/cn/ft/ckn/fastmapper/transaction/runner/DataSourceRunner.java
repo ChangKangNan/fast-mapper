@@ -1,6 +1,6 @@
 package cn.ft.ckn.fastmapper.transaction.runner;
 
-import cn.ft.ckn.fastmapper.annotation.RunGlobal;
+import cn.ft.ckn.fastmapper.anno.RunGlobal;
 import cn.ft.ckn.fastmapper.transaction.context.DataSourceContext;
 import com.alibaba.druid.pool.DruidDataSource;
 

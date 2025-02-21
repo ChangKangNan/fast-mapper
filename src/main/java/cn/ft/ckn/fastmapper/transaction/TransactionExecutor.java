@@ -30,9 +30,7 @@ public class TransactionExecutor {
 
     /**
      * 执行多线程事务
-     *
-     * @param tasks
-     */
+     **/
     public void execute(List<Runnable> tasks) {
         if (CollUtil.isEmpty(tasks)) {
             return;

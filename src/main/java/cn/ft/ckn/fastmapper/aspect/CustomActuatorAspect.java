@@ -1,10 +1,9 @@
 package cn.ft.ckn.fastmapper.aspect;
 
-import cn.ft.ckn.fastmapper.bean.Expression;
-import cn.ft.ckn.fastmapper.bean.SearchParam;
-import cn.ft.ckn.fastmapper.bean.TableMapper;
+import cn.ft.ckn.fastmapper.bean.em.Expression;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.ft.ckn.fastmapper.expander.ExpanderOccasion;
+import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
 import cn.ft.ckn.fastmapper.expander.MapperExpander;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -18,13 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author ckn
- * @date 2023/5/31
- */
 public class CustomActuatorAspect implements MapperExpander {
     @Override
-    public boolean before(SearchParam param, Method method) {
+    public boolean before(FastMapperParam param, Method method) {
         String methodName = method.getName();
         // value
         boolean setValBool = StrUtil.equalsAnyIgnoreCase(methodName, ExpanderOccasion.INSERT.name(), ExpanderOccasion.UPDATE.name(), ExpanderOccasion.DELETE.name());
@@ -45,31 +40,31 @@ public class CustomActuatorAspect implements MapperExpander {
                     BeanUtil.fillBeanWithMap(infos, o, true, true);
                 }
             } else {
-                List<SearchParam.Value> updateValueList = param.getUpdateValueList();
-                updateValueList.add(new SearchParam.Value(FastMapperConfig.updateTime, DateUtil.format(new Date(),"yyyy-MM-dd hh:mm:ss")));
+                List<FastMapperParam.Value> updateValueList = param.getUpdateValueList();
+                updateValueList.add(new FastMapperParam.Value(FastMapperConfig.updateTime, DateUtil.format(new Date(),"yyyy-MM-dd hh:mm:ss")));
             }
         }
         boolean setWhereBool = StrUtil.equalsAnyIgnoreCase(methodName, ExpanderOccasion.SELECT.name(), ExpanderOccasion.UPDATE.name(), ExpanderOccasion.DELETE.name());
         if (setWhereBool) {
-            List<SearchParam.WhereCondition> whereConditions = param.getWhereCondition();
+            List<FastMapperParam.WhereCondition> whereConditions = param.getWhereCondition();
             if (CollUtil.isEmpty(whereConditions)) {
                 return true;
             }
             long existDelete = whereConditions.stream().filter(w -> StrUtil.equals(w.columnName, FastMapperConfig.logicDeletedColumn)).count();
             if (existDelete == 0) {
-                whereConditions.add(new SearchParam.WhereCondition(FastMapperConfig.logicDeletedColumn, FastMapperConfig.logicDeletedColumnDefaultValue, Expression.Equal.expression, true));
+                whereConditions.add(new FastMapperParam.WhereCondition(FastMapperConfig.logicDeletedColumn, FastMapperConfig.logicDeletedColumnDefaultValue, Expression.Equal.expression, true));
             }
         }
         return true;
     }
 
     @Override
-    public void after(SearchParam param, Method method) {
+    public void after(FastMapperParam param, Method method) {
 
     }
 
     @Override
-    public void afterException(SearchParam param, Method method) {
+    public void afterException(FastMapperParam param, Method method) {
 
     }
 

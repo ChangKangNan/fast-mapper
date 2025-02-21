@@ -1,8 +1,8 @@
 package cn.ft.ckn.fastmapper.aspect;
 
-import cn.ft.ckn.fastmapper.bean.SearchParam;
-import cn.ft.ckn.fastmapper.component.dao.jdbc.DataSourceConnection;
-import cn.ft.ckn.fastmapper.expander.ExpanderOccasion;
+import cn.ft.ckn.fastmapper.bean.FastMapperParam;
+import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
+import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
 import cn.ft.ckn.fastmapper.expander.MapperExpander;
 import cn.ft.ckn.fastmapper.transaction.TransactionManager;
 import cn.hutool.core.collection.ListUtil;
@@ -16,19 +16,19 @@ import java.util.List;
  */
 public class TransactionActuatorAspect implements MapperExpander {
     @Override
-    public boolean before(SearchParam param, Method method) {
+    public boolean before(FastMapperParam param, Method method) {
         DataSource dataSource = DataSourceConnection.getDataSource();
         TransactionManager.initTransaction(dataSource);
         return true;
     }
 
     @Override
-    public void after(SearchParam param, Method method) {
+    public void after(FastMapperParam param, Method method) {
 
     }
 
     @Override
-    public void afterException(SearchParam param, Method method) {
+    public void afterException(FastMapperParam param, Method method) {
 
     }
 

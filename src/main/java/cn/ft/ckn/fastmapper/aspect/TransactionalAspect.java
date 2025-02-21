@@ -1,6 +1,6 @@
 package cn.ft.ckn.fastmapper.aspect;
 
-//import cn.ft.ckn.fastmapper.annotation.GlobalTransactionalLocal;
+//import cn.ft.ckn.fastmapper.annotation.LocalTransactional;
 //import cn.ft.ckn.fastmapper.transaction.TransactionManager;
 //import cn.ft.ckn.fastmapper.transaction.TransactionSwitch;
 //import io.netty.util.concurrent.FastThreadLocal;
@@ -27,7 +27,7 @@ package cn.ft.ckn.fastmapper.aspect;
 //    private JoinPoint joinPoint;
 //    private static FastThreadLocal<Boolean> isReturn = new FastThreadLocal<>();
 //
-//    @Pointcut("@annotation(cn.ft.ckn.fastmapper.annotation.GlobalTransactionalLocal)")
+//    @Pointcut("@annotation(cn.ft.ckn.fastmapper.annotation.LocalTransactional)")
 //    public void transactionalAction() {
 //    }
 //
@@ -36,7 +36,7 @@ package cn.ft.ckn.fastmapper.aspect;
 //        this.joinPoint = joinPoint;
 //        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 //        Method method = signature.getMethod();
-//        GlobalTransactionalLocal annotation = method.getAnnotation(GlobalTransactionalLocal.class);
+//        LocalTransactional annotation = method.getAnnotation(LocalTransactional.class);
 //        if (annotation != null) {
 //            log.info("--------------开启全局事务---------------");
 //            TransactionSwitch.GLOBAL_TRANSACTION_SWITCH_STATUS.set(true);
@@ -54,7 +54,7 @@ package cn.ft.ckn.fastmapper.aspect;
 //        }
 //        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 //        Method method = signature.getMethod();
-//        GlobalTransactionalLocal annotation = method.getAnnotation(GlobalTransactionalLocal.class);
+//        LocalTransactional annotation = method.getAnnotation(LocalTransactional.class);
 //        if (annotation != null) {
 //            Stack<Connection> stack = TransactionManager.getCurrentGlobalTransactionStack();
 //            for (Connection connection : stack) {
@@ -84,7 +84,7 @@ package cn.ft.ckn.fastmapper.aspect;
 //    public void afterThrowing() throws Throwable {
 //        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 //        Method method = signature.getMethod();
-//        GlobalTransactionalLocal annotation = method.getAnnotation(GlobalTransactionalLocal.class);
+//        LocalTransactional annotation = method.getAnnotation(LocalTransactional.class);
 //        if (annotation != null) {
 //            Stack<Connection> stack = TransactionManager.getCurrentGlobalTransactionStack();
 //            for (Connection connection : stack) {
