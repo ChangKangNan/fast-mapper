@@ -2,7 +2,7 @@ package cn.ft.ckn.fastmapper.support.dao;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperColumn;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
-import cn.ft.ckn.fastmapper.bean.db.TableMapper;
+import cn.ft.ckn.fastmapper.bean.FastTableMapper;
 import cn.ft.ckn.fastmapper.bean.em.Expression;
 import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.support.dao.set.UpdateValue;
@@ -25,7 +25,7 @@ public class UpdateDao<T, R> extends BaseDao<R>{
     private final DaoActuator<T> daoActuator;
 
     public UpdateDao(Class<R> r, Class<T> classObj) {
-        TableMapper.init(classObj);
+        FastTableMapper.init(classObj);
         this.classObj = classObj;
         this.r = r;
         this.daoActuator = DataSourceConnection.getDaoActuator();

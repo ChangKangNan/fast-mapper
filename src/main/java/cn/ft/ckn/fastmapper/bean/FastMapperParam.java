@@ -1,6 +1,5 @@
 package cn.ft.ckn.fastmapper.bean;
 
-import cn.ft.ckn.fastmapper.bean.db.TableMapper;
 import cn.hutool.core.collection.CollUtil;
 import io.netty.util.concurrent.FastThreadLocal;
 import lombok.Builder;
@@ -17,7 +16,7 @@ import java.util.Map;
 public class FastMapperParam<T> {
     private static FastThreadLocal<FastMapperParam> searchParamFastThreadLocal=new FastThreadLocal<>();
 
-    public static <T> FastMapperParam<T> init(TableMapper<T> tableMapper) {
+    public static <T> FastMapperParam<T> init(FastTableMapper<T> tableMapper) {
         //初始化默认查询信息
         FastMapperParam<T> fastMapperParam = searchParamFastThreadLocal.get();
         if (fastMapperParam == null) {
@@ -45,7 +44,7 @@ public class FastMapperParam<T> {
         FastMapperParam.searchParamFastThreadLocal = searchParamFastThreadLocal;
     }
 
-    private TableMapper tableMapper;
+    private FastTableMapper tableMapper;
 
     public Map<String, Object> getParamMap() {
         return paramMap;
@@ -214,11 +213,11 @@ public class FastMapperParam<T> {
         }
     }
 
-    public TableMapper getTableMapper() {
+    public FastTableMapper getTableMapper() {
         return tableMapper;
     }
 
-    public void setTableMapper(TableMapper tableMapper) {
+    public void setTableMapper(FastTableMapper tableMapper) {
         this.tableMapper = tableMapper;
     }
 

@@ -1,7 +1,7 @@
 package cn.ft.ckn.fastmapper.join;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
-import cn.ft.ckn.fastmapper.bean.db.TableMapper;
+import cn.ft.ckn.fastmapper.bean.FastTableMapper;
 import cn.ft.ckn.fastmapper.bean.em.Expression;
 import cn.ft.ckn.fastmapper.support.dao.DaoActuator;
 import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
@@ -26,7 +26,7 @@ public class JoinManager {
     private final DaoActuator<?> daoActuator;
 
     public JoinManager(JoinParams params) {
-        FastMapperParam.init(new TableMapper<>());
+        FastMapperParam.init(new FastTableMapper<>());
         this.params = params;
         daoActuator = DataSourceConnection.getDaoActuator();
     }

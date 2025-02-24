@@ -1,8 +1,8 @@
 package cn.ft.ckn.fastmapper.util.exe;
 
-import cn.ft.ckn.fastmapper.support.dao.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
-import cn.ft.ckn.fastmapper.bean.db.TableMapper;
+import cn.ft.ckn.fastmapper.bean.FastTableMapper;
+import cn.ft.ckn.fastmapper.support.dao.DaoActuator;
 import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
@@ -10,23 +10,24 @@ import cn.hutool.core.io.resource.ClassPathResource;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 自定义sql查询与更新
  * 门面模式
  * @author ckn
  */
-public class SQLRunnerUtil {
+public class DbUtil {
     private DaoActuator daoActuator;
-    private static SQLRunnerUtil sqlExecutorUtil = new SQLRunnerUtil();
+    private static DbUtil sqlExecutorUtil = new DbUtil();
 
-    private SQLRunnerUtil() {
+    private DbUtil() {
         this.daoActuator = DataSourceConnection.getDaoActuator();
-        TableMapper tableMapper = new TableMapper();
+        FastTableMapper tableMapper = new FastTableMapper();
         FastMapperParam.init(tableMapper);
     }
 
-    public static SQLRunnerUtil build() {
+    public static DbUtil build() {
         return sqlExecutorUtil;
     }
 
@@ -37,10 +38,14 @@ public class SQLRunnerUtil {
         return daoActuator.select();
     }
 
-    public <R> List<R> select(String sql, Class<R> returnObj) {
+    public List<Map<String, Object>> select(String sql, HashMap<String, Object> params) {
         FastMapperParam.get().setExecuteSql(sql);
-        FastMapperParam.get().getTableMapper().setObjClass(returnObj);
-        return daoActuator.select();
+        FastMapperParam.get().setParamMap(params);
+        return daoActuator.selectList();
+    }
+
+    public <R> List<R> select(String sql, Class<R> returnObj) {
+        return select(sql,new HashMap<>(),returnObj);
     }
 
     /**
@@ -50,10 +55,7 @@ public class SQLRunnerUtil {
         //处理参数
         ClassPathResource resource = new ClassPathResource(filePath);
         String sql = IoUtil.read(resource.getStream()).toString();
-        FastMapperParam.get().setExecuteSql(sql);
-        FastMapperParam.get().setParamMap(parameters);
-        FastMapperParam.get().getTableMapper().setObjClass(rowMapperClass);
-        return daoActuator.select();
+        return select(sql,parameters,rowMapperClass);
     }
 
     /**
@@ -72,11 +74,6 @@ public class SQLRunnerUtil {
         FastMapperParam.get().setExecuteSql(sql);
         FastMapperParam.get().setParamMap(new HashMap<>());
         return daoActuator.update();
-    }
-
-
-    private DataSource getDataSource() {
-        return DataSourceConnection.getDataSource();
     }
 
     public void setSalveDataSource(DataSource dataSource) {

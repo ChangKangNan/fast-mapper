@@ -1,7 +1,7 @@
 package cn.ft.ckn.fastmapper.support.dao;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
-import cn.ft.ckn.fastmapper.bean.db.TableMapper;
+import cn.ft.ckn.fastmapper.bean.FastTableMapper;
 import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
 import cn.hutool.core.collection.ListUtil;
 
@@ -15,7 +15,7 @@ public class InsertDao<T,R> extends BaseDao<R>{
     private final DaoActuator<T> daoActuator;
 
     public InsertDao(Class<R> r,Class<T> classObj) {
-        TableMapper.init(classObj);
+        FastTableMapper.init(classObj);
         this.r=r;
         daoActuator = DataSourceConnection.getDaoActuator();
     }

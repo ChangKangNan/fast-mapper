@@ -1,6 +1,5 @@
-package cn.ft.ckn.fastmapper.bean.db;
+package cn.ft.ckn.fastmapper.bean;
 
-import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.hutool.core.collection.CollUtil;
 
 import javax.persistence.Column;
@@ -16,10 +15,10 @@ import java.util.stream.Collectors;
 /**
  * @author ckn
  */
-public class TableMapper<T> {
+public class FastTableMapper<T> {
 
     public static <T> void init(Class<T> classObj) {
-        TableMapper<T> tableMapper = new TableMapper<>();
+        FastTableMapper<T> tableMapper = new FastTableMapper<>();
         tableMapper.setObjClass(classObj);
         String tableName = classObj.getAnnotation(Table.class) != null ? classObj.getAnnotation(Table.class).name() : classObj.getSimpleName();
         tableMapper.setTableName(tableName);
@@ -48,7 +47,7 @@ public class TableMapper<T> {
         FastMapperParam.init(tableMapper);
     }
 
-    public TableMapper(){
+    public FastTableMapper(){
         fieldToColumn=new HashMap<>();
         fieldToFieldType=new HashMap<>();
         showFields=new ArrayList<>();
