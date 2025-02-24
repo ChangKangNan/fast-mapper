@@ -99,7 +99,7 @@ public class ColumnUtil {
         try {
             Class<?> aClass = Class.forName(implClass);
             Table annotation = aClass.getAnnotation(Table.class);
-            return annotation.name();
+            return (annotation == null ? StrUtil.toUnderlineCase(aClass.getSimpleName()) : annotation.name());
         }catch (Exception e){return null;}
     }
 

@@ -3,7 +3,7 @@ package cn.ft.ckn.fastmapper.aspect;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
-import cn.ft.ckn.fastmapper.expander.MapperExpander;
+import cn.ft.ckn.fastmapper.ex.MapperExpander;
 import cn.ft.ckn.fastmapper.transaction.TransactionManager;
 import cn.hutool.core.collection.ListUtil;
 

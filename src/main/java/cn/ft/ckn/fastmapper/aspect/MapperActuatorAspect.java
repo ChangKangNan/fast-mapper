@@ -1,7 +1,7 @@
 package cn.ft.ckn.fastmapper.aspect;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
-import cn.ft.ckn.fastmapper.expander.MapperExpanderRunner;
+import cn.ft.ckn.fastmapper.ex.MapperExpanderRunner;
 import cn.hutool.aop.aspects.SimpleAspect;
 import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.util.StrUtil;

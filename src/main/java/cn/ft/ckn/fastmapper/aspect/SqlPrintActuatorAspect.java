@@ -3,7 +3,7 @@ package cn.ft.ckn.fastmapper.aspect;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
-import cn.ft.ckn.fastmapper.expander.MapperExpander;
+import cn.ft.ckn.fastmapper.ex.MapperExpander;
 import cn.ft.ckn.fastmapper.util.log.LogUtil;
 import cn.ft.ckn.fastmapper.util.sql.PackageSqlUtil;
 import cn.hutool.core.collection.ListUtil;

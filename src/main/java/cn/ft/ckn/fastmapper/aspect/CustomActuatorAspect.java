@@ -4,7 +4,7 @@ import cn.ft.ckn.fastmapper.bean.em.Expression;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
-import cn.ft.ckn.fastmapper.expander.MapperExpander;
+import cn.ft.ckn.fastmapper.ex.MapperExpander;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;

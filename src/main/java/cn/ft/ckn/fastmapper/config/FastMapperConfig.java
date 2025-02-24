@@ -1,7 +1,7 @@
 package cn.ft.ckn.fastmapper.config;
 
-import cn.ft.ckn.fastmapper.expander.MapperExpander;
-import cn.ft.ckn.fastmapper.expander.MapperExpanderRunner;
+import cn.ft.ckn.fastmapper.ex.MapperExpander;
+import cn.ft.ckn.fastmapper.ex.MapperExpanderRunner;
 import io.netty.util.concurrent.FastThreadLocal;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 

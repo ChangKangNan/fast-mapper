@@ -1,4 +1,4 @@
-package cn.ft.ckn.fastmapper.expander;
+package cn.ft.ckn.fastmapper.ex;
 
 import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
