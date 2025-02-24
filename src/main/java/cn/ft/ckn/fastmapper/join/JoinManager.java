@@ -6,6 +6,7 @@ import cn.ft.ckn.fastmapper.bean.em.Expression;
 import cn.ft.ckn.fastmapper.support.dao.DaoActuator;
 import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.util.log.LogUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
@@ -50,9 +51,27 @@ public class JoinManager {
                }
            }
        }
+
+       String columns = "";
+       if(CollUtil.isNotEmpty(params.columns)){
+           columns = StrUtil.join(",", params.columns.stream().map(column -> {
+               String res = column;
+               for (String k : params.aliasMap.keySet()) {
+                   String t = res.substring(0, res.indexOf(StrUtil.DOT));
+                   String field = res.substring(res.indexOf(StrUtil.DOT) + 1);
+                   if (StrUtil.equals(res, k + StrUtil.DOT + field)) {
+                       String alias = params.aliasMap.get(t);
+                       res = alias + StrUtil.DOT + field;
+                       break;
+                   }
+               }
+               return res;
+           }).toArray());
+       }
+
        StringBuilder sqlBuilder = new StringBuilder(SELECT)
                .append(Expression.LineSeparator.expression)
-               .append(StrUtil.join(",", params.columns.toArray()))
+               .append(ArrayUtil.isEmpty(params.columns) ? "*" : columns)
                .append(Expression.LineSeparator.expression)
                .append(FROM)
                .append(StrUtil.SPACE)
@@ -95,6 +114,14 @@ public class JoinManager {
                    sqlBuilder.append(StrUtil.SPACE);
                }
                Object obj = params.where.get(key);
+               String where = key.substring(0,key.indexOf(StrUtil.DOT));
+               String field = key.substring(key.indexOf(StrUtil.DOT)+1);
+               for (String k : params.aliasMap.keySet()) {
+                   if (StrUtil.equals(where, StrUtil.SPACE + k + StrUtil.DOT)) {
+                       String alias = params.aliasMap.get(k);
+                       where = alias + StrUtil.DOT+field;
+                   }
+               }
                sqlBuilder.append(key)
                        .append(Expression.Equal.expression)
                        .append(LogUtil.getValue(obj))
@@ -105,6 +132,13 @@ public class JoinManager {
     }
 
     public <X> List<X> find(Class<X> returnObj) {
+        Map<String, Object> parameters = prepareFind();
+        FastMapperParam.get().getTableMapper().setObjClass(returnObj);
+        FastMapperParam.get().setParamMap(parameters);
+        return (List<X>)daoActuator.select();
+    }
+
+    private Map<String, Object> prepareFind() {
         Map<String, Object> parameters = new HashMap<>();
         if (!params.lastWhereParameters.isEmpty()) {
             parameters = params.lastWhereParameters;
@@ -117,8 +151,12 @@ public class JoinManager {
             sql.append(params.lastSQL);
         }
         FastMapperParam.get().setExecuteSql(sql.toString());
-        FastMapperParam.get().getTableMapper().setObjClass(returnObj);
+        return parameters;
+    }
+
+    public List<Map<String, Object>> find(){
+        Map<String, Object> parameters = prepareFind();
         FastMapperParam.get().setParamMap(parameters);
-        return (List<X>)daoActuator.select();
+        return daoActuator.selectList();
     }
 }

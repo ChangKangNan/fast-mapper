@@ -14,7 +14,7 @@ public class JoinParams {
     public Map<String, Map<String, String>> joins;
     public Map<String, String> relation;
     public Map<String, Integer> deeps;
-    public Class obj;
+    public Map<String,String> aliasMap;
     public String lastSQL;
     public Map<String, Object> lastWhereParameters;
 
@@ -25,5 +25,6 @@ public class JoinParams {
         relation = new HashMap<>();
         deeps = new HashMap<>();
         lastWhereParameters = new HashMap<>();
+        aliasMap = new HashMap<>();
     }
 }

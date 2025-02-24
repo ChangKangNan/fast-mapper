@@ -49,6 +49,17 @@ public class MybatisDaoActuator<T> implements DaoActuator<T> {
     }
 
     @Override
+    public List<Map<String, Object>> selectList() {
+        FastMapperParam<T> param = FastMapperParam.get();
+        MapperSelectProvider.findAll(param);
+        List<Map<String, Object>> select = MybatisConnection.getMapper().select(param);
+        if(CollUtil.isEmpty(select)){
+            return new ArrayList<>();
+        }
+        return select;
+    }
+
+    @Override
     public Integer count() {
         FastMapperParam<T> param = FastMapperParam.get();
         MapperSelectProvider.findCount(param);

@@ -50,6 +50,13 @@ public class JdbcDaoActuator<T> implements DaoActuator<T> {
     }
 
     @Override
+    public List<Map<String, Object>> selectList() {
+        FastMapperParam param = FastMapperParam.get();
+        MapperSelectProvider.findAll(param);
+        return DataSourceConnection.getJdbcTemplate().queryForList(PackageSqlUtil.sqlConversion(param.getExecuteSql()), param.getParamMap());
+    }
+
+    @Override
     public Integer count() {
         FastMapperParam<T> param = FastMapperParam.get();
         MapperSelectProvider.findCount(param);

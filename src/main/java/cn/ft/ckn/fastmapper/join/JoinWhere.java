@@ -20,7 +20,8 @@ public class JoinWhere {
     public JoinWhere where(SFunction<?, ?> column, Object o) {
         String fieldName = ColumnUtil.getFieldName(column);
         String className = ColumnUtil.getClassName(column);
-        this.params.where.put(className + StrUtil.DOT + fieldName, o);
+        String as = params.aliasMap.get(className);
+        this.params.where.put(StrUtil.SPACE + (StrUtil.isNotBlank(as) ? as : className) + StrUtil.DOT + fieldName, o);
         return this;
     }
 
@@ -47,5 +48,9 @@ public class JoinWhere {
 
     public <X> List<X> find(Class<X> returnObj) {
         return new JoinCustomer(params).find(returnObj);
+    }
+
+    public List<Map<String, Object>> find(){
+        return new JoinCustomer(params).find();
     }
 }
