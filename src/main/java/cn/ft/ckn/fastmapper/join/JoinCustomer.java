@@ -88,7 +88,7 @@ public class JoinCustomer extends JoinManager {
         params.deeps.put(tableName, 1);
     }
 
-    public <X, Y> JoinCustomer select(List<SFunction<X, Y>> fields) {
+    public <X> JoinCustomer select(List<SFunction<X, ?>> fields) {
         if (CollUtil.isNotEmpty(fields)) {
             for (SFunction field : fields) {
                 String fieldName = ColumnUtil.getFieldName(field);

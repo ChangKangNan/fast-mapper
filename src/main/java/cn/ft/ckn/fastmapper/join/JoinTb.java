@@ -18,7 +18,7 @@ public class JoinTb {
         this.params = params;
     }
 
-    public <X,Y> JoinWhere select(List<SFunction<X, Y>> fields) {
+    public <X> JoinWhere select(List<SFunction<X, ?>> fields) {
         if (CollUtil.isNotEmpty(fields)) {
             for (SFunction field : fields) {
                 String fieldName = ColumnUtil.getFieldName(field);
