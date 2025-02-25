@@ -2,7 +2,7 @@
 简化操作 MySQL数据库的JAVA ROM框架
 
 # 使用方式(maven方式)
-# 1.非自动化方式
+# 非自动化方式
 ```
      <dependency>
             <groupId>cn.ft.ckn</groupId>
