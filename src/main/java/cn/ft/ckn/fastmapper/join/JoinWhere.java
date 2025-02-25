@@ -2,6 +2,7 @@ package cn.ft.ckn.fastmapper.join;
 
 import cn.ft.ckn.fastmapper.anno.SFunction;
 import cn.ft.ckn.fastmapper.util.db.ColumnUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 
 import java.util.List;
@@ -52,5 +53,21 @@ public class JoinWhere {
 
     public List<Map<String, Object>> find() {
         return new JoinCustomer(params).find();
+    }
+
+    public <X> X findOne(Class<X> returnObj) {
+        List<X> res = new JoinCustomer(params).find(returnObj);
+        if (CollUtil.isNotEmpty(res)) {
+            return res.get(0);
+        }
+        return null;
+    }
+
+    public Map<String, Object> findOne() {
+        List<Map<String, Object>> mapList = new JoinCustomer(params).find();
+        if (CollUtil.isNotEmpty(mapList)) {
+            return mapList.get(0);
+        }
+        return null;
     }
 }

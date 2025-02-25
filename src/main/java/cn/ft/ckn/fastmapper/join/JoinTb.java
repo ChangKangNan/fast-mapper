@@ -64,6 +64,21 @@ public class JoinTb {
         return new JoinCustomer(params).find();
     }
 
+    public <R> R findOne(Class<R> returnObj) {
+        List<R> res = new JoinCustomer(params).find(returnObj);
+        if (CollUtil.isNotEmpty(res)) {
+            return res.get(0);
+        }
+        return null;
+    }
+
+    public Map<String, Object> findOne() {
+        List<Map<String, Object>> mapList = new JoinCustomer(params).find();
+        if (CollUtil.isNotEmpty(mapList)) {
+            return mapList.get(0);
+        }
+        return null;
+    }
 
     /**
      * case: tb.k= #{key}   map:{key:"value"}

@@ -56,14 +56,19 @@ public class JoinManager {
         if (CollUtil.isNotEmpty(params.columns)) {
             columns = StrUtil.join(",", params.columns.stream().map(column -> {
                 String res = column;
+                String t = res.substring(0, res.indexOf(StrUtil.DOT));
+                String field = res.substring(res.indexOf(StrUtil.DOT) + 1);
+                int tag = 0;
                 for (String k : params.aliasMap.keySet()) {
-                    String t = res.substring(0, res.indexOf(StrUtil.DOT));
-                    String field = res.substring(res.indexOf(StrUtil.DOT) + 1);
                     if (StrUtil.equals(res, k + StrUtil.DOT + field)) {
                         String alias = params.aliasMap.get(t);
                         res = alias + StrUtil.DOT + StrUtil.toUnderlineCase(field);
+                        tag = 1;
                         break;
                     }
+                }
+                if (tag == 0) {
+                    return StrUtil.toUnderlineCase(res);
                 }
                 return res;
             }).toArray());
