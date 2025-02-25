@@ -120,7 +120,7 @@ StudentMapper.lambdaDelete().id().notIn(sum.toArray()).delete();//开启逻辑�
 ```
 StudentMapper.lambdaUpdate().setSalveDataSource(datasource).id().equal(1).update(s);//根据指定数据源更新对象
 ```
-##多表关联查询
+## 多表关联查询
 ```
 //查询一个表中的关联多列的集合
 List<SFunction<Student, ?>> functions = new ArrayList<SFunction<Student, ?>>() {{
