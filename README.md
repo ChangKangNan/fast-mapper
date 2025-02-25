@@ -1,25 +1,50 @@
 # 软件定位
-用于辅助后端处理数据库数据即基础的CRUD操作
+简化操作 MySQL数据库的JAVA ROM框架
+
 # 使用方式(maven方式)
+# 1.非自动化方式
 ```
      <dependency>
             <groupId>cn.ft.ckn</groupId>
             <artifactId>fast-mapper</artifactId>
-            <version>2.0.0</version>
+            <version>4.0.0</version>
      </dependency>
+```
+# 添加springboot支持,该版本默认集成fast-mapper版本4.0(自动化方式)
+```
+        <dependency>
+            <groupId>cn.ft.ckn</groupId>
+            <artifactId>fast-mapper-spring-boot-starter</artifactId>
+            <version>1.0</version>
+        </dependency>
 ```
 # 使用环境
 JDK1.8+
 # 简要使用说明
 基础目录结构如下
-
-![img.png](image/img.png)
-
+```
+project-root/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── fm/
+│   │   │       └── action/
+│   │   │       └── bean/
+|   |   |       └── dao/      
+│   │   └── resources/
+│   │       └── application.properties
+│   └── test/
+│       └── java/
+├── docs/
+│   └── README.md
+├── pom.xml
+└── .gitignore
+```
 生成操作文件如下:
 ```
 public class GenerateTest {
     public static void main(String[] args) {
-        GenerateTemplateConfig config=new GenerateTemplateConfig();
+        GenerateConfig config = new GenerateConfig();
         //基础目录
         config.setBasePackage("pers.ckn.sp");
         //无子模块项目则不无需填写
@@ -32,12 +57,12 @@ public class GenerateTest {
         //是否生成在test目录下
         config.setTest(false);
         //开始生成
-        GenerateTemplate.generate(config);
+        GenerateUtil.generate(config);
     }
 }
 ```
 基础配置信息
-## 项目配置信息
+## 配置文件方式
 ```
 @Component
 public class SearchConfig {
@@ -55,52 +80,84 @@ public class SearchConfig {
     }
 }
 ```
+## yml方式
+```
+fast:
+  mapper:
+    open-sql-print: true
+    supports: sql,transaction
+    dao-actuator: jdbc
+    open-logic-deleted-auto: true
+    logic-deleted-column: deleted
+    logic-deleted-column-default-value: 0
+    logic-deleted-column-deleted-value: 1
+    open-create-time-auto: true
+    create-time: create_time
+    open-update-time-auto: true
+    update-time: update_time
+```
 ## 查询
-
-## 查询单条数据
-
-![img_5.png](image/img_5.png)
-
-## 查询多条数据
-
-## ![img_6.png](image/img_6.png)
-
-## 多条件查询and
-
-## ![img_7.png](image/img_7.png)
-
-## 多条件or关系
-
-## ![img_8.png](image/img_8.png)
-
-## 查询分页
-
-## ![img_9.png](image/img_9.png)
-
-## 更新--插入
-
-![img_10.png](image/img_10.png)
-
-## 更新--删除
-
-![img_11.png](image/img_11.png)
-
+```
+StudentConfigMapper.lambdaQuery().name().equal("tony").one();//单个
+StudentConfigMapper.lambdaQuery().name().equal("tony").list();//集合
+```
 ## 更新
+```
+Student s = new Student();
+s.setHobby("music");
+StudentMapper.lambdaUpdate().id().equal(1).update(s);//更新对象
 
-![img_12.png](image/img_12.png)
+StudentMapper.lambdaUpdate().id().equal(1).value().set().execute(Student::getHobby,"music");;//更新单独的值
 
-## 单独某一值更新
+```
+## 删除
+```
+StudentMapper.lambdaDelete().id().notIn(sum.toArray()).closeDeletedProtect().delete();//物理删除
+StudentMapper.lambdaDelete().id().notIn(sum.toArray()).delete();//开启逻辑删除后的逻辑删除操作
 
-![img_13.png](image/img_13.png)
+```
+## 跨数据源操作
+```
+StudentMapper.lambdaUpdate().setSalveDataSource(datasource).id().equal(1).update(s);//根据指定数据源更新对象
+```
+##多表关联查询
+```
+//查询一个表中的关联多列的集合
+List<SFunction<Student, ?>> functions = new ArrayList<SFunction<Student, ?>>() {{
+            add(Student::getId);
+            add(Student::getName);
+        }};
+List<Map<String, Object>> maps = new JoinCustomer(Student.class, "s")
+                .select(functions)
+                .leftJoin(Age.class, "a", Student::getId, Age::getStuId)
+                .leftJoin(Fit.class, Student::getId, Fit::getStuId)
+                .leftJoin(Hobby.class, Student::getId, Hobby::getStuId)
+                .lastWhere("s.name = #{name}", new HashMap<String, Object>() {{put("name", "taomi");}})
+                .find();
 
-## 跨数据源查询
+//查询单独结果                
+Fit one = new JoinCustomer(Student.class, "s")
+                .select(Fit::getStuId)
+                .leftJoin(Age.class, "a", Student::getId, Age::getStuId)
+                .leftJoin(Fit.class, Student::getId, Fit::getStuId)
+                .leftJoin(Hobby.class, Student::getId, Hobby::getStuId)
+                .where(Student::getName, "ming")
+                //.lastWhere("s.name = #{name}", new HashMap<String, Object>() {{put("name", "ckn");}})
+                .findOne(Fit.class);                
+                
+```
 
-![img_14.png](image/img_14.png)
+## 本地多数据源事务
+1.本地多数据源事务支持需要配置yml support支持transaction
+2.在对应方法上新增注解@LocalTransactional即可
 
-setSalveDataSource在多种操作模式lambdaQuery,lambdaDelete,lambdaInsert,
-lambdaUpdate都可执行
-## 跨数据源全局事务--基于本操作框架的数据库操作
 
-![img_15.png](image/img_15.png)
+## 本地sql调用执行 
+```
 
-只需方法头添加@GlobalTransactionalLocal注解即可保证事务一致性
+//所有调用均支持跨数据源操作
+List<Stu> select = DbUtil.build().select(sql, Stu.class);//查询集合
+DbUtil.build().execute(sql);//执行sql
+
+```
+
