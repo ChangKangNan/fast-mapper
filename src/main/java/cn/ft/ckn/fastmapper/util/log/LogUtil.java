@@ -46,7 +46,7 @@ public class LogUtil {
         if (params.size() > 0) {
             for (String param : params.keySet()) {
                 Object o = params.get(param);
-                sql = StrUtil.replace(sql, ":" + param+StrUtil.SPACE, getValue(o));
+                sql = StrUtil.replace(sql, ":" + param, getValue(o));
             }
         }
         try {

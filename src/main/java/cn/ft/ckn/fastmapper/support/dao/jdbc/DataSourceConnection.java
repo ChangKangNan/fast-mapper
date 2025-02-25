@@ -135,6 +135,10 @@ public class DataSourceConnection {
 
     private static Class<? extends DaoActuator> daoActuator = JdbcDaoActuator.class;
 
+    public static void setDaoActuator(Class<? extends DaoActuator> daoActuator) {
+        DataSourceConnection.daoActuator = daoActuator;
+    }
+
     public static <T> DaoActuator<T> getDaoActuator() {
         try {
             return ProxyUtil.proxy(daoActuator.newInstance(), MapperActuatorAspect.class);

@@ -19,6 +19,7 @@ public class MapperExpanderRunner {
 
     private static final String INSERT = "insert";
     private static final String SELECT = "select";
+    private static final String SELECTLIST = "selectList";
     private static final String COUNT = "count";
     private static final String UPDATE = "update";
     private static final String DELETE = "delete";
@@ -105,7 +106,7 @@ public class MapperExpanderRunner {
             expanders = deleteOccasion;
         } else if (methodName.equals(UPDATE)) {
             expanders = updateOccasion;
-        } else if (methodName.equals(SELECT) || methodName.equals(COUNT)) {
+        } else if (methodName.equals(SELECT) || methodName.equals(COUNT) || methodName.equals(SELECTLIST)) {
             expanders = selectOccasion;
         }
         return expanders;

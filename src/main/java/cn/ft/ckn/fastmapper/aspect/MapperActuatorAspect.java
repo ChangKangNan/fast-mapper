@@ -35,6 +35,8 @@ public class MapperActuatorAspect extends SimpleAspect {
                 FastMapperParam.OperationType.COUNT.name()
                 )){
             FastMapperParam.get().setOperationType(FastMapperParam.OperationType.SELECT);
+        }else if(StrUtil.equals(method.getName().toUpperCase(), FastMapperParam.OperationType.SELECTLIST.name())){
+            FastMapperParam.get().setOperationType(FastMapperParam.OperationType.SELECTLIST);
         }
         return MapperExpanderRunner.runBeforeExpander(FastMapperParam.get(), method.getName(),method);
     }

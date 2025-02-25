@@ -17,7 +17,7 @@ public class JoinWhere {
         this.params = params;
     }
 
-    public JoinWhere where(SFunction<?, ?> column, Object o) {
+    public JoinWhere where(SFunction column, Object o) {
         String fieldName = ColumnUtil.getFieldName(column);
         String className = ColumnUtil.getClassName(column);
         String as = params.aliasMap.get(className);
@@ -25,20 +25,20 @@ public class JoinWhere {
         return this;
     }
 
-    public <L, K> JoinTb leftJoin(Class<L> joinClass, SFunction<?, K> mainKey, SFunction<L, K> joinKey) {
+    public <L, K, W> JoinTb leftJoin(Class<L> joinClass, SFunction<W, K> mainKey, SFunction<L, K> joinKey) {
         return new JoinCustomer(params).leftJoin(joinClass, mainKey, joinKey);
     }
 
-    public <H, K> JoinTb rightJoin(Class<H> joinClass, SFunction<?, K> mainKey, SFunction<H, K> joinKey) {
+    public <H, K, W> JoinTb rightJoin(Class<H> joinClass, SFunction<W, K> mainKey, SFunction<H, K> joinKey) {
         return new JoinCustomer(params).leftJoin(joinClass, mainKey, joinKey);
     }
 
-    public <I, K> JoinTb innerJoin(Class<I> joinClass, SFunction<?, K> mainKey, SFunction<I, K> joinKey) {
+    public <I, K, W> JoinTb innerJoin(Class<I> joinClass, SFunction<W, K> mainKey, SFunction<I, K> joinKey) {
         return new JoinCustomer(params).leftJoin(joinClass, mainKey, joinKey);
     }
 
     /**
-     * case: tb.k=:key   map:{key:"value"}
+     * case: tb.k= #{key}   map:{key:"value"}
      */
     public JoinCustomer lastWhere(String sql, Map<String, Object> parameters) {
         params.lastSQL = sql;
@@ -50,7 +50,7 @@ public class JoinWhere {
         return new JoinCustomer(params).find(returnObj);
     }
 
-    public List<Map<String, Object>> find(){
+    public List<Map<String, Object>> find() {
         return new JoinCustomer(params).find();
     }
 }

@@ -18,16 +18,9 @@ public class JoinTb {
         this.params = params;
     }
 
-    public JoinWhere select(SFunction<?, ?> field) {
-        String fieldName = ColumnUtil.getFieldName(field);
-        String className = ColumnUtil.getClassName(field);
-        params.columns.add(className + StrUtil.DOT + fieldName);
-        return new JoinWhere(params);
-    }
-
-    public JoinWhere select(List<SFunction<?, ?>> fields) {
+    public <X,Y> JoinWhere select(List<SFunction<X, Y>> fields) {
         if (CollUtil.isNotEmpty(fields)) {
-            for (SFunction<?, ?> field : fields) {
+            for (SFunction field : fields) {
                 String fieldName = ColumnUtil.getFieldName(field);
                 String className = ColumnUtil.getClassName(field);
                 params.columns.add(className + StrUtil.DOT + fieldName);
@@ -36,7 +29,14 @@ public class JoinTb {
         return new JoinWhere(params);
     }
 
-    public <V> JoinWhere where(SFunction<?, V> field, V o) {
+    public <X, Y> JoinWhere select(SFunction<X, Y> field) {
+        String fieldName = ColumnUtil.getFieldName(field);
+        String className = ColumnUtil.getClassName(field);
+        params.columns.add(className + StrUtil.DOT + fieldName);
+        return new JoinWhere(params);
+    }
+
+    public <W, V> JoinWhere where(SFunction<W, V> field, V o) {
         String fieldName = ColumnUtil.getFieldName(field);
         String className = ColumnUtil.getClassName(field);
         String as = params.aliasMap.get(className);
@@ -44,15 +44,15 @@ public class JoinTb {
         return new JoinWhere(params);
     }
 
-    public <L, K> JoinTb leftJoin(Class<L> joinClass, SFunction<?, K> mainKey, SFunction<L, K> joinKey) {
+    public <L, K, W> JoinTb leftJoin(Class<L> joinClass, SFunction<W, K> mainKey, SFunction<L, K> joinKey) {
         return new JoinCustomer(params).leftJoin(joinClass, mainKey, joinKey);
     }
 
-    public <H, K> JoinTb rightJoin(Class<H> joinClass, SFunction<?, K> mainKey, SFunction<H, K> joinKey) {
+    public <H, K, W> JoinTb rightJoin(Class<H> joinClass, SFunction<W, K> mainKey, SFunction<H, K> joinKey) {
         return new JoinCustomer(params).leftJoin(joinClass, mainKey, joinKey);
     }
 
-    public <I, K> JoinTb innerJoin(Class<I> joinClass, SFunction<?, K> mainKey, SFunction<I, K> joinKey) {
+    public <I, K, W> JoinTb innerJoin(Class<I> joinClass, SFunction<W, K> mainKey, SFunction<I, K> joinKey) {
         return new JoinCustomer(params).leftJoin(joinClass, mainKey, joinKey);
     }
 
@@ -60,13 +60,13 @@ public class JoinTb {
         return new JoinCustomer(params).find(returnObj);
     }
 
-    public List<Map<String, Object>> find(){
+    public List<Map<String, Object>> find() {
         return new JoinCustomer(params).find();
     }
 
 
     /**
-     * case: tb.k=:key   map:{key:"value"}
+     * case: tb.k= #{key}   map:{key:"value"}
      */
     public JoinTb lastWhere(String sql, Map<String, Object> parameters) {
         params.lastSQL = sql;

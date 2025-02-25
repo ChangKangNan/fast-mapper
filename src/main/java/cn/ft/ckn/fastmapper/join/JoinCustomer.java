@@ -18,58 +18,58 @@ public class JoinCustomer extends JoinManager {
         params.mainTable = (mainClassAnnotation == null ? StrUtil.toUnderlineCase(main.getSimpleName()) : mainClassAnnotation.name());
     }
 
-    public JoinCustomer(Class<?> main,String alias) {
+    public JoinCustomer(Class<?> main, String alias) {
         super(new JoinParams());
         Table mainClassAnnotation = main.getAnnotation(Table.class);
         params.mainTable = (mainClassAnnotation == null ? StrUtil.toUnderlineCase(main.getSimpleName()) : mainClassAnnotation.name());
-        params.aliasMap.putIfAbsent(params.mainTable,alias);
+        params.aliasMap.putIfAbsent(params.mainTable, alias);
     }
 
     public JoinCustomer(JoinParams joinParams) {
         super(joinParams);
     }
 
-    public <L, K> JoinTb leftJoin(Class<L> joinClass
-            , SFunction<?, K> mainKey, SFunction<L, K> joinKey) {
-        join(joinClass,null, mainKey, joinKey, "LEFT JOIN");
+    public <L, K, W> JoinTb leftJoin(Class<L> joinClass
+            , SFunction<W, K> mainKey, SFunction<L, K> joinKey) {
+        join(joinClass, null, mainKey, joinKey, "LEFT JOIN");
         return new JoinTb(params);
     }
 
 
-    public <R, K> JoinTb rightJoin(Class<R> joinClass
-            , SFunction<?, K> mainKey, SFunction<R, K> joinKey) {
-        join(joinClass,null, mainKey, joinKey, "RIGHT JOIN");
+    public <R, K, W> JoinTb rightJoin(Class<R> joinClass
+            , SFunction<W, K> mainKey, SFunction<R, K> joinKey) {
+        join(joinClass, null, mainKey, joinKey, "RIGHT JOIN");
         return new JoinTb(params);
     }
 
-    public <I, K> JoinTb innerJoin(Class<I> joinClass
-            , SFunction<?, K> mainKey, SFunction<I, K> joinKey) {
-        join(joinClass,null, mainKey, joinKey, "INNER JOIN");
+    public <I, K, W> JoinTb innerJoin(Class<I> joinClass
+            , SFunction<W, K> mainKey, SFunction<I, K> joinKey) {
+        join(joinClass, null, mainKey, joinKey, "INNER JOIN");
         return new JoinTb(params);
     }
 
-    public <L, K> JoinTb leftJoin(Class<L> joinClass,String alias
-            , SFunction<?, K> mainKey, SFunction<L, K> joinKey) {
-        join(joinClass,alias, mainKey, joinKey, "LEFT JOIN");
+    public <L, K, W> JoinTb leftJoin(Class<L> joinClass, String alias
+            , SFunction<W, K> mainKey, SFunction<L, K> joinKey) {
+        join(joinClass, alias, mainKey, joinKey, "LEFT JOIN");
         return new JoinTb(params);
     }
 
-    public <R, K> JoinTb rightJoin(Class<R> joinClass,String alias
-            , SFunction<?, K> mainKey, SFunction<R, K> joinKey) {
-        join(joinClass,alias, mainKey, joinKey, "RIGHT JOIN");
+    public <R, K, W> JoinTb rightJoin(Class<R> joinClass, String alias
+            , SFunction<W, K> mainKey, SFunction<R, K> joinKey) {
+        join(joinClass, alias, mainKey, joinKey, "RIGHT JOIN");
         return new JoinTb(params);
     }
 
-    public <I, K> JoinTb innerJoin(Class<I> joinClass,String alias
-            , SFunction<?, K> mainKey, SFunction<I, K> joinKey) {
-        join(joinClass,alias, mainKey, joinKey, "INNER JOIN");
+    public <I, K, W> JoinTb innerJoin(Class<I> joinClass, String alias
+            , SFunction<W, K> mainKey, SFunction<I, K> joinKey) {
+        join(joinClass, alias, mainKey, joinKey, "INNER JOIN");
         return new JoinTb(params);
     }
 
-    private <H, I> void join(Class<I> joinClass,String alias, SFunction<H, ?> mainKey, SFunction<I, ?> joinKey, String joinTag) {
+    private <H, I, F> void join(Class<I> joinClass, String alias, SFunction<H, F> mainKey, SFunction<I, F> joinKey, String joinTag) {
         Table annotation = joinClass.getAnnotation(Table.class);
         String tableName = (annotation == null ? StrUtil.toUnderlineCase(joinClass.getSimpleName()) : annotation.name());
-        if(StrUtil.isNotBlank(alias)){
+        if (StrUtil.isNotBlank(alias)) {
             Map<String, String> aliasMap = params.aliasMap;
             String as = aliasMap.get(tableName);
             if (StrUtil.isNotBlank(as)) {
@@ -88,21 +88,21 @@ public class JoinCustomer extends JoinManager {
         params.deeps.put(tableName, 1);
     }
 
-    public JoinCustomer select(SFunction<?, ?> field) {
-        String fieldName = ColumnUtil.getFieldName(field);
-        String tb_name = ColumnUtil.getClassName(field);
-        params.columns.add(tb_name + StrUtil.DOT + fieldName);
+    public <X, Y> JoinCustomer select(List<SFunction<X, Y>> fields) {
+        if (CollUtil.isNotEmpty(fields)) {
+            for (SFunction field : fields) {
+                String fieldName = ColumnUtil.getFieldName(field);
+                String className = ColumnUtil.getClassName(field);
+                params.columns.add(className + StrUtil.DOT + fieldName);
+            }
+        }
         return this;
     }
 
-    public JoinCustomer select(List<SFunction<?, ?>> fields) {
-        if (CollUtil.isNotEmpty(fields)) {
-            for (SFunction<?, ?> field : fields) {
-                String tb_name = ColumnUtil.getClassName(field);
-                String fieldName = ColumnUtil.getFieldName(field);
-                params.columns.add(tb_name + StrUtil.DOT + fieldName);
-            }
-        }
+    public <X, Y> JoinCustomer select(SFunction<X, Y> field) {
+        String fieldName = ColumnUtil.getFieldName(field);
+        String className = ColumnUtil.getClassName(field);
+        params.columns.add(className + StrUtil.DOT + fieldName);
         return this;
     }
 

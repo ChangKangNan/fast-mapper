@@ -26,8 +26,9 @@ public class SqlPrintActuatorAspect  implements MapperExpander {
     @Override
     public void after(FastMapperParam param, Method method) {
         if(FastMapperConfig.isOpenSQLPrint){
-            if(StrUtil.equals(param.getOperationType().name(),FastMapperParam.OperationType.SELECT.name())){
-                LogUtil.print(LogUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()),param.getParamMap())
+            if(StrUtil.equalsAny(param.getOperationType().name(),FastMapperParam.OperationType.SELECT.name(),FastMapperParam.OperationType.SELECTLIST.name())){
+                String printSql = LogUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()), param.getParamMap());
+                LogUtil.print(printSql
                         , LogUtil.printResult(JSONUtil.toJsonStr(param.getReturnVal() == null ? "" : param.getReturnVal())));
             }else {
                 LogUtil.print(LogUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()),param.getParamMap())

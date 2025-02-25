@@ -170,7 +170,7 @@ public class FastMapperParam<T> {
     }
 
     public enum OperationType{
-        INSERT,SELECT,UPDATE,DELETE,COUNT
+        INSERT,SELECT,UPDATE,DELETE,COUNT,SELECTLIST
     }
 
     @Data
