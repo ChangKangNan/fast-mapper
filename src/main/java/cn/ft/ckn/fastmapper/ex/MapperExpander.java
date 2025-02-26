@@ -9,6 +9,13 @@ import java.util.List;
 public interface MapperExpander {
 
     /**
+     * 优先级越高则优先处理
+     */
+    default int order() {
+        return 0;
+    }
+
+    /**
      * Dao执行前的操作
      *
      * @param param 目标对象
@@ -25,9 +32,11 @@ public interface MapperExpander {
 
 
     void afterException(FastMapperParam param, Method method);
+
     /**
      * 执行场景
-     * @return INSERT,SELECT,UPDATE,DELETE
+     *
+     * @return INSERT, SELECT, UPDATE, DELETE
      */
     List<ExpanderOccasion> occasion();
 

@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * @author ckn
  */
-public class SqlPrintActuatorAspect  implements MapperExpander {
+public class SqlPrintActuatorAspect implements MapperExpander {
 
     @Override
     public boolean before(FastMapperParam param, Method method) {
@@ -25,25 +25,28 @@ public class SqlPrintActuatorAspect  implements MapperExpander {
 
     @Override
     public void after(FastMapperParam param, Method method) {
-        if(FastMapperConfig.isOpenSQLPrint){
-            if(StrUtil.equalsAny(param.getOperationType().name(),FastMapperParam.OperationType.SELECT.name(),FastMapperParam.OperationType.SELECTLIST.name())){
-                String printSql = LogUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()), param.getParamMap());
-                LogUtil.print(printSql
-                        , LogUtil.printResult(JSONUtil.toJsonStr(param.getReturnVal() == null ? "" : param.getReturnVal())));
-            }else {
-                LogUtil.print(LogUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()),param.getParamMap())
-                        , LogUtil.printResult(param.getReturnVal()));
-            }
+        if (!FastMapperConfig.isOpenSQLPrint) {
+            return;
+        }
+        if (StrUtil.equalsAny(param.getOperationType().name(), FastMapperParam.OperationType.SELECT.name(), FastMapperParam.OperationType.SELECTLIST.name())) {
+            String printSql = LogUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()), param.getParamMap());
+            LogUtil.print(printSql
+                    , LogUtil.printResult(JSONUtil.toJsonStr(param.getReturnVal() == null ? "" : param.getReturnVal())));
+        } else {
+            LogUtil.print(LogUtil.printSql(PackageSqlUtil.sqlConversion(param.getExecuteSql()), param.getParamMap())
+                    , LogUtil.printResult(param.getReturnVal()));
         }
     }
 
+
     @Override
     public void afterException(FastMapperParam param, Method method) {
-        if(FastMapperConfig.isOpenSQLPrint) {
-            String sqlConversion = PackageSqlUtil.sqlConversion(param.getExecuteSql());
-            LogUtil.print(LogUtil.printSql(sqlConversion, param.getParamMap())
-                    , LogUtil.printResult("查询异常无结果"));
+        if (!FastMapperConfig.isOpenSQLPrint) {
+            return;
         }
+        String sqlConversion = PackageSqlUtil.sqlConversion(param.getExecuteSql());
+        LogUtil.print(LogUtil.printSql(sqlConversion, param.getParamMap())
+                , LogUtil.printResult("查询异常无结果"));
     }
 
     @Override

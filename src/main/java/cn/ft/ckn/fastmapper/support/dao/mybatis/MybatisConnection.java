@@ -10,7 +10,6 @@ import javax.sql.DataSource;
 
 /**
  * @author ckn
- * @date 2023/6/19
  */
 public class MybatisConnection {
     private static final FastThreadLocal<MybatisMapper> mapperThreadLocal = new FastThreadLocal<>();

@@ -8,7 +8,6 @@ import java.util.Map;
 
 /**
  * @author ckn
- * @date 2023/6/19
  */
 public interface MybatisMapper {
     @InsertProvider(type=MybatisSqlProvider.class,method = "getSql")

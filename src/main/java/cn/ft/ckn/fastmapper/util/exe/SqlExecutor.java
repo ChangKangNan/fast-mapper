@@ -4,10 +4,14 @@ import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.FastTableMapper;
 import cn.ft.ckn.fastmapper.support.dao.DaoActuator;
 import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
+import lombok.SneakyThrows;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,17 +21,17 @@ import java.util.Map;
  * 门面模式
  * @author ckn
  */
-public class DbUtil {
+public class SqlExecutor {
     private DaoActuator daoActuator;
-    private static DbUtil sqlExecutorUtil = new DbUtil();
+    private static SqlExecutor sqlExecutorUtil = new SqlExecutor();
 
-    private DbUtil() {
+    private SqlExecutor() {
         this.daoActuator = DataSourceConnection.getDaoActuator();
         FastTableMapper tableMapper = new FastTableMapper();
         FastMapperParam.init(tableMapper);
     }
 
-    public static DbUtil build() {
+    public static SqlExecutor build() {
         return sqlExecutorUtil;
     }
 
@@ -74,6 +78,18 @@ public class DbUtil {
         FastMapperParam.get().setExecuteSql(sql);
         FastMapperParam.get().setParamMap(new HashMap<>());
         return daoActuator.update();
+    }
+
+    @SneakyThrows
+    public void executeBatch(List<String> sqls) {
+        if (CollUtil.isEmpty(sqls)) {
+            return;
+        }
+        Connection connection = DataSourceConnection.getDataSource().getConnection();
+        Statement statement = connection.createStatement();
+        for (String batch : sqls) {
+            statement.execute(batch);
+        }
     }
 
     public void setSalveDataSource(DataSource dataSource) {

@@ -16,7 +16,6 @@ import java.util.Map;
 
 /**
  * @author ckn
- * @date 2023/6/19
  */
 public class MybatisDaoActuator<T> implements DaoActuator<T> {
     @Override

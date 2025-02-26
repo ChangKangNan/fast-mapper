@@ -6,7 +6,6 @@ import cn.hutool.core.util.StrUtil;
 
 /**
  * @author ckn
- * @date 2023/6/19
  */
 public class MybatisSqlProvider {
 

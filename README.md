@@ -65,18 +65,20 @@ public class GenerateTest {
 ## 配置文件方式
 ```
 @Component
-public class SearchConfig {
+public class DbConfig {
     static {
         //sql执行情况打印
         FastMapperConfig.isOpenSQLPrint = true;
-        FastMapperConfig.addMapperExpander(SqlActuatorAspect.class);
         //自定义逻辑删除，插入更新时间定义
         FastMapperConfig.setDeleted(true,"deleted",false,true);
         FastMapperConfig.setTimeAuto(true,true);
         FastMapperConfig.setTimeColumn("create_time","update_time");
+        //添加自定义切面拦截扩展支持
         FastMapperConfig.addMapperExpander(CustomActuatorAspect.class);
-        //全局事务支持
+        //添加默认事务切面支持
         FastMapperConfig.addMapperExpander(TransactionActuatorAspect.class);
+        //添加默认sql打印切面支持
+        FastMapperConfig.addMapperExpander(SqlActuatorAspect.class);
     }
 }
 ```
@@ -107,7 +109,7 @@ Student s = new Student();
 s.setHobby("music");
 StudentMapper.lambdaUpdate().id().equal(1).update(s);//更新对象
 
-StudentMapper.lambdaUpdate().id().equal(1).value().set().execute(Student::getHobby,"music");;//更新单独的值
+StudentMapper.lambdaUpdate().id().equal(1).value().set(Student::getHobby,"music").execute();//更新单独的值
 
 ```
 ## 删除
@@ -156,8 +158,10 @@ Fit one = new JoinCustomer(Student.class, "s")
 ```
 
 //所有调用均支持跨数据源操作
-List<Stu> select = DbUtil.build().select(sql, Stu.class);//查询集合
-DbUtil.build().execute(sql);//执行sql
+List<Stu> select = SqlExecutor.build().select(sql, Stu.class);//查询集合
+SqlExecutor.build().execute(sql);//执行sql
+SqlExecutor.build().executeBatch(sqls);//在同一连接内执行sql集合
 
 ```
+
 

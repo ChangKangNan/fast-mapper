@@ -8,7 +8,6 @@ import javax.sql.DataSource;
 
 /**
  * @author ckn
- * @date 2022/11/4
  */
 public class DataSourceRunner {
     /**

@@ -100,14 +100,21 @@ public class MapperExpanderRunner {
 
     private static List<Class<MapperExpander>> getExpanders(String methodName) {
         List<Class<MapperExpander>> expanders = null;
-        if (methodName.equals(INSERT)) {
-            expanders = insertOccasion;
-        } else if (methodName.equals(DELETE)) {
-            expanders = deleteOccasion;
-        } else if (methodName.equals(UPDATE)) {
-            expanders = updateOccasion;
-        } else if (methodName.equals(SELECT) || methodName.equals(COUNT) || methodName.equals(SELECTLIST)) {
-            expanders = selectOccasion;
+        switch (methodName) {
+            case INSERT:
+                expanders = insertOccasion;
+                break;
+            case DELETE:
+                expanders = deleteOccasion;
+                break;
+            case UPDATE:
+                expanders = updateOccasion;
+                break;
+            case SELECT:
+            case COUNT:
+            case SELECTLIST:
+                expanders = selectOccasion;
+                break;
         }
         return expanders;
     }

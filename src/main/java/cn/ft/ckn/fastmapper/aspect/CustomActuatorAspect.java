@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomActuatorAspect implements MapperExpander {
+
     @Override
     public boolean before(FastMapperParam param, Method method) {
         String methodName = method.getName();

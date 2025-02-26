@@ -32,11 +32,10 @@ public class MapperActuatorAspect extends SimpleAspect {
             FastMapperParam.get().setOperationType(FastMapperParam.OperationType.DELETE);
         }else if(StrUtil.equalsAny(method.getName().toUpperCase(),
                 FastMapperParam.OperationType.SELECT.name(),
-                FastMapperParam.OperationType.COUNT.name()
+                FastMapperParam.OperationType.COUNT.name(),
+                FastMapperParam.OperationType.SELECTLIST.name()
                 )){
             FastMapperParam.get().setOperationType(FastMapperParam.OperationType.SELECT);
-        }else if(StrUtil.equals(method.getName().toUpperCase(), FastMapperParam.OperationType.SELECTLIST.name())){
-            FastMapperParam.get().setOperationType(FastMapperParam.OperationType.SELECTLIST);
         }
         return MapperExpanderRunner.runBeforeExpander(FastMapperParam.get(), method.getName(),method);
     }
