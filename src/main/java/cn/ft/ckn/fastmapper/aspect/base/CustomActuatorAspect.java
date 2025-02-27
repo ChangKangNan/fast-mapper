@@ -47,7 +47,10 @@ public class CustomActuatorAspect implements MapperExpander {
 
             if(addOccasion == AddOccasion.OBJECT && StrUtil.equals(param.getOperationType().name(),FastMapperParam.OperationType.UPDATE.name())){
                 List<FastMapperParam.Value> updateValueList = param.getUpdateValueList();
-                updateValueList.add(new FastMapperParam.Value(fieldName, val));
+                long exist = updateValueList.stream().filter(w -> StrUtil.equals(w.columnName, fieldName)).count();
+                if (exist == 0) {
+                    updateValueList.add(new FastMapperParam.Value(fieldName, val));
+                }
             }
 
             if (addOccasion == AddOccasion.CONDITION && StrUtil.equalsAny(param.getOperationType().name()

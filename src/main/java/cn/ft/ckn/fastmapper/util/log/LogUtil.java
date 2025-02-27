@@ -62,7 +62,7 @@ public class LogUtil {
             stringBuilder.append("'");
         }
         if (value instanceof Date) {
-            stringBuilder.append(DateUtil.format((Date) value, "yyyy-MM-dd"));
+            stringBuilder.append(DateUtil.format((Date) value, "yyyy-MM-dd HH:mm:ss"));
         } else {
             stringBuilder.append(value);
         }
