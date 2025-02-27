@@ -17,7 +17,7 @@ public class LogicDeletedField extends AbstractField{
     @Override
     public boolean check(FastMapperParam param) {
         FastMapperParam.OperationType operationType = param.getOperationType();
-        return StrUtil.equalsAny(operationType.name(),
+        return param.getSource() == FastMapperParam.ActionSource.MAPPER && StrUtil.equalsAny(operationType.name(),
                 FastMapperParam.OperationType.INSERT.name(),
                 FastMapperParam.OperationType.DELETE.name(),
                 FastMapperParam.OperationType.UPDATE.name(),
