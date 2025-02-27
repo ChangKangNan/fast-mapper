@@ -80,6 +80,20 @@ public class FastMapperParam<T> {
 
     public Boolean isAnd=Boolean.TRUE;
 
+    private ActionSource source = ActionSource.MAPPER;
+
+    public ActionSource getSource() {
+        return source;
+    }
+
+    public void setSource(ActionSource source) {
+        this.source = source;
+    }
+
+    public enum ActionSource{
+        MAPPER,EXECUTOR,JOIN
+    }
+
     /**
      * 操作方式
      */

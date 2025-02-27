@@ -12,6 +12,8 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 
+import javax.persistence.Column;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -93,14 +95,14 @@ public class PackageSqlUtil {
         return sql;
     }
 
-    public static StrBuilder insertSql(FastMapperParam FastMapperParam) {
-        List insertList = FastMapperParam.getInsertList();
-        FastTableMapper tableMapper = FastMapperParam.getTableMapper();
+    public static StrBuilder insertSql(FastMapperParam fastMapperParam) {
+        List insertList = fastMapperParam.getInsertList();
+        FastTableMapper tableMapper = fastMapperParam.getTableMapper();
         PackageSqlUtil.ParamIndex paramIndex = new PackageSqlUtil.ParamIndex();
         paramIndex.setParamType(INSERT_PARAM_TYPE);
         List<String> fieldNames = tableMapper.getShowFields();
         HashMap<String,String> fieldToColumn = tableMapper.getFieldToColumn();
-        Map<String,Object> paramMap = FastMapperParam.getParamMap();
+        Map<String,Object> paramMap = fastMapperParam.getParamMap();
         StrBuilder sql = StrUtil.strBuilder(INSERT,StrUtil.SPACE, tableMapper.getTableName()).append(CRLF);
         if (insertList.size() == 1) {
             sql.append(SET);
@@ -139,53 +141,43 @@ public class PackageSqlUtil {
         return sql;
     }
 
-    public static StrBuilder deleteSql(FastMapperParam FastMapperParam) {
-        FastTableMapper tableMapper = FastMapperParam.getTableMapper();
-        String logicDeletedColumn= FastMapperConfig.logicDeletedColumn;
-        List<String> showFields = tableMapper.getShowFields();
-        boolean hasLogicDelete = showFields.contains(logicDeletedColumn);
-        //是否关闭逻辑删除
-        Boolean closeDeleteProtect = FastMapperParam.getCloseDeleteProtect();
+    public static StrBuilder deleteSql(FastMapperParam fastMapperParam) {
+        FastTableMapper tableMapper = fastMapperParam.getTableMapper();
         StrBuilder sql = StrUtil.strBuilder();
-        if (closeDeleteProtect || !hasLogicDelete) {
-            sql.append(DELETE).append(StrUtil.SPACE).append(FROM);
-        } else {
-            sql.append(UPDATE);
-        }
+        sql.append(DELETE).append(StrUtil.SPACE).append(FROM);
         sql.append(StrUtil.SPACE).append(tableMapper.getTableName());
-        sql.append(CRLF);
-        if(!closeDeleteProtect && hasLogicDelete){
-            sql.append(SET).append(StrUtil.SPACE);
-            sql.append(logicDeletedColumn).append(EQUAL).append(logicDeletedColumnDeletedValue);
-        }
         return sql;
     }
 
-    public static StrBuilder whereSql(StrBuilder sql, FastMapperParam FastMapperParam) {
+    public static StrBuilder whereSql(StrBuilder sql, FastMapperParam fastMapperParam) {
         PackageSqlUtil.ParamIndex paramIndex = new PackageSqlUtil.ParamIndex();
         paramIndex.setParamType(WHERE_PARAM_TYPE);
-        List<FastMapperParam.WhereCondition> whereConditions = FastMapperParam.getWhereCondition();
-        Map<String,Object> paramMap = FastMapperParam.getParamMap();
+        List<FastMapperParam.WhereCondition> whereConditions = fastMapperParam.getWhereCondition();
+
+        Map<String,Object> paramMap = fastMapperParam.getParamMap();
 
         if(CollUtil.isEmpty(whereConditions)){
             return sql;
         }
 
-        String primaryKey = FastMapperParam.getTableMapper().getPrimaryKey();
+        String primaryKey = fastMapperParam.getTableMapper().getPrimaryKey();
 
         long existPk = whereConditions.stream().map(whereCondition -> whereCondition.columnName.equals(primaryKey)).count();
         boolean ignorePk = existPk > 0;
 
-        List<String> showFields = FastMapperParam.getTableMapper().getShowFields();
+        List<String> showFields = fastMapperParam.getTableMapper().getShowFields();
         long isLdc = showFields.stream().map(t -> t.equals(logicDeletedColumn)).count();
-        if ((!FastMapperParam.getCloseDeleteProtect()) && (!(isLdc > 0)) && ignorePk) {
+        if ((!fastMapperParam.getCloseDeleteProtect()) && (!(isLdc > 0)) && ignorePk) {
             whereConditions.add(new FastMapperParam.WhereCondition(FastMapperConfig.logicDeletedColumn,logicDeletedColumnDefaultValue,EQUAL,true));
         }
         sql.append(CRLF);
         sql.append(WHERE).append(StrUtil.SPACE);
-        List<FastMapperParam.Bracket> brackets = FastMapperParam.getBrackets();
+        List<FastMapperParam.Bracket> brackets = fastMapperParam.getBrackets();
         for (int i = 0; i < whereConditions.size(); i++) {
             FastMapperParam.WhereCondition whereCondition = whereConditions.get(i);
+            if (!hasField(fastMapperParam.getTableMapper().getObjClass(), whereCondition.columnName)) {
+                continue;
+            }
             if ((!StrUtil.equalsAnyIgnoreCase(whereCondition.expression, Expression.IsNull.expression, Expression.IsNotNull.expression)) && whereCondition.value == null) {
                 continue;
             }
@@ -260,19 +252,33 @@ public class PackageSqlUtil {
         return sql;
     }
 
-    public static StrBuilder updateSql(FastMapperParam FastMapperParam) {
+    public static boolean hasField(Class<?> clazz, String fieldName) {
+        try {
+            clazz.getDeclaredField(fieldName);
+            return true;
+        } catch (NoSuchFieldException e) {
+            List<String> collect = Arrays.stream(clazz.getDeclaredFields()).map(f -> f.getAnnotation(Column.class).name()).collect(Collectors.toList());
+            return CollUtil.contains(collect, fieldName);
+        }
+    }
+
+
+    public static StrBuilder updateSql(FastMapperParam fastMapperParam) {
         PackageSqlUtil.ParamIndex paramIndex = new PackageSqlUtil.ParamIndex();
         paramIndex.setParamType(UPDATE_PARAM_TYPE);
-        FastTableMapper tableMapper = FastMapperParam.getTableMapper();
-        Map<String,Object> paramMap = FastMapperParam.getParamMap();
+        FastTableMapper tableMapper = fastMapperParam.getTableMapper();
+        Map<String,Object> paramMap = fastMapperParam.getParamMap();
         StrBuilder sql = StrUtil.strBuilder(UPDATE,StrUtil.SPACE, tableMapper.getTableName()).append(CRLF);
-        List<FastMapperParam.Value> updateValueList = FastMapperParam.getUpdateValueList();
+        List<FastMapperParam.Value> updateValueList = fastMapperParam.getUpdateValueList();
         if(CollUtil.isEmpty(updateValueList)){
             return new StrBuilder();
         }
         sql.append(SET).append(StrUtil.SPACE);
         for (int i = 0; i < updateValueList.size(); i++) {
             FastMapperParam.Value value = updateValueList.get(i);
+            if (!hasField(tableMapper.getObjClass(), value.columnName)) {
+                continue;
+            }
             sql.append(value.columnName).append(EQUAL);
             packParam(sql,paramMap,value.value,paramIndex);
             if(i !=updateValueList.size()-1){
@@ -282,8 +288,8 @@ public class PackageSqlUtil {
         return sql;
     }
 
-    public static StrBuilder orderBySql(StrBuilder sql, FastMapperParam FastMapperParam) {
-        List<FastMapperParam.OrderByCondition> orderByCondition = FastMapperParam.getOrderByCondition();
+    public static StrBuilder orderBySql(StrBuilder sql, FastMapperParam fastMapperParam) {
+        List<FastMapperParam.OrderByCondition> orderByCondition = fastMapperParam.getOrderByCondition();
         if (CollUtil.isEmpty(orderByCondition)) {
             return sql;
         }
@@ -291,6 +297,9 @@ public class PackageSqlUtil {
         sql.append(SQLConstants.ORDER_BY);
         sql.append(StrUtil.SPACE);
         for (int i = 0; i < orderByCondition.size(); i++) {
+            if (!hasField(fastMapperParam.getTableMapper().getObjClass(), orderByCondition.get(i).orderByName)) {
+                continue;
+            }
             sql.append(orderByCondition.get(i).orderByName);
             sql.append(StrUtil.SPACE);
             sql.append(orderByCondition.get(i).sequence);

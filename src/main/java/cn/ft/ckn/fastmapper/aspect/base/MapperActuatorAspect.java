@@ -1,4 +1,4 @@
-package cn.ft.ckn.fastmapper.aspect;
+package cn.ft.ckn.fastmapper.aspect.base;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.ex.MapperExpanderRunner;

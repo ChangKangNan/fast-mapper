@@ -29,6 +29,7 @@ public class SqlExecutor {
         this.daoActuator = DataSourceConnection.getDaoActuator();
         FastTableMapper tableMapper = new FastTableMapper();
         FastMapperParam.init(tableMapper);
+        FastMapperParam.get().setSource(FastMapperParam.ActionSource.EXECUTOR);
     }
 
     public static SqlExecutor build() {

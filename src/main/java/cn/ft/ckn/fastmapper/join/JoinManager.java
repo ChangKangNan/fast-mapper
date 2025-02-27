@@ -29,6 +29,7 @@ public class JoinManager {
         FastMapperParam.init(new FastTableMapper<>());
         this.params = params;
         daoActuator = DataSourceConnection.getDaoActuator();
+        FastMapperParam.get().setSource(FastMapperParam.ActionSource.JOIN);
     }
 
     private StringBuilder getSQL() {

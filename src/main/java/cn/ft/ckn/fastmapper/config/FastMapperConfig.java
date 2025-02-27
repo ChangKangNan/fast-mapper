@@ -1,12 +1,15 @@
 package cn.ft.ckn.fastmapper.config;
 
+import cn.ft.ckn.fastmapper.aspect.filed.AbstractField;
 import cn.ft.ckn.fastmapper.ex.MapperExpander;
 import cn.ft.ckn.fastmapper.ex.MapperExpanderRunner;
 import io.netty.util.concurrent.FastThreadLocal;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,6 +58,9 @@ public class FastMapperConfig {
      * 删除状态
      */
     public static Object logicDeletedColumnDeletedValue;
+
+    public static List<AbstractField> addFieldList = new ArrayList<>();
+
 
     public static String createTime;
     public static String updateTime;

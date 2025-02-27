@@ -1,6 +1,6 @@
 package cn.ft.ckn.fastmapper.support.dao.jdbc;
 
-import cn.ft.ckn.fastmapper.aspect.MapperActuatorAspect;
+import cn.ft.ckn.fastmapper.aspect.base.MapperActuatorAspect;
 import cn.ft.ckn.fastmapper.support.dao.DaoActuator;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;

@@ -23,4 +23,6 @@ public interface MybatisMapper {
     Integer update(FastMapperParam FastMapperParam);
     @SelectProvider(type=MybatisSqlProvider.class,method = "getSql")
     List<Map<String,Object>> select(FastMapperParam FastMapperParam);
+    @SelectProvider(type=MybatisSqlProvider.class,method = "getSql")
+    List<Map<String,Object>> selectList(FastMapperParam FastMapperParam);
 }

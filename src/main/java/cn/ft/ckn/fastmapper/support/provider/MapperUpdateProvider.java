@@ -8,7 +8,6 @@ import cn.hutool.core.util.StrUtil;
 /**
  * 装饰器模式
  * @author ckn
- * @date 2023/5/25
  */
 public class MapperUpdateProvider {
 
