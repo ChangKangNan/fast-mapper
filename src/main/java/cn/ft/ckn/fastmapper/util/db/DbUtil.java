@@ -35,7 +35,8 @@ public class DbUtil {
     public List<TableInfo> getAllTables(GenerateConfig fileConfig, DatabaseMetaData metaData, Set<String> tableNames)
             throws Exception {
         String dataSourceName = metaData.getConnection().getCatalog();
-        boolean isIgnore = fileConfig.getIgnorePrefix();
+        boolean isIgnore = fileConfig.getIgnoreTablePrefix();
+        Boolean toCamelCase = fileConfig.getToCamelCase();
         ResultSet tables = metaData.getTables(dataSourceName, null, null, new String[]{"TABLE"});
         List<TableInfo> tableInfoList = new ArrayList<>();
         while (tables.next()){
@@ -50,7 +51,7 @@ public class DbUtil {
                     } else {
                         beanName = table_name;
                     }
-                    tableInfo.setBeanName(StrUtil.toCamelCase(beanName));
+                    tableInfo.setBeanName(toCamelCase ? StrUtil.toCamelCase(beanName) : beanName);
                     tableInfo.setTableName(table_name);
                     tableInfo.setTableDesc(tableDesc);
                     String pojoName = StrUtil.toCamelCase("_" + beanName);
@@ -125,7 +126,7 @@ public class DbUtil {
         String separator = File.separator;
         String childModuleName = conf.getChildModuleName();
         StringBuilder javaBasePath =new StringBuilder();
-        String dir = conf.getTest() ? "test" : "main";
+        String dir = conf.getGenOnTest() ? "test" : "main";
         javaBasePath.append(System.getProperty("user.dir")).append(separator);
         if (StrUtil.isNotBlank(childModuleName)) {
             javaBasePath.append(childModuleName).append(separator).append("src").append(separator).append(dir).append(separator).append("java").append(separator);

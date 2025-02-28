@@ -281,9 +281,12 @@ public class PackageSqlUtil {
             }
             sql.append(value.columnName).append(EQUAL);
             packParam(sql,paramMap,value.value,paramIndex);
-            if(i !=updateValueList.size()-1){
+            if (i != updateValueList.size() - 1) {
                 sql.append(StrUtil.C_COMMA);
             }
+        }
+        if (sql.charAt(sql.length() - 1) == StrUtil.C_COMMA) {
+            sql.del(sql.length() - 1,sql.length());
         }
         return sql;
     }
@@ -306,6 +309,9 @@ public class PackageSqlUtil {
             if (i != orderByCondition.size() - 1) {
                 sql.append(StrUtil.C_COMMA);
             }
+        }
+        if (sql.charAt(sql.length() - 1) == StrUtil.C_COMMA) {
+            sql.del(sql.length() - 1,sql.length());
         }
         return sql;
     }

@@ -29,7 +29,7 @@ public class GenerateUtil {
             List<TableInfo> tableInfos = DbUtil.getInstance().getAllTables(config, connection.getMetaData(), createTables);
             if (CollUtil.isNotEmpty(tableInfos)) {
                 for (TableInfo info : tableInfos) {
-                    createTemplate(info, config.getReplace());
+                    createTemplate(info, config.getReplaceBefore());
                 }
             }
         } catch (Exception e) {
