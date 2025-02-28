@@ -25,7 +25,7 @@ public class LogUtil {
                     && !stackTraceElement.getClassName().startsWith("java.lang")
                     && !stackTraceElement.getClassName().startsWith("cn.hutool.aop.interceptor.")
             ) {
-                return className + "." + methodName + "(" + lineNumber + ")     SQL执行↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓";
+                return className + "." + methodName + "(" + lineNumber + ")";
             }
         }
         return "";
@@ -83,6 +83,6 @@ public class LogUtil {
     }
 
     public static String printResult(Object val) {
-        return System.lineSeparator() + "执行结果: " + JSONObject.toJSONString(val) + System.lineSeparator();
+        return System.lineSeparator() + "执行结果: " + JSONObject.toJSONString(val);
     }
 }
