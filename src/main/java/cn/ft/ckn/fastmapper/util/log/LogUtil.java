@@ -2,8 +2,10 @@ package cn.ft.ckn.fastmapper.util.log;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.sql.SQLUtils;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,15 +32,15 @@ public class LogUtil {
     }
 
     public static void print(String execute, String result) {
-        log.info(getPrefix()
+        log.info(getPrefix()+" SQL 执行 ↓ "
                 + System.lineSeparator() +
                 "---------------------------------------------------------"
                 + System.lineSeparator()
                 + execute
                 + result
                 + System.lineSeparator()
-                + "执行时间:["+ FastMapperParam.get().getSqlTime() +"ms]"
-                + System.lineSeparator()+
+                + "执行时间:" + FastMapperParam.get().getSqlTime() + "ms"
+                + System.lineSeparator() +
                 "---------------------------------------------------------");
     }
 
@@ -59,20 +61,28 @@ public class LogUtil {
     public static String getValue(Object value) {
         StringBuilder stringBuilder = new StringBuilder();
         if (value instanceof String || value instanceof Date) {
-            stringBuilder.append("'");
+            stringBuilder.append("\'");
         }
-        if (value instanceof Date) {
+        if (value == null) {
+            stringBuilder.append("null");
+        } else if (value instanceof Date) {
             stringBuilder.append(DateUtil.format((Date) value, "yyyy-MM-dd HH:mm:ss"));
+        } else if (BooleanUtil.isBoolean(value.getClass())) {
+            if ((Boolean) value) {
+                stringBuilder.append("true");
+            } else {
+                stringBuilder.append("false");
+            }
         } else {
             stringBuilder.append(value);
         }
         if (value instanceof String || value instanceof Date) {
-            stringBuilder.append("'");
+            stringBuilder.append("\'");
         }
         return stringBuilder.toString();
     }
 
     public static String printResult(Object val) {
-        return System.lineSeparator() + "执行结果:[" + val + "]";
+        return System.lineSeparator() + "执行结果: " + JSONObject.toJSONString(val) + System.lineSeparator();
     }
 }
