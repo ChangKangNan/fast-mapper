@@ -42,24 +42,15 @@ project-root/
 ```
 生成操作文件如下:
 ```
-public class GenerateTest {
-    public static void main(String[] args) {
-        GenerateConfig config = new GenerateConfig();
-        //基础目录
-        config.setBasePackage("pers.ckn.sp");
-        //无子模块项目则不无需填写
-        config.setChildModuleName("");
-        //数据库信息
-        config.setDBInfo("jdbc:mysql://localhost:3306/user?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useInformationSchema=true",
-                "root","123456","com.mysql.jdbc.Driver");
-        //生成的表集合
-        config.setCreateTables("user_info");
-        //是否生成在test目录下
-        config.setTest(false);
+        GenerateConfig config = GenerateConfig.builder()
+                .childModuleName("仅在多模块中填写当前项目名称,单一项目则不需要填")
+                .basePackage("要生成在的包目录位置")
+                .db("jdbc:mysql://127.0.0.1/dev?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC",
+                        "root", "123456", "com.mysql.jdbc.Driver")
+                .createTables("表名(多个则英文逗号隔开)")
+                .build();
         //开始生成
         GenerateUtil.generate(config);
-    }
-}
 ```
 基础配置信息
 ## 配置文件方式
