@@ -39,7 +39,7 @@ public class LogUtil {
                 + execute
                 + result
                 + System.lineSeparator()
-                + "执行时间:" + FastMapperParam.get().getSqlTime() + "ms"
+                + "执行时间: " + FastMapperParam.get().getSqlTime() + "ms"
                 + System.lineSeparator() +
                 "---------------------------------------------------------");
     }
