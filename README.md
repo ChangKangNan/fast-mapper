@@ -154,7 +154,7 @@ Fit one = new JoinCustomer(Student.class, "s")
 ```
 
 ## 本地多数据源事务
-1.本地多数据源事务支持需要配置yml support支持transaction
+1.本地多数据源事务支持需要配置yml support支持transaction(兼容spring事务)
 2.在对应方法上新增注解@LocalTransactional即可
 
 
