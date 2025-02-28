@@ -53,26 +53,6 @@ project-root/
         GenerateUtil.generate(config);
 ```
 基础配置信息
-## 配置文件方式
-```
-@Component
-public class DbConfig {
-    static {
-        //sql执行情况打印
-        FastMapperConfig.isOpenSQLPrint = true;
-        //自定义逻辑删除，插入更新时间定义
-        FastMapperConfig.setDeleted(true,"deleted",false,true);
-        FastMapperConfig.setTimeAuto(true,true);
-        FastMapperConfig.setTimeColumn("create_time","update_time");
-        //添加自定义切面拦截扩展支持
-        FastMapperConfig.addMapperExpander(CustomActuatorAspect.class);
-        //添加默认事务切面支持
-        FastMapperConfig.addMapperExpander(TransactionActuatorAspect.class);
-        //添加默认sql打印切面支持
-        FastMapperConfig.addMapperExpander(SqlActuatorAspect.class);
-    }
-}
-```
 ## yml方式
 ```
 fast:
@@ -94,7 +74,7 @@ fast:
 ## 扩展字段书写方式
 ```
 /**
- * 1.需要继承AbstractField类,
+ * 1.需要继承AbstractField类
  * 2.defaultVal为每次填充的默认值
  * 3.fieldName字段名
  * 4.check校验基于操作方式填充
