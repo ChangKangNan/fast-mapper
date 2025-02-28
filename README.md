@@ -1,16 +1,6 @@
 # 软件定位
 简化操作 MySQL数据库的JAVA ROM框架
-
-# 使用方式(maven方式)
-# 非自动化方式
-```
-     <dependency>
-            <groupId>cn.ft.ckn</groupId>
-            <artifactId>fast-mapper</artifactId>
-            <version>4.0.0</version>
-     </dependency>
-```
-# 添加springboot支持,该版本默认集成fast-mapper版本4.0(自动化方式)
+# 添加springboot支持,该版本默认集成fast-mapper版本4.0
 ```
         <dependency>
             <groupId>cn.ft.ckn</groupId>
