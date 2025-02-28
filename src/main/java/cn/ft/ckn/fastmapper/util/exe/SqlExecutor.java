@@ -93,7 +93,8 @@ public class SqlExecutor {
         }
     }
 
-    public void setSalveDataSource(DataSource dataSource) {
+    public SqlExecutor setSalveDataSource(DataSource dataSource) {
         DataSourceConnection.setSlaveDataSource(dataSource);
+        return this;
     }
 }
