@@ -77,17 +77,60 @@ public class DbConfig {
 ```
 fast:
   mapper:
-    open-sql-print: true
-    supports: sql,transaction
-    dao-actuator: jdbc
-    open-logic-deleted-auto: true
-    logic-deleted-column: deleted
-    logic-deleted-column-default-value: 0
-    logic-deleted-column-deleted-value: 1
-    open-create-time-auto: true
-    create-time: create_time
-    open-update-time-auto: true
-    update-time: update_time
+    open-sql-print: true # 开启sql日志打印
+    supports: # 开启扩展字段,sql打印,事务支持
+      - custom
+      - sql
+      - transaction
+    dao-actuator: jdbc # 当前操作数据库方式有两种(JDBC,MYBATIS)
+    open-logic-deleted-auto: true # 开启逻辑删除支持
+    logic-deleted-column: deleted # 逻辑删除字段名
+    logic-deleted-column-default-value: 0 # 默认值
+    logic-deleted-column-deleted-value: 1 # 删除值
+    fields: # 扩展字段配置
+      - path: com.example.config.CreateTime
+      - path: com.example.config.UpdateTime            
+```
+## 扩展字段书写方式
+```
+/**
+ * 1.需要继承AbstractField类,
+ * 2.defaultVal为每次填充的默认值
+ * 3.fieldName字段名
+ * 4.check校验基于操作方式填充
+ * 5.strategy设置填充的地方比如是过滤条件(搜索或者更新时进行额外数据过滤)、实体填充(插入或更新,删除额外更新一些值)
+ */
+public class CreateTime extends AbstractField {
+
+    @Override
+    public String fieldName() {
+        return "create_time";
+    }
+
+    @Override
+    public boolean check(FastMapperParam param) {
+        FastMapperParam.OperationType operationType = param.getOperationType();
+        return param.getSource() == FastMapperParam.ActionSource.MAPPER && StrUtil.equals(operationType.name(), FastMapperParam.OperationType.INSERT.name());
+    }
+
+    @Override
+    public Object defaultVal() {
+        return new Date();
+    }
+
+    
+    @Override
+    public Map<FastMapperParam.OperationType, AddOccasion> strategy() {
+        return new HashMap<FastMapperParam.OperationType, AddOccasion>() {{
+            put(FastMapperParam.OperationType.INSERT, AddOccasion.OBJECT);
+        }};
+    }
+}
+```
+## 业务扩展
+```
+1.需要继承MapperExpander,实现其业务操作(例如在before操作中额外记录一些系统日志等.)
+2.书写一个config文件,调用FastMapperConfig.addMapperExpander(自定义实现类.class);
 ```
 ## 查询
 ```
