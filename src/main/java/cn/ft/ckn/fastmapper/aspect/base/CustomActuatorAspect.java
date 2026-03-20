@@ -4,7 +4,6 @@ import cn.ft.ckn.fastmapper.aspect.filed.AbstractField;
 import cn.ft.ckn.fastmapper.aspect.filed.AddOccasion;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
-import cn.ft.ckn.fastmapper.bean.em.Expression;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.ex.MapperExpander;
 import cn.hutool.core.bean.BeanUtil;
@@ -29,7 +28,7 @@ public class CustomActuatorAspect implements MapperExpander {
             Object val = field.defaultVal();
             Map<FastMapperParam.OperationType, AddOccasion> strategy = field.strategy();
             AddOccasion addOccasion = strategy.get(param.getOperationType());
-            if(!field.check(param)){
+            if(!field.checkGlobal(param)){
                 continue;
             }
 
@@ -62,7 +61,7 @@ public class CustomActuatorAspect implements MapperExpander {
                 boolean existColumn = fields.stream().filter(t -> t.equals(fieldName)).count() > 0;
                 long exist = whereConditions.stream().filter(w -> StrUtil.equals(w.columnName, fieldName)).count();
                 if (exist == 0 && existColumn) {
-                    whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, Expression.Equal.expression, true));
+                    whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, field.conditionLink().expression, true));
                 }
             }
 
