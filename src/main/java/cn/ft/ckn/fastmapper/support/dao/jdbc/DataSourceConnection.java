@@ -166,6 +166,7 @@ public class DataSourceConnection {
         }
         return master;
     }
+
     public static void setDaoActuator(Class<? extends DaoActuator> daoActuator) {
         DataSourceConnection.daoActuator = daoActuator;
     }
