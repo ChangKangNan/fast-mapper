@@ -175,7 +175,7 @@ public class DataSourceConnection {
         DataSourceConnection.daoActuator = daoActuator;
     }
 
-    public static DaoActuator<?> getDaoActuator() {
+    public static DaoActuator getDaoActuator() {
         try {
             return ProxyUtil.proxy(daoActuator.getDeclaredConstructor().newInstance(), MapperActuatorAspect.class);
         } catch (Exception e) {
