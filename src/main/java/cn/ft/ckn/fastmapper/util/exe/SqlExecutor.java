@@ -22,12 +22,12 @@ import java.util.Map;
  * @author ckn
  */
 public class SqlExecutor {
-    private DaoActuator daoActuator;
+    private DaoActuator<?> daoActuator;
     private static SqlExecutor sqlExecutorUtil = new SqlExecutor();
 
     private SqlExecutor() {
         this.daoActuator = DataSourceConnection.getDaoActuator();
-        FastTableMapper tableMapper = new FastTableMapper();
+        FastTableMapper<Object> tableMapper = new FastTableMapper<>();
         FastMapperParam.init(tableMapper);
         FastMapperParam.get().setSource(FastMapperParam.ActionSource.EXECUTOR);
     }
@@ -36,17 +36,19 @@ public class SqlExecutor {
         return sqlExecutorUtil;
     }
 
+    @SuppressWarnings("unchecked")
     public <R> List<R> select(String sql, HashMap<String, Object> params, Class<R> returnObj) {
-        FastMapperParam.get().setExecuteSql(sql);
-        FastMapperParam.get().setParamMap(params);
-        FastMapperParam.get().getTableMapper().setObjClass(returnObj);
-        return daoActuator.select();
+        FastMapperParam<R> param = FastMapperParam.get();
+        param.setExecuteSql(sql);
+        param.setParamMap(params);
+        param.getTableMapper().setObjClass(returnObj);
+        return (List<R>) daoActuator.select();
     }
 
     public List<Map<String, Object>> select(String sql, HashMap<String, Object> params) {
         FastMapperParam.get().setExecuteSql(sql);
         FastMapperParam.get().setParamMap(params);
-        return daoActuator.selectList();
+        return (List<Map<String, Object>>) daoActuator.selectList();
     }
 
     public <R> List<R> select(String sql, Class<R> returnObj) {

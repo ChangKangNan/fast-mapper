@@ -13,7 +13,6 @@ import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 
 import javax.persistence.Column;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,13 +94,13 @@ public class PackageSqlUtil {
         return sql;
     }
 
-    public static StrBuilder insertSql(FastMapperParam fastMapperParam) {
-        List insertList = fastMapperParam.getInsertList();
-        FastTableMapper tableMapper = fastMapperParam.getTableMapper();
+    public static StrBuilder insertSql(FastMapperParam<?> fastMapperParam) {
+        List<?> insertList = fastMapperParam.getInsertList();
+        FastTableMapper<?> tableMapper = fastMapperParam.getTableMapper();
         PackageSqlUtil.ParamIndex paramIndex = new PackageSqlUtil.ParamIndex();
         paramIndex.setParamType(INSERT_PARAM_TYPE);
         List<String> fieldNames = tableMapper.getShowFields();
-        HashMap<String,String> fieldToColumn = tableMapper.getFieldToColumn();
+        Map<String, String> fieldToColumn = tableMapper.getFieldToColumn();
         Map<String,Object> paramMap = fastMapperParam.getParamMap();
         StrBuilder sql = StrUtil.strBuilder(INSERT,StrUtil.SPACE, tableMapper.getTableName()).append(CRLF);
         if (insertList.size() == 1) {
@@ -141,15 +140,15 @@ public class PackageSqlUtil {
         return sql;
     }
 
-    public static StrBuilder deleteSql(FastMapperParam fastMapperParam) {
-        FastTableMapper tableMapper = fastMapperParam.getTableMapper();
+    public static StrBuilder deleteSql(FastMapperParam<?> fastMapperParam) {
+        FastTableMapper<?> tableMapper = fastMapperParam.getTableMapper();
         StrBuilder sql = StrUtil.strBuilder();
         sql.append(DELETE).append(StrUtil.SPACE).append(FROM);
         sql.append(StrUtil.SPACE).append(tableMapper.getTableName());
         return sql;
     }
 
-    public static StrBuilder whereSql(StrBuilder sql, FastMapperParam fastMapperParam) {
+    public static StrBuilder whereSql(StrBuilder sql, FastMapperParam<?> fastMapperParam) {
         PackageSqlUtil.ParamIndex paramIndex = new PackageSqlUtil.ParamIndex();
         paramIndex.setParamType(WHERE_PARAM_TYPE);
         List<FastMapperParam.WhereCondition> whereConditions = fastMapperParam.getWhereCondition();
@@ -166,8 +165,8 @@ public class PackageSqlUtil {
         boolean ignorePk = existPk > 0;
 
         List<String> showFields = fastMapperParam.getTableMapper().getShowFields();
-        long isLdc = showFields.stream().map(t -> t.equals(logicDeletedColumn)).count();
-        if ((!fastMapperParam.getCloseDeleteProtect()) && (!(isLdc > 0)) && ignorePk) {
+        long isLdc = showFields.stream().filter(t -> t.equals(logicDeletedColumn)).count();
+        if ((!fastMapperParam.getCloseDeleteProtect()) && (isLdc > 0) && ignorePk) {
             whereConditions.add(new FastMapperParam.WhereCondition(FastMapperConfig.logicDeletedColumn,logicDeletedColumnDefaultValue,EQUAL,true));
         }
         sql.append(CRLF);
@@ -215,8 +214,8 @@ public class PackageSqlUtil {
                         Object[] whereConditionValues = (Object[]) whereCondition.value;
                         List<Object> values = new ArrayList<>();
                         for (Object o : whereConditionValues) {
-                            if (o instanceof Collection) {
-                                values.addAll((Collection) o);
+                            if (o instanceof Collection<?>) {
+                                values.addAll((Collection<?>) o);
                             } else {
                                 values.add(o);
                             }
@@ -257,16 +256,22 @@ public class PackageSqlUtil {
             clazz.getDeclaredField(fieldName);
             return true;
         } catch (NoSuchFieldException e) {
-            List<String> collect = Arrays.stream(clazz.getDeclaredFields()).map(f -> f.getAnnotation(Column.class).name()).collect(Collectors.toList());
+            List<String> collect = Arrays.stream(clazz.getDeclaredFields())
+                    .map(f -> {
+                        Column column = f.getAnnotation(Column.class);
+                        return column == null ? null : column.name();
+                    })
+                    .filter(StrUtil::isNotBlank)
+                    .collect(Collectors.toList());
             return CollUtil.contains(collect, fieldName);
         }
     }
 
 
-    public static StrBuilder updateSql(FastMapperParam fastMapperParam) {
+    public static StrBuilder updateSql(FastMapperParam<?> fastMapperParam) {
         PackageSqlUtil.ParamIndex paramIndex = new PackageSqlUtil.ParamIndex();
         paramIndex.setParamType(UPDATE_PARAM_TYPE);
-        FastTableMapper tableMapper = fastMapperParam.getTableMapper();
+        FastTableMapper<?> tableMapper = fastMapperParam.getTableMapper();
         Map<String,Object> paramMap = fastMapperParam.getParamMap();
         StrBuilder sql = StrUtil.strBuilder(UPDATE,StrUtil.SPACE, tableMapper.getTableName()).append(CRLF);
         List<FastMapperParam.Value> updateValueList = fastMapperParam.getUpdateValueList();
@@ -291,7 +296,7 @@ public class PackageSqlUtil {
         return sql;
     }
 
-    public static StrBuilder orderBySql(StrBuilder sql, FastMapperParam fastMapperParam) {
+    public static StrBuilder orderBySql(StrBuilder sql, FastMapperParam<?> fastMapperParam) {
         List<FastMapperParam.OrderByCondition> orderByCondition = fastMapperParam.getOrderByCondition();
         if (CollUtil.isEmpty(orderByCondition)) {
             return sql;
@@ -317,24 +322,24 @@ public class PackageSqlUtil {
     }
 
 
-    public static StrBuilder selectSql(FastMapperParam FastMapperParam){
+    public static StrBuilder selectSql(FastMapperParam<?> FastMapperParam){
         if(StrUtil.isNotBlank(FastMapperParam.getExecuteSql())){
             return new StrBuilder(FastMapperParam.getExecuteSql());
         }
         StrBuilder sql = StrUtil.strBuilder(SELECT).append(StrUtil.SPACE);
-        FastTableMapper tableMapper = FastMapperParam.getTableMapper();
-        HashMap<String,String> fieldToColumn = tableMapper.getFieldToColumn();
+        FastTableMapper<?> tableMapper = FastMapperParam.getTableMapper();
+        Map<String, String> fieldToColumn = tableMapper.getFieldToColumn();
         List<String> showFields = tableMapper.getShowFields();
         String columns = showFields.stream().map(fieldToColumn::get).collect(Collectors.joining(","));
         sql.append(columns).append(StrUtil.SPACE).append(FROM).append(StrUtil.SPACE).append(tableMapper.getTableName());
         return sql;
     }
 
-    public static StrBuilder countSql(FastMapperParam FastMapperParam){
+    public static StrBuilder countSql(FastMapperParam<?> FastMapperParam){
         if(StrUtil.isNotBlank(FastMapperParam.getExecuteSql())){
             return new StrBuilder(FastMapperParam.getExecuteSql());
         }
-        FastTableMapper tableMapper = FastMapperParam.getTableMapper();
+        FastTableMapper<?> tableMapper = FastMapperParam.getTableMapper();
         return StrUtil.strBuilder(SELECT).append(StrUtil.SPACE).append("COUNT(1) AS counts").append(StrUtil.SPACE).append(FROM).append(StrUtil.SPACE).append(tableMapper.getTableName());
     }
 }

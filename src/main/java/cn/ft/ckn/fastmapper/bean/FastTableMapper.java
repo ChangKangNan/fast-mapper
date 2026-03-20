@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -102,11 +103,11 @@ public class FastTableMapper<T> {
     /**
      * 字段对应数据库列名映射
      */
-    private HashMap<String,String> fieldToColumn;
+    private Map<String,String> fieldToColumn;
     /**
      * 字段对应字段类型映射
      */
-    private HashMap<String,String> fieldToFieldType;
+    private Map<String,String> fieldToFieldType;
 
     private List<String> showFields;
 
@@ -126,19 +127,19 @@ public class FastTableMapper<T> {
         this.className = className;
     }
 
-    public HashMap<String, String> getFieldToColumn() {
+    public Map<String, String> getFieldToColumn() {
         return fieldToColumn;
     }
 
-    public void setFieldToColumn(HashMap<String, String> fieldToColumn) {
+    public void setFieldToColumn(Map<String, String> fieldToColumn) {
         this.fieldToColumn = fieldToColumn;
     }
 
-    public HashMap<String, String> getFieldToFieldType() {
+    public Map<String, String> getFieldToFieldType() {
         return fieldToFieldType;
     }
 
-    public void setFieldToFieldType(HashMap<String, String> fieldToFieldType) {
+    public void setFieldToFieldType(Map<String, String> fieldToFieldType) {
         this.fieldToFieldType = fieldToFieldType;
     }
 

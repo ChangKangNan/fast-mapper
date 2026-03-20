@@ -20,7 +20,7 @@ public class JoinTb {
 
     public <X> JoinWhere select(List<SFunction<X, ?>> fields) {
         if (CollUtil.isNotEmpty(fields)) {
-            for (SFunction field : fields) {
+            for (SFunction<X, ?> field : fields) {
                 String fieldName = ColumnUtil.getFieldName(field);
                 String className = ColumnUtil.getClassName(field);
                 params.columns.add(className + StrUtil.DOT + fieldName);
@@ -49,11 +49,11 @@ public class JoinTb {
     }
 
     public <H, K, W> JoinTb rightJoin(Class<H> joinClass, SFunction<W, K> mainKey, SFunction<H, K> joinKey) {
-        return new JoinCustomer(params).leftJoin(joinClass, mainKey, joinKey);
+        return new JoinCustomer(params).rightJoin(joinClass, mainKey, joinKey);
     }
 
     public <I, K, W> JoinTb innerJoin(Class<I> joinClass, SFunction<W, K> mainKey, SFunction<I, K> joinKey) {
-        return new JoinCustomer(params).leftJoin(joinClass, mainKey, joinKey);
+        return new JoinCustomer(params).innerJoin(joinClass, mainKey, joinKey);
     }
 
     public <R> List<R> find(Class<R> returnObj) {

@@ -8,7 +8,6 @@ import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
 import cn.ft.ckn.fastmapper.util.log.LogUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 
 import java.util.ArrayList;
@@ -36,20 +35,17 @@ public class JoinManager {
         List<String> tables = new ArrayList<>();
         if (MapUtil.isNotEmpty(params.deeps)) {
             int deep = 1;
-            int size = 0;
-            while (size < params.deeps.size()) {
-                int i = 0;
-                for (String s : params.deeps.keySet()) {
-                    i++;
-                    Integer dep = params.deeps.get(s);
-                    if (dep == deep) {
-                        size++;
-                        tables.add(s);
+            int collectedSize = 0;
+            while (collectedSize < params.deeps.size()) {
+                int collectedInCurrentDeep = 0;
+                for (Map.Entry<String, Integer> entry : params.deeps.entrySet()) {
+                    if (entry.getValue() == deep) {
+                        tables.add(entry.getKey());
+                        collectedInCurrentDeep++;
                     }
                 }
-                if (i == params.deeps.size()) {
-                    deep++;
-                }
+                collectedSize += collectedInCurrentDeep;
+                deep++;
             }
         }
 
@@ -59,16 +55,17 @@ public class JoinManager {
                 String res = column;
                 String t = res.substring(0, res.indexOf(StrUtil.DOT));
                 String field = res.substring(res.indexOf(StrUtil.DOT) + 1);
-                int tag = 0;
-                for (String k : params.aliasMap.keySet()) {
-                    if (StrUtil.equals(res, k + StrUtil.DOT + field)) {
+                boolean convertedByAlias = false;
+                for (Map.Entry<String, String> aliasEntry : params.aliasMap.entrySet()) {
+                    String table = aliasEntry.getKey();
+                    if (StrUtil.equals(res, table + StrUtil.DOT + field)) {
                         String alias = params.aliasMap.get(t);
                         res = alias + StrUtil.DOT + StrUtil.toUnderlineCase(field);
-                        tag = 1;
+                        convertedByAlias = true;
                         break;
                     }
                 }
-                if (tag == 0) {
+                if (!convertedByAlias) {
                     return StrUtil.toUnderlineCase(res);
                 }
                 return res;
@@ -91,7 +88,7 @@ public class JoinManager {
                     .append(main_alias);
         }
         sqlBuilder.append(Expression.LineSeparator.expression);
-        if (ArrayUtil.isNotEmpty(tables)) {
+        if (CollUtil.isNotEmpty(tables)) {
             for (String table : tables) {
                 Map<String, String> map = params.joins.get(table);
                 String r = params.relation.get(table);
@@ -109,15 +106,14 @@ public class JoinManager {
                         .append("ON")
                         .append(StrUtil.SPACE);
                 int i = 0;
-                for (String link : map.keySet()) {
+                for (Map.Entry<String, String> joinEntry : map.entrySet()) {
                     i++;
                     if (i != 1) {
                         sqlBuilder.append(AND);
                     }
-                    String s = map.get(link);
-                    sqlBuilder.append(StrUtil.toUnderlineCase(link))
+                    sqlBuilder.append(StrUtil.toUnderlineCase(joinEntry.getKey()))
                             .append(Expression.Equal.expression)
-                            .append(StrUtil.toUnderlineCase(s))
+                            .append(StrUtil.toUnderlineCase(joinEntry.getValue()))
                             .append(StrUtil.SPACE);
                 }
                 sqlBuilder.append(Expression.LineSeparator.expression);
@@ -127,23 +123,25 @@ public class JoinManager {
             sqlBuilder.append(WHERE);
             sqlBuilder.append(StrUtil.SPACE);
             int i = 0;
-            for (String key : params.where.keySet()) {
+            for (Map.Entry<String, Object> whereEntry : params.where.entrySet()) {
                 i++;
                 if (i != 1) {
                     sqlBuilder.append(Expression.LineSeparator.expression);
                     sqlBuilder.append(AND);
                     sqlBuilder.append(StrUtil.SPACE);
                 }
-                Object obj = params.where.get(key);
+                String key = whereEntry.getKey();
+                Object obj = whereEntry.getValue();
                 String where = key.substring(0, key.indexOf(StrUtil.DOT));
                 String field = key.substring(key.indexOf(StrUtil.DOT) + 1);
-                for (String k : params.aliasMap.keySet()) {
-                    if (StrUtil.equals(where, StrUtil.SPACE + k + StrUtil.DOT)) {
-                        String alias = params.aliasMap.get(k);
+                for (Map.Entry<String, String> aliasEntry : params.aliasMap.entrySet()) {
+                    if (StrUtil.equals(where.trim(), aliasEntry.getKey())) {
+                        String alias = aliasEntry.getValue();
                         where = alias + StrUtil.DOT + StrUtil.toUnderlineCase(field);
+                        break;
                     }
                 }
-                sqlBuilder.append(key)
+                sqlBuilder.append(where)
                         .append(Expression.Equal.expression)
                         .append(LogUtil.getValue(obj))
                         .append(StrUtil.SPACE);
@@ -152,9 +150,10 @@ public class JoinManager {
         return sqlBuilder;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public <X> List<X> find(Class<X> returnObj) {
         Map<String, Object> parameters = prepareFind();
-        FastMapperParam.get().getTableMapper().setObjClass(returnObj);
+        FastMapperParam.get().getTableMapper().setObjClass((Class) returnObj);
         FastMapperParam.get().setParamMap(parameters);
         return (List<X>) daoActuator.select();
     }
@@ -167,7 +166,11 @@ public class JoinManager {
         StringBuilder sql = getSQL();
         if (StrUtil.isNotBlank(params.lastSQL)) {
             sql.append(System.lineSeparator());
-            sql.append(WHERE);
+            if (StrUtil.containsIgnoreCase(sql.toString(), WHERE)) {
+                sql.append(AND);
+            } else {
+                sql.append(WHERE);
+            }
             sql.append(StrUtil.SPACE);
             sql.append(params.lastSQL);
         }

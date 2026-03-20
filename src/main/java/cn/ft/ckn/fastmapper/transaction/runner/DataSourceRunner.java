@@ -41,9 +41,12 @@ public class DataSourceRunner {
     public static void runWithDataSource(DataSource dataSource, RunGlobal runGlobal) {
         //绑定
         DataSourceContext.bind(dataSource);
-        //处理业务
-        runGlobal.run();
-        //解绑
-        DataSourceContext.unBind();
+        try {
+            //处理业务
+            runGlobal.run();
+        } finally {
+            //解绑
+            DataSourceContext.unBind();
+        }
     }
 }

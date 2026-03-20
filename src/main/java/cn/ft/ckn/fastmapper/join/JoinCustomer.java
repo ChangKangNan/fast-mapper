@@ -6,9 +6,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 
 import javax.persistence.Table;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class JoinCustomer extends JoinManager {
 
@@ -81,16 +81,17 @@ public class JoinCustomer extends JoinManager {
         String vName = ColumnUtil.getFieldName(joinKey);
         String tb_name = ColumnUtil.getClassName(mainKey);
         String as = params.aliasMap.get(tb_name);
-        params.joins.put(tableName, new HashMap<String, String>() {{
-            put((StrUtil.isNotBlank(as) ? as : tb_name) + StrUtil.DOT + kName, (StrUtil.isNotBlank(alias) ? alias : tableName) + StrUtil.DOT + vName);
-        }});
+        Map<String, String> joinMap = new HashMap<>();
+        joinMap.put((StrUtil.isNotBlank(as) ? as : tb_name) + StrUtil.DOT + kName,
+                (StrUtil.isNotBlank(alias) ? alias : tableName) + StrUtil.DOT + vName);
+        params.joins.put(tableName, joinMap);
         params.relation.put(tableName, joinTag);
         params.deeps.put(tableName, 1);
     }
 
     public <X> JoinCustomer select(List<SFunction<X, ?>> fields) {
         if (CollUtil.isNotEmpty(fields)) {
-            for (SFunction field : fields) {
+            for (SFunction<X, ?> field : fields) {
                 String fieldName = ColumnUtil.getFieldName(field);
                 String className = ColumnUtil.getClassName(field);
                 params.columns.add(className + StrUtil.DOT + fieldName);

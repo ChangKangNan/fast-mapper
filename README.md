@@ -1,5 +1,7 @@
 # 软件定位
 简化操作 MySQL数据库的JAVA ROM框架
+
+**文档**：[对外使用说明](OPERATION_MANUAL_PUBLIC.md) · [内部操作手册](OPERATION_MANUAL.md)
 # 添加springboot支持
 ```
         <dependency>

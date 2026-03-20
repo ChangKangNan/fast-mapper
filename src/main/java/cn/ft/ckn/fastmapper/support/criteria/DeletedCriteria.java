@@ -5,11 +5,6 @@ import cn.ft.ckn.fastmapper.bean.em.Expression;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.hutool.core.util.ArrayUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * @author ckn
  */
@@ -29,44 +24,18 @@ public class DeletedCriteria<T, R> {
     }
 
     public R in(Object... value) {
-        if (value == null || ArrayUtil.isEmpty(value)) {
-            init();
-            return returnObj;
-        }
-        List<Object> values = new ArrayList<>();
-        for (Object o : value) {
-            if (o instanceof Collection) {
-                values.addAll((Collection) o);
-            } else {
-                values.add(o);
-            }
-        }
-        values = values.stream().distinct().collect(Collectors.toList());
-        Object[] wrap = ArrayUtil.wrap(values.toArray());
+        Object[] wrap = CriteriaValueUtil.normalizeInValues(value);
         if(ArrayUtil.isEmpty(wrap)){
             init();
             return returnObj;
         }
-        FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(this.fieldName, wrap, Expression.NotIn.expression, FastMapperParam.get().isAnd));
+        FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(this.fieldName, wrap, Expression.In.expression, FastMapperParam.get().isAnd));
         init();
         return returnObj;
     }
 
     public R notIn(Object... value) {
-        if (value == null || ArrayUtil.isEmpty(value)) {
-            init();
-            return returnObj;
-        }
-        List<Object> values = new ArrayList<>();
-        for (Object o : value) {
-            if (o instanceof Collection) {
-                values.addAll((Collection) o);
-            } else {
-                values.add(o);
-            }
-        }
-        values = values.stream().distinct().collect(Collectors.toList());
-        Object[] wrap = ArrayUtil.wrap(values.toArray());
+        Object[] wrap = CriteriaValueUtil.normalizeInValues(value);
         if(ArrayUtil.isEmpty(wrap)){
             init();
             return returnObj;

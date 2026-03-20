@@ -4,10 +4,19 @@ import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.hutool.core.util.StrUtil;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
-public class LogicDeletedField extends AbstractField{
+public class LogicDeletedField extends AbstractField {
+    private static final Map<FastMapperParam.OperationType, AddOccasion> STRATEGY;
+
+    static {
+        STRATEGY = new EnumMap<>(FastMapperParam.OperationType.class);
+        STRATEGY.put(FastMapperParam.OperationType.INSERT, AddOccasion.OBJECT);
+        STRATEGY.put(FastMapperParam.OperationType.DELETE, AddOccasion.CONDITION);
+        STRATEGY.put(FastMapperParam.OperationType.UPDATE, AddOccasion.CONDITION);
+        STRATEGY.put(FastMapperParam.OperationType.SELECT, AddOccasion.CONDITION);
+    }
 
     @Override
     public String fieldName() {
@@ -32,11 +41,6 @@ public class LogicDeletedField extends AbstractField{
 
     @Override
     public Map<FastMapperParam.OperationType, AddOccasion> strategy() {
-        return new HashMap<FastMapperParam.OperationType, AddOccasion>(){{
-            put(FastMapperParam.OperationType.INSERT,AddOccasion.OBJECT);
-            put(FastMapperParam.OperationType.DELETE,AddOccasion.CONDITION);
-            put(FastMapperParam.OperationType.UPDATE,AddOccasion.CONDITION);
-            put(FastMapperParam.OperationType.SELECT,AddOccasion.CONDITION);
-        }};
+        return STRATEGY;
     }
 }

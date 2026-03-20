@@ -8,9 +8,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 查询工具配置类
@@ -20,7 +20,7 @@ public class FastMapperConfig {
     /**
      * 仅数据源需要频繁切换salve时使用
      */
-    public static final Map<String, NamedParameterJdbcTemplate> dataSourceSalveTemplateMap = new HashMap<>();
+    public static final Map<String, NamedParameterJdbcTemplate> dataSourceSalveTemplateMap = new ConcurrentHashMap<>();
     /**
      * 仅数据源需要频繁切换salve时使用
      */

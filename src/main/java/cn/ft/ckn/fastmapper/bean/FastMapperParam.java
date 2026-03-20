@@ -14,11 +14,12 @@ import java.util.Map;
  * @author ckn
  */
 public class FastMapperParam<T> {
-    private static FastThreadLocal<FastMapperParam> searchParamFastThreadLocal=new FastThreadLocal<>();
+    private static FastThreadLocal<FastMapperParam<?>> searchParamFastThreadLocal = new FastThreadLocal<>();
 
+    @SuppressWarnings("unchecked")
     public static <T> FastMapperParam<T> init(FastTableMapper<T> tableMapper) {
         //初始化默认查询信息
-        FastMapperParam<T> fastMapperParam = searchParamFastThreadLocal.get();
+        FastMapperParam<T> fastMapperParam = (FastMapperParam<T>) searchParamFastThreadLocal.get();
         if (fastMapperParam == null) {
             fastMapperParam = new FastMapperParam<>();
             searchParamFastThreadLocal.set(fastMapperParam);
@@ -36,15 +37,16 @@ public class FastMapperParam<T> {
         return fastMapperParam;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> FastMapperParam<T> get() {
-        return searchParamFastThreadLocal.get();
+        return (FastMapperParam<T>) searchParamFastThreadLocal.get();
     }
 
-    public static void setSearchParamFastThreadLocal(FastThreadLocal<FastMapperParam> searchParamFastThreadLocal) {
+    public static void setSearchParamFastThreadLocal(FastThreadLocal<FastMapperParam<?>> searchParamFastThreadLocal) {
         FastMapperParam.searchParamFastThreadLocal = searchParamFastThreadLocal;
     }
 
-    private FastTableMapper tableMapper;
+    private FastTableMapper<T> tableMapper;
 
     public Map<String, Object> getParamMap() {
         return paramMap;
@@ -227,11 +229,11 @@ public class FastMapperParam<T> {
         }
     }
 
-    public FastTableMapper getTableMapper() {
+    public FastTableMapper<T> getTableMapper() {
         return tableMapper;
     }
 
-    public void setTableMapper(FastTableMapper tableMapper) {
+    public void setTableMapper(FastTableMapper<T> tableMapper) {
         this.tableMapper = tableMapper;
     }
 
