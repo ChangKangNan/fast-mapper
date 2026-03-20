@@ -7,7 +7,7 @@
         <dependency>
             <groupId>cn.ft.ckn</groupId>
             <artifactId>fast-mapper-spring-boot-starter</artifactId>
-            <version>1.0</version>
+            <version>4.0.0</version>
         </dependency>
 ```
 # 使用环境
