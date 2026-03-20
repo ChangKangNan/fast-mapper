@@ -166,18 +166,16 @@ public class DataSourceConnection {
         }
         return master;
     }
-
-    @SuppressWarnings("unchecked")
-    private static Class<? extends DaoActuator<?>> daoActuator =
-            (Class<? extends DaoActuator<?>>) (Class<?>) JdbcDaoActuator.class;
-
-    public static void setDaoActuator(Class<? extends DaoActuator<?>> daoActuator) {
+    public static void setDaoActuator(Class<? extends DaoActuator> daoActuator) {
         DataSourceConnection.daoActuator = daoActuator;
     }
 
-    public static DaoActuator getDaoActuator() {
+    private static Class<? extends DaoActuator> daoActuator = JdbcDaoActuator.class;
+
+    @SuppressWarnings("unchecked")
+    public static <T> DaoActuator<T> getDaoActuator() {
         try {
-            return ProxyUtil.proxy(daoActuator.getDeclaredConstructor().newInstance(), MapperActuatorAspect.class);
+            return ProxyUtil.proxy(daoActuator.newInstance(), MapperActuatorAspect.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
