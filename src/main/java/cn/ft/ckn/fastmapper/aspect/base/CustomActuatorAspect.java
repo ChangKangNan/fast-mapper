@@ -58,11 +58,10 @@ public class CustomActuatorAspect implements MapperExpander {
                     , FastMapperParam.OperationType.SELECT.name()
                     , FastMapperParam.OperationType.DELETE.name())) {
                 List<FastMapperParam.WhereCondition> whereConditions = param.getWhereCondition();
-                if (CollUtil.isEmpty(whereConditions)) {
-                    return true;
-                }
+                List<String> fields = param.getTableMapper().getShowFields();
+                boolean existColumn = fields.stream().filter(t -> t.equals(fieldName)).count() > 0;
                 long exist = whereConditions.stream().filter(w -> StrUtil.equals(w.columnName, fieldName)).count();
-                if (exist == 0) {
+                if (exist == 0 && existColumn) {
                     whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, Expression.Equal.expression, true));
                 }
             }

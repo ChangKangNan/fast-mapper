@@ -159,16 +159,16 @@ public class PackageSqlUtil {
             return sql;
         }
 
-        String primaryKey = fastMapperParam.getTableMapper().getPrimaryKey();
+//        String primaryKey = fastMapperParam.getTableMapper().getPrimaryKey();
+//
+//        long existPk = whereConditions.stream().map(whereCondition -> whereCondition.columnName.equals(primaryKey)).count();
+//        boolean ignorePk = existPk > 0;
 
-        long existPk = whereConditions.stream().map(whereCondition -> whereCondition.columnName.equals(primaryKey)).count();
-        boolean ignorePk = existPk > 0;
-
-        List<String> showFields = fastMapperParam.getTableMapper().getShowFields();
-        long isLdc = showFields.stream().filter(t -> t.equals(logicDeletedColumn)).count();
-        if ((!fastMapperParam.getCloseDeleteProtect()) && (isLdc > 0) && ignorePk) {
-            whereConditions.add(new FastMapperParam.WhereCondition(FastMapperConfig.logicDeletedColumn,logicDeletedColumnDefaultValue,EQUAL,true));
-        }
+//        List<String> showFields = fastMapperParam.getTableMapper().getShowFields();
+//        long isLdc = logicDeletedColumn == null ? 0 : showFields.stream().filter(t -> t.equals(logicDeletedColumn)).count();
+//        if ((!fastMapperParam.getCloseDeleteProtect()) && (isLdc > 0) && ignorePk) {
+//            whereConditions.add(new FastMapperParam.WhereCondition(FastMapperConfig.logicDeletedColumn,logicDeletedColumnDefaultValue,EQUAL,true));
+//        }
         sql.append(CRLF);
         sql.append(WHERE).append(StrUtil.SPACE);
         List<FastMapperParam.Bracket> brackets = fastMapperParam.getBrackets();
