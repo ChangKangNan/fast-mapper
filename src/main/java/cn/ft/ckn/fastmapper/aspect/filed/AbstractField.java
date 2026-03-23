@@ -6,6 +6,9 @@ import cn.ft.ckn.fastmapper.bean.em.Expression;
 import java.util.Map;
 
 public abstract class AbstractField {
+    /**
+     * 当前字段为 对应数据库的字段名称
+     */
     public abstract String fieldName();
 
     public boolean checkGlobal(FastMapperParam param) {
