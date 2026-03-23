@@ -46,7 +46,7 @@ public class SqlPrintActuatorAspect implements MapperExpander {
         }
         String sqlConversion = PackageSqlUtil.sqlConversion(param.getExecuteSql());
         LogUtil.print(LogUtil.printSql(sqlConversion, param.getParamMap())
-                , LogUtil.printResult("查询异常无结果"));
+                , LogUtil.printResult("exception occurred during the query!"));
     }
 
     @Override

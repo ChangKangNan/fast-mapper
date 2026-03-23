@@ -20,12 +20,12 @@ public class CustomActuatorAspect implements MapperExpander {
 
     @Override
     public boolean before(FastMapperParam param, Method method) {
-        if(CollUtil.isEmpty(FastMapperConfig.addFieldList)){
+        if (CollUtil.isEmpty(FastMapperConfig.addFieldList)) {
             return true;
         }
 
         boolean needGroup = FastMapperConfig.addFieldList.stream().allMatch(f -> f.checkGlobal(param) && f.strategy().get(param.getOperationType()) == Occasion.CONDITION);
-        if(needGroup){
+        if (needGroup) {
             FastMapperParam.get().setBracket(FastMapperParam.Bracket.builder().leftIndex(0).rightIndex(FastMapperParam.get().getWhereCondition().size() - 1).build());
         }
 
@@ -34,23 +34,33 @@ public class CustomActuatorAspect implements MapperExpander {
             Object val = field.defaultVal();
             Map<FastMapperParam.OperationType, Occasion> strategy = field.strategy();
             Occasion occasion = strategy.get(param.getOperationType());
-            if(!field.checkGlobal(param)){
+            if (!field.checkGlobal(param)) {
                 continue;
             }
 
-            if(occasion == Occasion.OBJECT && StrUtil.equals(param.getOperationType().name(),FastMapperParam.OperationType.INSERT.name())){
+            if (occasion == Occasion.OBJECT && StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.INSERT.name())) {
                 List insertList = param.getInsertList();
+                Map<String, String> fieldToColumn = param.getTableMapper().getFieldToColumn();
+                String insertFillField = fieldName;
+                for (String key : fieldToColumn.keySet()) {
+                    String column = fieldToColumn.get(key);
+                    if (column.equals(fieldName)) {
+                        insertFillField = key;
+                        break;
+                    }
+                }
                 if (CollUtil.isEmpty(insertList)) {
                     return true;
                 }
                 for (Object o : insertList) {
                     Map<String, Object> infos = new HashMap<>();
-                    infos.put(fieldName, val);
+                    infos.put(insertFillField, val);
+                    //内部会转驼峰，无论是否设置isToCamelCase
                     BeanUtil.fillBeanWithMap(infos, o, true, true);
                 }
             }
 
-            if(occasion == Occasion.OBJECT && StrUtil.equals(param.getOperationType().name(),FastMapperParam.OperationType.UPDATE.name())){
+            if (occasion == Occasion.OBJECT && StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.UPDATE.name())) {
                 List<FastMapperParam.Value> updateValueList = param.getUpdateValueList();
                 long exist = updateValueList.stream().filter(w -> StrUtil.equals(w.columnName, fieldName)).count();
                 if (exist == 0) {
