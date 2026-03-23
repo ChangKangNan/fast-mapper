@@ -158,17 +158,6 @@ public class PackageSqlUtil {
         if(CollUtil.isEmpty(whereConditions)){
             return sql;
         }
-
-//        String primaryKey = fastMapperParam.getTableMapper().getPrimaryKey();
-//
-//        long existPk = whereConditions.stream().map(whereCondition -> whereCondition.columnName.equals(primaryKey)).count();
-//        boolean ignorePk = existPk > 0;
-
-//        List<String> showFields = fastMapperParam.getTableMapper().getShowFields();
-//        long isLdc = logicDeletedColumn == null ? 0 : showFields.stream().filter(t -> t.equals(logicDeletedColumn)).count();
-//        if ((!fastMapperParam.getCloseDeleteProtect()) && (isLdc > 0) && ignorePk) {
-//            whereConditions.add(new FastMapperParam.WhereCondition(FastMapperConfig.logicDeletedColumn,logicDeletedColumnDefaultValue,EQUAL,true));
-//        }
         sql.append(CRLF);
         sql.append(WHERE).append(StrUtil.SPACE);
         List<FastMapperParam.Bracket> brackets = fastMapperParam.getBrackets();
@@ -244,7 +233,6 @@ public class PackageSqlUtil {
                 }
                 sql.append(CRLF);
                 sql.append(")");
-                break;
             }
         }
 
@@ -285,7 +273,11 @@ public class PackageSqlUtil {
                 continue;
             }
             sql.append(value.columnName).append(EQUAL);
-            packParam(sql,paramMap,value.value,paramIndex);
+            if (value.value == "null") {
+                sql.append("null");
+            } else {
+                packParam(sql, paramMap, value.value, paramIndex);
+            }
             if (i != updateValueList.size() - 1) {
                 sql.append(StrUtil.C_COMMA);
             }

@@ -42,6 +42,15 @@ public class UpdateValue<T, R> {
         return this;
     }
 
+    public <V> UpdateValue<T, R> setNull(SFunction<T, V> function) {
+        String fieldName = ColumnUtil.getFieldName(function);
+        if (CollUtil.isNotEmpty(FastMapperParam.get().getUpdateValueList())) {
+            FastMapperParam.get().setUpdateValueList(FastMapperParam.get().getUpdateValueList().stream().filter(s -> !Objects.equals(s.columnName, fieldName)).collect(Collectors.toList()));
+        }
+        FastMapperParam.get().getUpdateValueList().add(new FastMapperParam.Value(fieldName, "null"));
+        return this;
+    }
+
     public void execute() {
         daoActuator.update();
     }

@@ -5,15 +5,16 @@ import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BaseDao<R> {
 
-    public R bracketPrefix() {
+    private R bracketPrefix() {
         FastMapperParam.get().setBracket(FastMapperParam.Bracket.builder().leftIndex(FastMapperParam.get().getWhereCondition().size()).build());
         return (R)this;
     }
 
-    public R bracketSuffix() {
+    private R bracketSuffix() {
         List<FastMapperParam.Bracket> brackets = FastMapperParam.get().getBrackets();
         for (int i = brackets.size() - 1; i >= 0; i--) {
             if (brackets.get(i).getRightIndex() != null) {
@@ -23,6 +24,13 @@ public class BaseDao<R> {
             bracket.setRightIndex(FastMapperParam.get().getWhereCondition().size()-1);
             FastMapperParam.get().setBracket(bracket, i);
         }
+        return (R)this;
+    }
+
+    public R sql(Consumer<R> consumer) {
+        bracketPrefix();
+        consumer.accept((R) this);
+        bracketSuffix();
         return (R)this;
     }
 

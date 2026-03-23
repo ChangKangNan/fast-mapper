@@ -36,5 +36,9 @@ public class DeleteDao<T,R> extends BaseDao<R>{
       return daoActuator.delete();
     }
 
+    public R or() {
+        FastMapperParam.get().isAnd = false;
+        return (R)this;
+    }
 
 }

@@ -9,17 +9,17 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public class LogicDeletedField extends AbstractMapperField {
-    private static final Map<FastMapperParam.OperationType, AddOccasion> STRATEGY;
+    private static final Map<FastMapperParam.OperationType, Occasion> STRATEGY;
 
     /*
       策略
      */
     static {
         STRATEGY = new EnumMap<>(FastMapperParam.OperationType.class);
-        STRATEGY.put(FastMapperParam.OperationType.INSERT, AddOccasion.OBJECT); // 插入时新增值对象
-        STRATEGY.put(FastMapperParam.OperationType.DELETE, AddOccasion.CONDITION);// 以拼接条件新增在条件末尾
-        STRATEGY.put(FastMapperParam.OperationType.UPDATE, AddOccasion.CONDITION);// 以拼接条件新增在条件末尾
-        STRATEGY.put(FastMapperParam.OperationType.SELECT, AddOccasion.CONDITION);// 以拼接条件新增在条件末尾
+        STRATEGY.put(FastMapperParam.OperationType.INSERT, Occasion.OBJECT); // 插入时新增值对象
+        STRATEGY.put(FastMapperParam.OperationType.DELETE, Occasion.CONDITION);// 以拼接条件新增在条件末尾
+        STRATEGY.put(FastMapperParam.OperationType.UPDATE, Occasion.CONDITION);// 以拼接条件新增在条件末尾
+        STRATEGY.put(FastMapperParam.OperationType.SELECT, Occasion.CONDITION);// 以拼接条件新增在条件末尾
     }
 
     /**
@@ -65,7 +65,7 @@ public class LogicDeletedField extends AbstractMapperField {
      * 定义策略
      */
     @Override
-    public Map<FastMapperParam.OperationType, AddOccasion> strategy() {
+    public Map<FastMapperParam.OperationType, Occasion> strategy() {
         return STRATEGY;
     }
 }

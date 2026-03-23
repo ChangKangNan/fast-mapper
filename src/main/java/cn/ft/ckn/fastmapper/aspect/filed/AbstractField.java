@@ -12,8 +12,11 @@ public abstract class AbstractField {
         return check(param);
     }
     public abstract boolean check(FastMapperParam param);
+
     public abstract Object defaultVal();
-    public abstract Map<FastMapperParam.OperationType,AddOccasion> strategy();
+
+    public abstract Map<FastMapperParam.OperationType,Occasion> strategy();
+
     public Expression conditionLink(){
         return Expression.Equal;
     }

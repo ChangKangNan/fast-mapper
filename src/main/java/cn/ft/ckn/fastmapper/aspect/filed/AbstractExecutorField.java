@@ -1,8 +1,10 @@
 package cn.ft.ckn.fastmapper.aspect.filed;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
+import cn.ft.ckn.fastmapper.util.exe.SqlExecutor;
+
 /**
- * sql执行器 ，若需要扩展继承这个
+ * sql执行器 {@link SqlExecutor} ，若需要扩展继承这个
  */
 public abstract class AbstractExecutorField extends AbstractField{
     @Override

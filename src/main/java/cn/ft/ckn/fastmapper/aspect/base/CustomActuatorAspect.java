@@ -1,7 +1,7 @@
 package cn.ft.ckn.fastmapper.aspect.base;
 
 import cn.ft.ckn.fastmapper.aspect.filed.AbstractField;
-import cn.ft.ckn.fastmapper.aspect.filed.AddOccasion;
+import cn.ft.ckn.fastmapper.aspect.filed.Occasion;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
@@ -23,16 +23,22 @@ public class CustomActuatorAspect implements MapperExpander {
         if(CollUtil.isEmpty(FastMapperConfig.addFieldList)){
             return true;
         }
+
+        boolean needGroup = FastMapperConfig.addFieldList.stream().allMatch(f -> f.checkGlobal(param) && f.strategy().get(param.getOperationType()) == Occasion.CONDITION);
+        if(needGroup){
+            FastMapperParam.get().setBracket(FastMapperParam.Bracket.builder().leftIndex(0).rightIndex(FastMapperParam.get().getWhereCondition().size() - 1).build());
+        }
+
         for (AbstractField field : FastMapperConfig.addFieldList) {
             String fieldName = field.fieldName();
             Object val = field.defaultVal();
-            Map<FastMapperParam.OperationType, AddOccasion> strategy = field.strategy();
-            AddOccasion addOccasion = strategy.get(param.getOperationType());
+            Map<FastMapperParam.OperationType, Occasion> strategy = field.strategy();
+            Occasion occasion = strategy.get(param.getOperationType());
             if(!field.checkGlobal(param)){
                 continue;
             }
 
-            if(addOccasion == AddOccasion.OBJECT && StrUtil.equals(param.getOperationType().name(),FastMapperParam.OperationType.INSERT.name())){
+            if(occasion == Occasion.OBJECT && StrUtil.equals(param.getOperationType().name(),FastMapperParam.OperationType.INSERT.name())){
                 List insertList = param.getInsertList();
                 if (CollUtil.isEmpty(insertList)) {
                     return true;
@@ -44,7 +50,7 @@ public class CustomActuatorAspect implements MapperExpander {
                 }
             }
 
-            if(addOccasion == AddOccasion.OBJECT && StrUtil.equals(param.getOperationType().name(),FastMapperParam.OperationType.UPDATE.name())){
+            if(occasion == Occasion.OBJECT && StrUtil.equals(param.getOperationType().name(),FastMapperParam.OperationType.UPDATE.name())){
                 List<FastMapperParam.Value> updateValueList = param.getUpdateValueList();
                 long exist = updateValueList.stream().filter(w -> StrUtil.equals(w.columnName, fieldName)).count();
                 if (exist == 0) {
@@ -52,17 +58,12 @@ public class CustomActuatorAspect implements MapperExpander {
                 }
             }
 
-            if (addOccasion == AddOccasion.CONDITION && StrUtil.equalsAny(param.getOperationType().name()
+            if (occasion == Occasion.CONDITION && StrUtil.equalsAny(param.getOperationType().name()
                     , FastMapperParam.OperationType.UPDATE.name()
                     , FastMapperParam.OperationType.SELECT.name()
                     , FastMapperParam.OperationType.DELETE.name())) {
                 List<FastMapperParam.WhereCondition> whereConditions = param.getWhereCondition();
-                List<String> fields = param.getTableMapper().getShowFields();
-                boolean existColumn = fields.stream().filter(t -> t.equals(fieldName)).count() > 0;
-                long exist = whereConditions.stream().filter(w -> StrUtil.equals(w.columnName, fieldName)).count();
-                if (exist == 0 && existColumn) {
-                    whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, field.conditionLink().expression, true));
-                }
+                whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, field.conditionLink().expression, true));
             }
 
         }

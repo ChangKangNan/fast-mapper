@@ -11,10 +11,15 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LogUtil {
     private static final Log log = LogFactory.getLog(LogUtil.class);
 
+    /**
+     * 获取调用日志工具的方法对应的 "类.方法(行号)" 标识前缀，用于溯源。
+     */
     static String getPrefix() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (StackTraceElement stackTraceElement : stackTrace) {
@@ -31,58 +36,94 @@ public class LogUtil {
         return "";
     }
 
+    /**
+     * 打印 SQL 执行日志
+     *
+     * @param execute SQL 执行语句（含参数替换前）
+     * @param result  SQL 执行结果字符串
+     */
     public static void print(String execute, String result) {
-        log.info(getPrefix()+" SQL 执行 ↓ "
-                + System.lineSeparator() +
-                "---------------------------------------------------------"
-                + System.lineSeparator()
-                + execute
-                + result
-                + System.lineSeparator()
-                + "执行时间: " + FastMapperParam.get().getSqlTime() + "ms"
-                + System.lineSeparator() +
-                "---------------------------------------------------------");
+        log.info(
+                        getPrefix()
+                        + " SQL 执行 ↓ "
+                        + System.lineSeparator()
+                        + execute
+                        + System.lineSeparator()
+                        + result
+                        + System.lineSeparator()
+                        + "执行时间: " + FastMapperParam.get().getSqlTime() + "ms"
+        );
     }
 
+    /**
+     * 格式化 SQL 语句（并用参数替换 :param 占位符）
+     *
+     * @param sql    SQL字符串
+     * @param params 参数map
+     * @return 格式化后的 SQL
+     */
     public static String printSql(String sql, Map<String, Object> params) {
-        if (params.size() > 0) {
-            for (String param : params.keySet()) {
-                Object o = params.get(param);
-                sql = StrUtil.replace(sql, ":" + param, getValue(o));
+        if (params != null && !params.isEmpty()) {
+            // 使用正则精确替换 :param
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                // 替换带:的参数（避免部分覆盖）
+                String regex = ":" + Pattern.quote(entry.getKey()) + "(\\b|\\W)";
+                String value = getValue(entry.getValue());
+                sql = sql.replaceAll(regex, Matcher.quoteReplacement(value) + "$1");
             }
         }
         try {
             return SQLUtils.formatMySql(sql);
         } catch (Exception e) {
+            log.warn("SQL格式化失败: " + e.getMessage());
             return sql;
         }
     }
 
+
+    /**
+     * 返回值字符串化，字符串和日期类型自动加单引号，布尔类型输出 true/false
+     */
     public static String getValue(Object value) {
-        StringBuilder stringBuilder = new StringBuilder();
-        if (value instanceof String || value instanceof Date) {
-            stringBuilder.append("\'");
-        }
         if (value == null) {
-            stringBuilder.append("null");
-        } else if (value instanceof Date) {
-            stringBuilder.append(DateUtil.format((Date) value, "yyyy-MM-dd HH:mm:ss"));
-        } else if (BooleanUtil.isBoolean(value.getClass())) {
-            if ((Boolean) value) {
-                stringBuilder.append("true");
+            return "null";
+        }
+        if (value instanceof String) {
+            return "'" + value + "'";
+        }
+        if (value instanceof java.time.LocalDate) {
+            return "'" + value + "'"; // LocalDate默认toString就是yyyy-MM-dd
+        }
+        if (value instanceof java.time.LocalDateTime) {
+            return "'" + value.toString().replace('T', ' ') + "'"; // yyyy-MM-dd HH:mm:ss
+        }
+        if (value instanceof Date) {
+            // 判断时分秒是否全为0
+            Date date = (Date) value;
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTime(date);
+
+            int hour = cal.get(java.util.Calendar.HOUR_OF_DAY);
+            int minute = cal.get(java.util.Calendar.MINUTE);
+            int second = cal.get(java.util.Calendar.SECOND);
+            int millisecond = cal.get(java.util.Calendar.MILLISECOND);
+
+            if (hour == 0 && minute == 0 && second == 0 && millisecond == 0) {
+                return "'" + cn.hutool.core.date.DateUtil.format(date, "yyyy-MM-dd") + "'";
             } else {
-                stringBuilder.append("false");
+                return "'" + cn.hutool.core.date.DateUtil.format(date, "yyyy-MM-dd HH:mm:ss") + "'";
             }
-        } else {
-            stringBuilder.append(value);
         }
-        if (value instanceof String || value instanceof Date) {
-            stringBuilder.append("\'");
+        if (BooleanUtil.isBoolean(value.getClass())) {
+            return Boolean.TRUE.equals(value) ? "true" : "false";
         }
-        return stringBuilder.toString();
+        return value.toString();
     }
 
+    /**
+     * 生成执行结果字符串（供日志输出）
+     */
     public static String printResult(Object val) {
-        return System.lineSeparator() + "执行结果: " + JSONObject.toJSONString(val);
+        return "执行结果: " + JSONObject.toJSONString(val);
     }
 }
