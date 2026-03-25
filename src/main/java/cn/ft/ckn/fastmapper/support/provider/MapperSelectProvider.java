@@ -12,6 +12,7 @@ public class MapperSelectProvider {
         StrBuilder sql = PackageSqlUtil.selectSql(fastMapperParam);
         PackageSqlUtil.whereSql(sql,fastMapperParam);
         PackageSqlUtil.orderBySql(sql,fastMapperParam);
+        PackageSqlUtil.limit(sql,fastMapperParam);
         fastMapperParam.setExecuteSql(sql.toString());
     }
 

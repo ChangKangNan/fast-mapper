@@ -9,13 +9,13 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LogUtil {
-    private static final Log log = LogFactory.getLog(LogUtil.class);
 
     /**
      * 获取调用日志工具的方法对应的 "类.方法(行号)" 标识前缀，用于溯源。
@@ -43,6 +43,7 @@ public class LogUtil {
      * @param result  SQL 执行结果字符串
      */
     public static void print(String execute, String result) {
+        cn.hutool.log.Log log = cn.hutool.log.LogFactory.get(FastMapperParam.get().getTableMapper().getTableName());
         log.info(
                         getPrefix()
                         + " SQL 执行 ↓ "
@@ -63,6 +64,7 @@ public class LogUtil {
      * @return 格式化后的 SQL
      */
     public static String printSql(String sql, Map<String, Object> params) {
+        cn.hutool.log.Log log = cn.hutool.log.LogFactory.get(FastMapperParam.get().getTableMapper().getTableName());
         if (params != null && !params.isEmpty()) {
             // 使用正则精确替换 :param
             for (Map.Entry<String, Object> entry : params.entrySet()) {
@@ -124,6 +126,12 @@ public class LogUtil {
      * 生成执行结果字符串（供日志输出）
      */
     public static String printResult(Object val) {
-        return "执行结果: " + JSONObject.toJSONString(val);
+        if(val == null){
+            return "执行结果: 0";
+        }
+        if(val instanceof Collection && ((Collection<?>) val).isEmpty()){
+            return "执行结果: 0";
+        }
+        return "执行结果: " + (val instanceof Integer ? val : JSONObject.toJSONString(val));
     }
 }

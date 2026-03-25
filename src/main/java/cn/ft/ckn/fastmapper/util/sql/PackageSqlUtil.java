@@ -4,7 +4,6 @@ import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.FastTableMapper;
 import cn.ft.ckn.fastmapper.bean.constants.SQLConstants;
 import cn.ft.ckn.fastmapper.bean.em.Expression;
-import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.StrBuilder;
@@ -16,38 +15,39 @@ import javax.persistence.Column;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static cn.ft.ckn.fastmapper.bean.constants.SQLConstants.LIMIT;
 import static cn.ft.ckn.fastmapper.bean.constants.SQLConstants.OR;
-import static cn.ft.ckn.fastmapper.config.FastMapperConfig.*;
 
 /**
  * 封装SQL工具类
+ *
  * @author ckn
  */
 public class PackageSqlUtil {
-    public static final String INSERT="INSERT INTO";
-    public static final String SELECT="SELECT";
-    public static final String DELETE="DELETE";
-    public static final String UPDATE="UPDATE";
-    public static final String FROM="FROM";
-    public static final String SET="SET";
-    public static final String EQUAL="=";
-    public static final String CRLF=System.lineSeparator();
-    public static final String WHERE="WHERE";
-    public static final String LIKE="LIKE";
-    public static final String AND="and";
+    public static final String INSERT = "INSERT INTO";
+    public static final String SELECT = "SELECT";
+    public static final String DELETE = "DELETE";
+    public static final String UPDATE = "UPDATE";
+    public static final String FROM = "FROM";
+    public static final String SET = "SET";
+    public static final String EQUAL = "=";
+    public static final String CRLF = System.lineSeparator();
+    public static final String WHERE = "WHERE";
+    public static final String LIKE = "LIKE";
+    public static final String AND = "and";
 
     public static final String WHERE_PARAM_TYPE = "where_param_";
     public static final String UPDATE_PARAM_TYPE = "update_param_";
     public static final String INSERT_PARAM_TYPE = "insert_param_";
     public static final String PARAM_PREFIX_1 = "#{";
     public static final String PARAM_PREFIX_2 = "${";
-    public static final String PARAM_SUFFIX = "}"+StrUtil.SPACE;
+    public static final String PARAM_SUFFIX = "}" + StrUtil.SPACE;
     public static final String JDBC_SQL_CONVERSION_RE_RULE = "[#][{](\\w*)[}]";
     public static final String JDBC_SQL_CONVERSION_RE_RULE_2 = "[$][{](\\w*)[}]";
     public static final String JDBC_SQL_CONVERSION_RE_RESULT = ":$1";
-    public static final String LEFT_BRACKETS="(";
-    public static final String RIGHT_BRACKETS=")";
-    public static final String VALUES="VALUES";
+    public static final String LEFT_BRACKETS = "(";
+    public static final String RIGHT_BRACKETS = ")";
+    public static final String VALUES = "VALUES";
 
     public static class ParamIndex {
         private int index = 0;
@@ -101,8 +101,8 @@ public class PackageSqlUtil {
         paramIndex.setParamType(INSERT_PARAM_TYPE);
         List<String> fieldNames = tableMapper.getShowFields();
         Map<String, String> fieldToColumn = tableMapper.getFieldToColumn();
-        Map<String,Object> paramMap = fastMapperParam.getParamMap();
-        StrBuilder sql = StrUtil.strBuilder(INSERT,StrUtil.SPACE, tableMapper.getTableName()).append(CRLF);
+        Map<String, Object> paramMap = fastMapperParam.getParamMap();
+        StrBuilder sql = StrUtil.strBuilder(INSERT, StrUtil.SPACE, tableMapper.getTableName()).append(CRLF);
         if (insertList.size() == 1) {
             sql.append(SET);
             sql.append(CRLF);
@@ -115,7 +115,7 @@ public class PackageSqlUtil {
                 }
             }
             sql.del(sql.length() - 1, sql.length());
-        }else {
+        } else {
             sql.append(LEFT_BRACKETS);
             List<String> showFields = tableMapper.getShowFields();
             List<String> columns = showFields.stream().map(fieldToColumn::get).collect(Collectors.toList());
@@ -153,9 +153,9 @@ public class PackageSqlUtil {
         paramIndex.setParamType(WHERE_PARAM_TYPE);
         List<FastMapperParam.WhereCondition> whereConditions = fastMapperParam.getWhereCondition();
 
-        Map<String,Object> paramMap = fastMapperParam.getParamMap();
+        Map<String, Object> paramMap = fastMapperParam.getParamMap();
 
-        if(CollUtil.isEmpty(whereConditions)){
+        if (CollUtil.isEmpty(whereConditions)) {
             return sql;
         }
         sql.append(CRLF);
@@ -171,9 +171,9 @@ public class PackageSqlUtil {
             }
             if (i != 0) {
                 sql.append(CRLF);
-                if(whereCondition.isAnd){
+                if (whereCondition.isAnd) {
                     sql.append(AND);
-                }else {
+                } else {
                     sql.append(OR);
                 }
                 sql.append(StrUtil.SPACE);
@@ -181,7 +181,7 @@ public class PackageSqlUtil {
 
             for (FastMapperParam.Bracket bracket : brackets) {
                 Integer leftIndex = bracket.getLeftIndex();
-                if(leftIndex != i){
+                if (leftIndex != i) {
                     continue;
                 }
                 sql.append("(");
@@ -191,7 +191,7 @@ public class PackageSqlUtil {
             sql.append(whereCondition.columnName);
             sql.append(StrUtil.SPACE);
             sql.append(whereCondition.expression);
-            if(StrUtil.equalsAnyIgnoreCase(whereCondition.expression,Expression.IsNull.expression,Expression.IsNotNull.expression)){
+            if (StrUtil.equalsAnyIgnoreCase(whereCondition.expression, Expression.IsNull.expression, Expression.IsNotNull.expression)) {
                 sql.append(StrUtil.SPACE);
                 continue;
             }
@@ -228,7 +228,7 @@ public class PackageSqlUtil {
             }
             for (FastMapperParam.Bracket bracket : brackets) {
                 Integer rightIndex = bracket.getRightIndex();
-                if(rightIndex != i){
+                if (rightIndex != i) {
                     continue;
                 }
                 sql.append(CRLF);
@@ -260,10 +260,10 @@ public class PackageSqlUtil {
         PackageSqlUtil.ParamIndex paramIndex = new PackageSqlUtil.ParamIndex();
         paramIndex.setParamType(UPDATE_PARAM_TYPE);
         FastTableMapper<?> tableMapper = fastMapperParam.getTableMapper();
-        Map<String,Object> paramMap = fastMapperParam.getParamMap();
-        StrBuilder sql = StrUtil.strBuilder(UPDATE,StrUtil.SPACE, tableMapper.getTableName()).append(CRLF);
+        Map<String, Object> paramMap = fastMapperParam.getParamMap();
+        StrBuilder sql = StrUtil.strBuilder(UPDATE, StrUtil.SPACE, tableMapper.getTableName()).append(CRLF);
         List<FastMapperParam.Value> updateValueList = fastMapperParam.getUpdateValueList();
-        if(CollUtil.isEmpty(updateValueList)){
+        if (CollUtil.isEmpty(updateValueList)) {
             return new StrBuilder();
         }
         sql.append(SET).append(StrUtil.SPACE);
@@ -283,7 +283,7 @@ public class PackageSqlUtil {
             }
         }
         if (sql.charAt(sql.length() - 1) == StrUtil.C_COMMA) {
-            sql.del(sql.length() - 1,sql.length());
+            sql.del(sql.length() - 1, sql.length());
         }
         return sql;
     }
@@ -308,16 +308,13 @@ public class PackageSqlUtil {
             }
         }
         if (sql.charAt(sql.length() - 1) == StrUtil.C_COMMA) {
-            sql.del(sql.length() - 1,sql.length());
+            sql.del(sql.length() - 1, sql.length());
         }
         return sql;
     }
 
 
-    public static StrBuilder selectSql(FastMapperParam<?> FastMapperParam){
-        if(StrUtil.isNotBlank(FastMapperParam.getExecuteSql())){
-            return new StrBuilder(FastMapperParam.getExecuteSql());
-        }
+    public static StrBuilder selectSql(FastMapperParam<?> FastMapperParam) {
         StrBuilder sql = StrUtil.strBuilder(SELECT).append(StrUtil.SPACE);
         FastTableMapper<?> tableMapper = FastMapperParam.getTableMapper();
         Map<String, String> fieldToColumn = tableMapper.getFieldToColumn();
@@ -327,11 +324,19 @@ public class PackageSqlUtil {
         return sql;
     }
 
-    public static StrBuilder countSql(FastMapperParam<?> FastMapperParam){
-        if(StrUtil.isNotBlank(FastMapperParam.getExecuteSql())){
-            return new StrBuilder(FastMapperParam.getExecuteSql());
-        }
+    public static StrBuilder countSql(FastMapperParam<?> FastMapperParam) {
         FastTableMapper<?> tableMapper = FastMapperParam.getTableMapper();
         return StrUtil.strBuilder(SELECT).append(StrUtil.SPACE).append("COUNT(1) AS counts").append(StrUtil.SPACE).append(FROM).append(StrUtil.SPACE).append(tableMapper.getTableName());
+    }
+
+    public static void limit(StrBuilder sqlBuilder, FastMapperParam<?> param) {
+        if (param.getOpenPage() || param.getLimit() != null) {
+            sqlBuilder.append(System.lineSeparator());
+        }
+        if (param.getOpenPage()) {
+            sqlBuilder.append(LIMIT).append(StrUtil.SPACE).append(param.getPage() - 1).append(StrUtil.C_COMMA).append(param.getPageSize());
+        } else if (param.getLimit() != null) {
+            sqlBuilder.append(LIMIT).append(StrUtil.SPACE).append(param.getLimit());
+        }
     }
 }

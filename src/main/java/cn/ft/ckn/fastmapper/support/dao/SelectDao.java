@@ -3,16 +3,18 @@ package cn.ft.ckn.fastmapper.support.dao;
 import cn.ft.ckn.fastmapper.anno.Pager;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.FastTableMapper;
+import cn.ft.ckn.fastmapper.bean.page.PageInfo;
 import cn.ft.ckn.fastmapper.support.dao.jdbc.DataSourceConnection;
 import cn.hutool.core.collection.CollUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * @author ckn
  */
-public class SelectDao<T,R> extends BaseDao<R> implements Pager<R> {
+public class SelectDao<T,R> extends BaseDao<R> implements Pager<T> {
     private final Class<T> classObj;
     private Class<R> r;
     private final DaoActuator<T> daoActuator;
@@ -25,6 +27,7 @@ public class SelectDao<T,R> extends BaseDao<R> implements Pager<R> {
     }
 
     public T one() {
+        FastMapperParam.get().setLimit(1);
         List<T> select = daoActuator.select();
         if(CollUtil.isEmpty(select)){
             return null;
@@ -40,11 +43,16 @@ public class SelectDao<T,R> extends BaseDao<R> implements Pager<R> {
        return daoActuator.select();
     }
 
-    public R page(Integer page, Integer pageSize) {
+    public PageInfo<T> page(Integer page, Integer pageSize) {
         FastMapperParam.get().setOpenPage(true);
         FastMapperParam.get().setPage(page);
         FastMapperParam.get().setPageSize(pageSize);
-        return (R)this;
+        Integer count = daoActuator.count();
+        if (count == 0) {
+            return new PageInfo<T>(new ArrayList<>(), page, pageSize, count);
+        }
+        List<T> select = daoActuator.select();
+        return new PageInfo<T>(select, page, pageSize, count);
     }
 
     public R or() {

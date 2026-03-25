@@ -34,6 +34,11 @@ public class FastMapperParam<T> {
         fastMapperParam.brackets=new ArrayList<>();
         fastMapperParam.setCloseDeleteProtect(Boolean.FALSE);
         fastMapperParam.paramMap=new HashMap<>();
+        fastMapperParam.setOpenPage(false);
+        fastMapperParam.setPage(null);
+        fastMapperParam.setPageSize(null);
+        fastMapperParam.limit = null;
+        fastMapperParam.setAddFieldBefore(false);
         return fastMapperParam;
     }
 
@@ -123,6 +128,28 @@ public class FastMapperParam<T> {
 
     private Integer page;
     private Integer pageSize;
+
+    private Integer limit = null;
+
+    public boolean isAddFieldBefore() {
+        return addFieldBefore;
+    }
+
+    public void setAddFieldBefore(boolean addFieldBefore) {
+        this.addFieldBefore = addFieldBefore;
+    }
+
+    private boolean addFieldBefore = false;
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+
 
     /**
      * 使否开启分页查询

@@ -1,5 +1,7 @@
 package cn.ft.ckn.fastmapper.anno;
 
-public interface Pager<R> {
-    R page(Integer page, Integer pageSize);
+import cn.ft.ckn.fastmapper.bean.page.PageInfo;
+
+public interface Pager<T> {
+    PageInfo<T> page(Integer page, Integer pageSize);
 }

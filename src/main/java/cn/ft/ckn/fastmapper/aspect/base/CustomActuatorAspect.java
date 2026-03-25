@@ -20,7 +20,7 @@ public class CustomActuatorAspect implements MapperExpander {
 
     @Override
     public boolean before(FastMapperParam param, Method method) {
-        if (CollUtil.isEmpty(FastMapperConfig.addFieldList)) {
+        if (CollUtil.isEmpty(FastMapperConfig.addFieldList) || (param.isAddFieldBefore())) {
             return true;
         }
 
@@ -77,6 +77,7 @@ public class CustomActuatorAspect implements MapperExpander {
             }
 
         }
+        param.setAddFieldBefore(true);
         return true;
     }
 
