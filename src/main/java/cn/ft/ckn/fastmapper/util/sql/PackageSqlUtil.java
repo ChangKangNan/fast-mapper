@@ -181,7 +181,7 @@ public class PackageSqlUtil {
                 if (leftIndex != i) {
                     continue;
                 }
-                sql.append("(");
+                sql.append(LEFT_BRACKETS);
                 sql.append(CRLF);
                 break;
             }
@@ -195,12 +195,12 @@ public class PackageSqlUtil {
             }
 
             if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Match.name, Expression.NotMatch.name)) {
-                sql.append(whereCondition.expression.name).append("(").append("`").append(whereCondition.columnName).append("`").append(")");
+                sql.append(whereCondition.expression.name).append(LEFT_BRACKETS).append("`").append(whereCondition.columnName).append("`").append(RIGHT_BRACKETS);
                 sql.append(StrUtil.SPACE);
                 sql.append(whereCondition.expression.expression);
-                sql.append("(");
+                sql.append(LEFT_BRACKETS);
                 packParam(sql, paramMap, whereCondition.value, paramIndex);
-                sql.append(")");
+                sql.append(RIGHT_BRACKETS);
             } else if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Between.name, Expression.NotBetween.name)) {
                 sql.append("`").append(whereCondition.columnName).append("`");
                 sql.append(whereCondition.expression.expression);
@@ -250,7 +250,7 @@ public class PackageSqlUtil {
                     continue;
                 }
                 sql.append(CRLF);
-                sql.append(")");
+                sql.append(RIGHT_BRACKETS);
             }
         }
 
