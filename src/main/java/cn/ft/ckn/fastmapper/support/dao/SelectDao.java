@@ -9,6 +9,7 @@ import cn.hutool.core.collection.CollUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -59,6 +60,10 @@ public class SelectDao<T,R> extends BaseDao<R> implements Pager<T> {
         FastMapperParam.get().isAnd = false;
         return (R)this;
     }
+    private R and() {
+        FastMapperParam.get().isAnd = true;
+        return (R)this;
+    }
 
     private R bracketPrefix() {
         FastMapperParam.get().setBracket(FastMapperParam.Bracket.builder().leftIndex(FastMapperParam.get().getWhereCondition().size()).build());
@@ -78,10 +83,36 @@ public class SelectDao<T,R> extends BaseDao<R> implements Pager<T> {
         return (R)this;
     }
 
-    public R sql(Consumer<R> consumer) {
+    public R andSql(Consumer<R> consumer) {
+        and();
         bracketPrefix();
         consumer.accept((R) this);
         bracketSuffix();
         return (R)this;
+    }
+
+    public R andSql(String sql, Map<String,Object> params) {
+        and();
+        bracketPrefix();
+        FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(sql, params, FastMapperParam.get().isAnd));
+        bracketSuffix();
+        return (R)this;
+    }
+
+
+    public R orSql(Consumer<R> consumer) {
+        or();
+        bracketPrefix();
+        consumer.accept((R) this);
+        bracketSuffix();
+        return (R)this;
+    }
+
+    public R orSql(String sql, Map<String, Object> params) {
+        or();
+        bracketPrefix();
+        FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(sql, params, FastMapperParam.get().isAnd));
+        bracketSuffix();
+        return (R) this;
     }
 }

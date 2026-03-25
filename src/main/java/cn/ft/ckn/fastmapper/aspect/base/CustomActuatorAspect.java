@@ -24,8 +24,23 @@ public class CustomActuatorAspect implements MapperExpander {
             return true;
         }
 
-        boolean needGroup = FastMapperConfig.addFieldList.stream().allMatch(f -> f.checkGlobal(param) && f.strategy().get(param.getOperationType()) == Occasion.CONDITION);
-        if (needGroup) {
+        boolean needGroup = FastMapperConfig.addFieldList.stream().anyMatch(f -> f.checkGlobal(param) && f.strategy().get(param.getOperationType()) == Occasion.CONDITION);
+        List<FastMapperParam.WhereCondition> whereCondition = param.getWhereCondition();
+        boolean isContainsOr = CollUtil.isEmpty(whereCondition);
+        if (!isContainsOr) {
+            List<FastMapperParam.Bracket> brackets = FastMapperParam.get().getBrackets();
+            for (int i = 0; i < whereCondition.size(); i++) {
+                FastMapperParam.WhereCondition condition = whereCondition.get(i);
+                int finalI = i;
+                long l = brackets.stream().filter(f -> f.getLeftIndex() == finalI).count();
+                if (i != 0 && l > 0 && !condition.isAnd) {
+                    isContainsOr = true;
+                    break;
+                }
+            }
+        }
+
+        if (needGroup && isContainsOr) {
             FastMapperParam.get().setBracket(FastMapperParam.Bracket.builder().leftIndex(0).rightIndex(FastMapperParam.get().getWhereCondition().size() - 1).build());
         }
 

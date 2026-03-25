@@ -14,6 +14,7 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -71,6 +72,10 @@ public class UpdateDao<T, R> extends BaseDao<R> {
         FastMapperParam.get().isAnd = false;
         return (R) this;
     }
+    private R and() {
+        FastMapperParam.get().isAnd = true;
+        return (R)this;
+    }
 
     public void convertObject(T t) {
         List<FastMapperColumn> valueParams = ValueUtil.getColumns(t, classObj);
@@ -118,10 +123,36 @@ public class UpdateDao<T, R> extends BaseDao<R> {
         return (R)this;
     }
 
-    public R sql(Consumer<R> consumer) {
+    public R andSql(Consumer<R> consumer) {
+        and();
         bracketPrefix();
         consumer.accept((R) this);
         bracketSuffix();
         return (R)this;
+    }
+
+    public R andSql(String sql, Map<String,Object> params) {
+        and();
+        bracketPrefix();
+        FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(sql, params, FastMapperParam.get().isAnd));
+        bracketSuffix();
+        return (R)this;
+    }
+
+
+    public R orSql(Consumer<R> consumer) {
+        or();
+        bracketPrefix();
+        consumer.accept((R) this);
+        bracketSuffix();
+        return (R)this;
+    }
+
+    public R orSql(String sql, Map<String, Object> params) {
+        or();
+        bracketPrefix();
+        FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(sql, params, FastMapperParam.get().isAnd));
+        bracketSuffix();
+        return (R) this;
     }
 }

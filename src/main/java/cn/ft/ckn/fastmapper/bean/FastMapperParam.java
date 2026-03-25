@@ -231,6 +231,15 @@ public class FastMapperParam<T> {
         public Boolean isAnd;
         public Object minValue;
         public Object maxValue;
+        public String sql;
+        public Map<String,Object> params;
+
+        public WhereCondition(String sql, Map<String, Object> params, Boolean isAnd) {
+            this.sql = sql;
+            this.params = params;
+            this.isAnd = isAnd;
+        }
+
         public WhereCondition(String columnName, Object value, Expression expression,Boolean isAnd) {
             this.expression = expression;
             this.columnName = columnName;

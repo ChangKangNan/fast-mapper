@@ -163,7 +163,7 @@ public class PackageSqlUtil {
         List<FastMapperParam.Bracket> brackets = fastMapperParam.getBrackets();
         for (int i = 0; i < whereConditions.size(); i++) {
             FastMapperParam.WhereCondition whereCondition = whereConditions.get(i);
-            if (!hasField(fastMapperParam.getTableMapper().getObjClass(), whereCondition.columnName)) {
+            if (whereCondition.sql == null && !hasField(fastMapperParam.getTableMapper().getObjClass(), whereCondition.columnName)) {
                 continue;
             }
             if (i != 0) {
@@ -183,65 +183,69 @@ public class PackageSqlUtil {
                 }
                 sql.append(LEFT_BRACKETS);
                 sql.append(CRLF);
-                break;
             }
 
-            if (StrUtil.equalsAnyIgnoreCase(whereCondition.expression.name, Expression.IsNull.name, Expression.IsNotNull.name)) {
-                sql.append("`").append(whereCondition.columnName).append("`");
-                sql.append(StrUtil.SPACE);
-                sql.append(whereCondition.expression.expression);
-                sql.append(StrUtil.SPACE);
-                continue;
-            }
+            if (whereCondition.sql != null) {
+                sql.append(whereCondition.sql);
+                paramMap.putAll(whereCondition.params);
+            }else {
+                if (StrUtil.equalsAnyIgnoreCase(whereCondition.expression.name, Expression.IsNull.name, Expression.IsNotNull.name)) {
+                    sql.append("`").append(whereCondition.columnName).append("`");
+                    sql.append(StrUtil.SPACE);
+                    sql.append(whereCondition.expression.expression);
+                    sql.append(StrUtil.SPACE);
+                    continue;
+                }
 
-            if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Match.name, Expression.NotMatch.name)) {
-                sql.append(whereCondition.expression.name).append(LEFT_BRACKETS).append("`").append(whereCondition.columnName).append("`").append(RIGHT_BRACKETS);
-                sql.append(StrUtil.SPACE);
-                sql.append(whereCondition.expression.expression);
-                sql.append(LEFT_BRACKETS);
-                packParam(sql, paramMap, whereCondition.value, paramIndex);
-                sql.append(RIGHT_BRACKETS);
-            } else if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Between.name, Expression.NotBetween.name)) {
-                sql.append("`").append(whereCondition.columnName).append("`");
-                sql.append(whereCondition.expression.expression);
-                packParam(sql, paramMap, whereCondition.minValue, paramIndex);
-                sql.append(StrUtil.SPACE);
-                sql.append(AND);
-                sql.append(StrUtil.SPACE);
-                packParam(sql, paramMap, whereCondition.maxValue, paramIndex);
-            } else if (StrUtil.equals(whereCondition.expression.name, Expression.Like.name)) {
-                sql.append("`").append(whereCondition.columnName).append("`");
-                sql.append(StrUtil.SPACE);
-                sql.append(whereCondition.expression.expression);
-                packParam(sql, paramMap, "%" + whereCondition.value + "%", paramIndex);
-            } else {
-                sql.append("`").append(whereCondition.columnName).append("`");
-                sql.append(whereCondition.expression.expression);
-                if (StrUtil.equalsAny(whereCondition.expression.name, Expression.In.name, Expression.NotIn.name)) {
-                    if (ArrayUtil.isArray(whereCondition.value)) {
-                        sql.append(LEFT_BRACKETS);
-                        Object[] whereConditionValues = (Object[]) whereCondition.value;
-                        List<Object> values = new ArrayList<>();
-                        for (Object o : whereConditionValues) {
-                            if (o instanceof Collection<?>) {
-                                values.addAll((Collection<?>) o);
-                            } else {
-                                values.add(o);
-                            }
-                        }
-                        values = values.stream().distinct().collect(Collectors.toList());
-                        Object[] wrap = ArrayUtil.wrap(values.toArray());
-                        for (int j = 0; j < wrap.length; j++) {
-                            Object object = wrap[j];
-                            packParam(sql, paramMap, object, paramIndex);
-                            if (j != wrap.length - 1) {
-                                sql.append(StrUtil.C_COMMA);
-                            }
-                        }
-                        sql.append(RIGHT_BRACKETS);
-                    }
-                } else {
+                if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Match.name, Expression.NotMatch.name)) {
+                    sql.append(whereCondition.expression.name).append(LEFT_BRACKETS).append("`").append(whereCondition.columnName).append("`").append(RIGHT_BRACKETS);
+                    sql.append(StrUtil.SPACE);
+                    sql.append(whereCondition.expression.expression);
+                    sql.append(LEFT_BRACKETS);
                     packParam(sql, paramMap, whereCondition.value, paramIndex);
+                    sql.append(RIGHT_BRACKETS);
+                } else if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Between.name, Expression.NotBetween.name)) {
+                    sql.append("`").append(whereCondition.columnName).append("`");
+                    sql.append(whereCondition.expression.expression);
+                    packParam(sql, paramMap, whereCondition.minValue, paramIndex);
+                    sql.append(StrUtil.SPACE);
+                    sql.append(AND);
+                    sql.append(StrUtil.SPACE);
+                    packParam(sql, paramMap, whereCondition.maxValue, paramIndex);
+                } else if (StrUtil.equals(whereCondition.expression.name, Expression.Like.name)) {
+                    sql.append("`").append(whereCondition.columnName).append("`");
+                    sql.append(StrUtil.SPACE);
+                    sql.append(whereCondition.expression.expression);
+                    packParam(sql, paramMap, "%" + whereCondition.value + "%", paramIndex);
+                } else {
+                    sql.append("`").append(whereCondition.columnName).append("`");
+                    sql.append(whereCondition.expression.expression);
+                    if (StrUtil.equalsAny(whereCondition.expression.name, Expression.In.name, Expression.NotIn.name)) {
+                        if (ArrayUtil.isArray(whereCondition.value)) {
+                            sql.append(LEFT_BRACKETS);
+                            Object[] whereConditionValues = (Object[]) whereCondition.value;
+                            List<Object> values = new ArrayList<>();
+                            for (Object o : whereConditionValues) {
+                                if (o instanceof Collection<?>) {
+                                    values.addAll((Collection<?>) o);
+                                } else {
+                                    values.add(o);
+                                }
+                            }
+                            values = values.stream().distinct().collect(Collectors.toList());
+                            Object[] wrap = ArrayUtil.wrap(values.toArray());
+                            for (int j = 0; j < wrap.length; j++) {
+                                Object object = wrap[j];
+                                packParam(sql, paramMap, object, paramIndex);
+                                if (j != wrap.length - 1) {
+                                    sql.append(StrUtil.C_COMMA);
+                                }
+                            }
+                            sql.append(RIGHT_BRACKETS);
+                        }
+                    } else {
+                        packParam(sql, paramMap, whereCondition.value, paramIndex);
+                    }
                 }
             }
             for (FastMapperParam.Bracket bracket : brackets) {

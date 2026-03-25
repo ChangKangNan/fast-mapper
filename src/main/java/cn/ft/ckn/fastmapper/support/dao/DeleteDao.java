@@ -8,6 +8,7 @@ import cn.ft.ckn.fastmapper.util.sql.PackageSqlUtil;
 import cn.hutool.core.util.StrUtil;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -41,6 +42,10 @@ public class DeleteDao<T,R> extends BaseDao<R>{
 
     public R or() {
         FastMapperParam.get().isAnd = false;
+        return (R) this;
+    }
+    private R and() {
+        FastMapperParam.get().isAnd = true;
         return (R)this;
     }
 
@@ -63,11 +68,37 @@ public class DeleteDao<T,R> extends BaseDao<R>{
         return (R)this;
     }
 
-    public R sql(Consumer<R> consumer) {
+    public R andSql(Consumer<R> consumer) {
+        and();
         bracketPrefix();
         consumer.accept((R) this);
         bracketSuffix();
         return (R)this;
+    }
+
+    public R andSql(String sql, Map<String,Object> params) {
+        and();
+        bracketPrefix();
+        FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(sql, params, FastMapperParam.get().isAnd));
+        bracketSuffix();
+        return (R)this;
+    }
+
+
+    public R orSql(Consumer<R> consumer) {
+        or();
+        bracketPrefix();
+        consumer.accept((R) this);
+        bracketSuffix();
+        return (R)this;
+    }
+
+    public R orSql(String sql, Map<String, Object> params) {
+        or();
+        bracketPrefix();
+        FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(sql, params, FastMapperParam.get().isAnd));
+        bracketSuffix();
+        return (R) this;
     }
 
 }
