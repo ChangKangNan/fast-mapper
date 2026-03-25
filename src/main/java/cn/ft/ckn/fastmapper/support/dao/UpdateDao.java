@@ -92,7 +92,7 @@ public class UpdateDao<T, R> extends BaseDao<R> {
                 exist = true;
                 String pk = fieldAnnotation != null ? fieldAnnotation.name() : field.getName();
                 Object value = ReflectUtil.getFieldValue(t, field.getName());
-                FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(pk, value, Expression.Equal.expression, FastMapperParam.get().isAnd));
+                FastMapperParam.get().getWhereCondition().add(new FastMapperParam.WhereCondition(pk, value, Expression.Equal, FastMapperParam.get().isAnd));
                 break;
             }
         }

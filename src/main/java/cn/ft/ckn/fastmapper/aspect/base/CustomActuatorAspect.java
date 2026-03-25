@@ -73,7 +73,7 @@ public class CustomActuatorAspect implements MapperExpander {
                     , FastMapperParam.OperationType.SELECT.name()
                     , FastMapperParam.OperationType.DELETE.name())) {
                 List<FastMapperParam.WhereCondition> whereConditions = param.getWhereCondition();
-                whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, field.conditionLink().expression, true));
+                whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, field.conditionLink(), true));
             }
 
         }

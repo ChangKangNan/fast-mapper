@@ -110,7 +110,7 @@ public class PackageSqlUtil {
                 Object in = insertList.get(0);
                 Object fieldValue = BeanUtil.getFieldValue(in, fieldName);
                 if (fieldValue != null) {
-                    sql.append(fieldToColumn.get(fieldName)).append(EQUAL);
+                    sql.append("`").append(fieldToColumn.get(fieldName)).append("`").append(EQUAL);
                     packParam(sql, paramMap, fieldValue, paramIndex).append(StrUtil.C_COMMA);
                 }
             }
@@ -118,7 +118,7 @@ public class PackageSqlUtil {
         } else {
             sql.append(LEFT_BRACKETS);
             List<String> showFields = tableMapper.getShowFields();
-            List<String> columns = showFields.stream().map(fieldToColumn::get).collect(Collectors.toList());
+            List<String> columns = showFields.stream().map(field -> "`" + fieldToColumn.get(field) + "`").collect(Collectors.toList());
             sql.append(String.join(StrUtil.COMMA, columns));
             sql.append(RIGHT_BRACKETS).append(VALUES).append(CRLF);
             for (int i = 0; i < insertList.size(); i++) {
@@ -166,9 +166,6 @@ public class PackageSqlUtil {
             if (!hasField(fastMapperParam.getTableMapper().getObjClass(), whereCondition.columnName)) {
                 continue;
             }
-            if ((!StrUtil.equalsAnyIgnoreCase(whereCondition.expression, Expression.IsNull.expression, Expression.IsNotNull.expression)) && whereCondition.value == null) {
-                continue;
-            }
             if (i != 0) {
                 sql.append(CRLF);
                 if (whereCondition.isAnd) {
@@ -188,16 +185,39 @@ public class PackageSqlUtil {
                 sql.append(CRLF);
                 break;
             }
-            sql.append(whereCondition.columnName);
-            sql.append(StrUtil.SPACE);
-            sql.append(whereCondition.expression);
-            if (StrUtil.equalsAnyIgnoreCase(whereCondition.expression, Expression.IsNull.expression, Expression.IsNotNull.expression)) {
+
+            if (StrUtil.equalsAnyIgnoreCase(whereCondition.expression.name, Expression.IsNull.name, Expression.IsNotNull.name)) {
+                sql.append("`").append(whereCondition.columnName).append("`");
+                sql.append(StrUtil.SPACE);
+                sql.append(whereCondition.expression.expression);
                 sql.append(StrUtil.SPACE);
                 continue;
             }
-            sql.append(StrUtil.SPACE);
-            if (!Expression.Like.expression.equals(whereCondition.expression)) {
-                if (StrUtil.equalsAny(whereCondition.expression, Expression.In.expression, Expression.NotIn.expression)) {
+
+            if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Match.name, Expression.NotMatch.name)) {
+                sql.append(whereCondition.expression.name).append("(").append("`").append(whereCondition.columnName).append("`").append(")");
+                sql.append(StrUtil.SPACE);
+                sql.append(whereCondition.expression.expression);
+                sql.append("(");
+                packParam(sql, paramMap, whereCondition.value, paramIndex);
+                sql.append(")");
+            } else if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Between.name, Expression.NotBetween.name)) {
+                sql.append("`").append(whereCondition.columnName).append("`");
+                sql.append(whereCondition.expression.expression);
+                packParam(sql, paramMap, whereCondition.minValue, paramIndex);
+                sql.append(StrUtil.SPACE);
+                sql.append(AND);
+                sql.append(StrUtil.SPACE);
+                packParam(sql, paramMap, whereCondition.maxValue, paramIndex);
+            } else if (StrUtil.equals(whereCondition.expression.name, Expression.Like.name)) {
+                sql.append("`").append(whereCondition.columnName).append("`");
+                sql.append(StrUtil.SPACE);
+                sql.append(whereCondition.expression.expression);
+                packParam(sql, paramMap, "%" + whereCondition.value + "%", paramIndex);
+            } else {
+                sql.append("`").append(whereCondition.columnName).append("`");
+                sql.append(whereCondition.expression.expression);
+                if (StrUtil.equalsAny(whereCondition.expression.name, Expression.In.name, Expression.NotIn.name)) {
                     if (ArrayUtil.isArray(whereCondition.value)) {
                         sql.append(LEFT_BRACKETS);
                         Object[] whereConditionValues = (Object[]) whereCondition.value;
@@ -223,8 +243,6 @@ public class PackageSqlUtil {
                 } else {
                     packParam(sql, paramMap, whereCondition.value, paramIndex);
                 }
-            } else {
-                packParam(sql, paramMap, "%" + whereCondition.value + "%", paramIndex);
             }
             for (FastMapperParam.Bracket bracket : brackets) {
                 Integer rightIndex = bracket.getRightIndex();
@@ -272,7 +290,7 @@ public class PackageSqlUtil {
             if (!hasField(tableMapper.getObjClass(), value.columnName)) {
                 continue;
             }
-            sql.append(value.columnName).append(EQUAL);
+            sql.append("`").append(value.columnName).append("`").append(EQUAL);
             if (value.value == "null") {
                 sql.append("null");
             } else {
@@ -300,7 +318,7 @@ public class PackageSqlUtil {
             if (!hasField(fastMapperParam.getTableMapper().getObjClass(), orderByCondition.get(i).orderByName)) {
                 continue;
             }
-            sql.append(orderByCondition.get(i).orderByName);
+            sql.append("`").append(orderByCondition.get(i).orderByName).append("`");
             sql.append(StrUtil.SPACE);
             sql.append(orderByCondition.get(i).sequence);
             if (i != orderByCondition.size() - 1) {
@@ -319,14 +337,14 @@ public class PackageSqlUtil {
         FastTableMapper<?> tableMapper = FastMapperParam.getTableMapper();
         Map<String, String> fieldToColumn = tableMapper.getFieldToColumn();
         List<String> showFields = tableMapper.getShowFields();
-        String columns = showFields.stream().map(fieldToColumn::get).collect(Collectors.joining(","));
+        String columns = showFields.stream().map(field -> "`" + fieldToColumn.get(field) + "`").collect(Collectors.joining(","));
         sql.append(columns).append(StrUtil.SPACE).append(FROM).append(StrUtil.SPACE).append(tableMapper.getTableName());
         return sql;
     }
 
     public static StrBuilder countSql(FastMapperParam<?> FastMapperParam) {
         FastTableMapper<?> tableMapper = FastMapperParam.getTableMapper();
-        return StrUtil.strBuilder(SELECT).append(StrUtil.SPACE).append("COUNT(1) AS counts").append(StrUtil.SPACE).append(FROM).append(StrUtil.SPACE).append(tableMapper.getTableName());
+        return StrUtil.strBuilder(SELECT).append(StrUtil.SPACE).append("COUNT(1) AS `counts`").append(StrUtil.SPACE).append(FROM).append(StrUtil.SPACE).append(tableMapper.getTableName());
     }
 
     public static void limit(StrBuilder sqlBuilder, FastMapperParam<?> param) {

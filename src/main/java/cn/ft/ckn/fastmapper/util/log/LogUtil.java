@@ -1,13 +1,8 @@
 package cn.ft.ckn.fastmapper.util.log;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.Date;
@@ -64,7 +59,6 @@ public class LogUtil {
      * @return 格式化后的 SQL
      */
     public static String printSql(String sql, Map<String, Object> params) {
-        cn.hutool.log.Log log = cn.hutool.log.LogFactory.get(FastMapperParam.get().getTableMapper().getTableName());
         if (params != null && !params.isEmpty()) {
             // 使用正则精确替换 :param
             for (Map.Entry<String, Object> entry : params.entrySet()) {
@@ -74,12 +68,7 @@ public class LogUtil {
                 sql = sql.replaceAll(regex, Matcher.quoteReplacement(value) + "$1");
             }
         }
-        try {
-            return SQLUtils.formatMySql(sql);
-        } catch (Exception e) {
-            log.warn("SQL格式化失败: " + e.getMessage());
-            return sql;
-        }
+        return sql;
     }
 
 

@@ -1,5 +1,6 @@
 package cn.ft.ckn.fastmapper.bean;
 
+import cn.ft.ckn.fastmapper.bean.em.Expression;
 import cn.hutool.core.collection.CollUtil;
 import io.netty.util.concurrent.FastThreadLocal;
 import lombok.Builder;
@@ -224,15 +225,24 @@ public class FastMapperParam<T> {
     }
 
     public static class WhereCondition {
-        public String expression;
+        public Expression expression;
         public String columnName;
         public Object value;
         public Boolean isAnd;
-        public WhereCondition(String columnName, Object value, String expression,Boolean isAnd) {
+        public Object minValue;
+        public Object maxValue;
+        public WhereCondition(String columnName, Object value, Expression expression,Boolean isAnd) {
             this.expression = expression;
             this.columnName = columnName;
             this.value = value;
             this.isAnd=isAnd;
+        }
+        public WhereCondition(String columnName, Object minValue, Object maxValue, Expression expression,Boolean isAnd) {
+            this.expression = expression;
+            this.columnName = columnName;
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            this.isAnd = isAnd;
         }
     }
 

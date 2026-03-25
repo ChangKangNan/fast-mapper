@@ -21,6 +21,8 @@ public enum Expression {
     OrderBy("orderBy"," ORDER BY "),
     LeftBracket("leftBracket", " ( "),
     RightBracket("rightBracket", " ) "),
+    Match(" MATCH", " AGAINST"),
+    NotMatch(" NOT MATCH", " AGAINST"),
     LineSeparator("lineSeparator",System.lineSeparator());
     public String name;
     public String expression;
