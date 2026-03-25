@@ -130,7 +130,7 @@ public class LogUtil {
             return "执行结果: 0";
         }
         if(val instanceof Collection && ((Collection<?>) val).isEmpty()){
-            return "执行结果: 0";
+            return "执行结果: []";
         }
         return "执行结果: " + (val instanceof Integer ? val : JSONObject.toJSONString(val));
     }
