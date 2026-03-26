@@ -34,7 +34,7 @@ public class PackageSqlUtil {
     public static final String CRLF = System.lineSeparator();
     public static final String WHERE = "WHERE";
     public static final String LIKE = "LIKE";
-    public static final String AND = "and";
+    public static final String AND = "AND";
 
     public static final String WHERE_PARAM_TYPE = "where_param_";
     public static final String UPDATE_PARAM_TYPE = "update_param_";
@@ -167,7 +167,17 @@ public class PackageSqlUtil {
                 continue;
             }
             if (i != 0) {
-                sql.append(CRLF);
+                int finalI = i;
+                boolean needSpace = false;
+                long l = brackets.stream().filter(f -> finalI > f.getLeftIndex() && finalI <= f.getRightIndex()).count();
+                if (l > 0) {
+                    needSpace = true;
+                }
+                if(needSpace){
+                    sql.append(StrUtil.SPACE);
+                }else {
+                    sql.append(CRLF);
+                }
                 if (whereCondition.isAnd) {
                     sql.append(AND);
                 } else {
@@ -182,7 +192,6 @@ public class PackageSqlUtil {
                     continue;
                 }
                 sql.append(LEFT_BRACKETS);
-                sql.append(CRLF);
             }
 
             if (whereCondition.sql != null) {
@@ -253,7 +262,6 @@ public class PackageSqlUtil {
                 if (rightIndex != i) {
                     continue;
                 }
-                sql.append(CRLF);
                 sql.append(RIGHT_BRACKETS);
             }
         }
