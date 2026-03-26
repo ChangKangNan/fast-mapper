@@ -74,9 +74,9 @@ public class JoinManager {
 
         String cols = CollUtil.isEmpty(params.columns) ? "*" : columns;
         StringBuilder sqlBuilder = new StringBuilder(SELECT)
-                .append(Expression.LineSeparator.expression)
+                .append(System.lineSeparator())
                 .append(cols)
-                .append(Expression.LineSeparator.expression)
+                .append(System.lineSeparator())
                 .append(FROM)
                 .append(StrUtil.SPACE)
                 .append(params.mainTable);
@@ -87,7 +87,7 @@ public class JoinManager {
                     .append(StrUtil.SPACE)
                     .append(main_alias);
         }
-        sqlBuilder.append(Expression.LineSeparator.expression);
+        sqlBuilder.append(System.lineSeparator());
         if (CollUtil.isNotEmpty(tables)) {
             for (String table : tables) {
                 Map<String, String> map = params.joins.get(table);
@@ -116,7 +116,7 @@ public class JoinManager {
                             .append(StrUtil.toUnderlineCase(joinEntry.getValue()))
                             .append(StrUtil.SPACE);
                 }
-                sqlBuilder.append(Expression.LineSeparator.expression);
+                sqlBuilder.append(System.lineSeparator());
             }
         }
         if (MapUtil.isNotEmpty(params.where)) {
@@ -126,7 +126,7 @@ public class JoinManager {
             for (Map.Entry<String, Object> whereEntry : params.where.entrySet()) {
                 i++;
                 if (i != 1) {
-                    sqlBuilder.append(Expression.LineSeparator.expression);
+                    sqlBuilder.append(System.lineSeparator());
                     sqlBuilder.append(AND);
                     sqlBuilder.append(StrUtil.SPACE);
                 }

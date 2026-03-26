@@ -22,8 +22,7 @@ public enum Expression {
     LeftBracket("leftBracket", " ( "),
     RightBracket("rightBracket", " ) "),
     Match(" MATCH", " AGAINST"),
-    NotMatch(" NOT MATCH", " AGAINST"),
-    LineSeparator("lineSeparator",System.lineSeparator());
+    NotMatch(" NOT MATCH", " AGAINST");
     public String name;
     public String expression;
 
