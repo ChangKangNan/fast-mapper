@@ -35,7 +35,7 @@ public class TransactionExecutor {
         if (CollUtil.isEmpty(tasks)) {
             return;
         }
-        log.info("多线程全局事务开始执行.................");
+        log.info("--------------Start global transaction---------------");
         TransactionStatus transactionStatus = TransactionStatus.build();
         int size = tasks.size();
         ExecutorService taskThreadPool = Executors.newFixedThreadPool(size);
@@ -101,9 +101,9 @@ public class TransactionExecutor {
         mainLatch.countDown();
         taskThreadPool.shutdown(); //关闭线程池
         if (transactionStatus.getIsError()) {
-            log.info("多线程全局事务回滚完毕.................");
+            log.info("--------------Global transaction rollback completed upon error---------------");
         } else {
-            log.info("多线程全局事务执行完毕.................");
+            log.info("--------------Global transaction has been completed---------------");
         }
     }
 }

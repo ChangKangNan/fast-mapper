@@ -10,7 +10,6 @@ import java.sql.Connection;
 public @interface LocalTransactional {
     /**
      * 事务隔离级别限制
-     * @return
      */
     int isolation() default Connection.TRANSACTION_REPEATABLE_READ;
 }
