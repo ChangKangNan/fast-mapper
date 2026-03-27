@@ -1,18 +1,20 @@
-# Fast Mapper 操作手册
+# Fast Mapper 操作手册（内部版）
 
-## 1. 适用范围
+> 面向项目维护者、开发者、测试与排障人员。  
+> 对外精简说明请查看 `OPERATION_MANUAL_PUBLIC.md`。
 
-本手册用于指导 `fast-mapper` 的日常接入、开发与排障，适用于：
+## 1. 文档目标
 
-- 使用 JDK 1.8+ 的 Java 项目
-- 基于 Spring/Spring Boot 的 MySQL 访问场景
-- 需要快速完成单表 CRUD、条件构造、多表 Join、跨数据源与本地事务支持的项目
+本文档用于统一 `fast-mapper` 的接入、使用、发布与排障流程，避免因版本差异、配置遗漏或使用方式不一致导致的问题。
 
----
+## 2. 环境与依赖
 
-## 2. 快速开始
+- JDK：1.8+
+- 数据库：MySQL 5.7/8.x
+- 推荐连接池：Druid
+- 构建工具：Maven
 
-### 2.1 Maven 依赖
+核心依赖示例：
 
 ```xml
 <dependency>
@@ -22,13 +24,21 @@
 </dependency>
 ```
 
-### 2.2 基础环境
+## 3. 接入流程（标准步骤）
 
-- JDK 1.8+
-- MySQL 5.7/8.x
-- 推荐连接池：Druid
+### 步骤 1：引入依赖
 
-### 2.3 启用数据源（示例）
+在业务服务的 `pom.xml` 添加 `fast-mapper`（或 starter 版本）。
+```xml
+<dependency>
+    <groupId>cn.ft.ckn</groupId>
+    <artifactId>fast-mapper-spring-boot-starter</artifactId>
+    <version>2.7.18</version>
+</dependency>
+```
+### 步骤 2：准备数据源
+
+保持项目已有数据源配置即可（如 Druid + Spring Boot 自动装配）。
 
 ```java
 @Configuration
@@ -41,9 +51,7 @@ public class DruidConfig {
 }
 ```
 
----
-
-## 3. 配置说明
+### 步骤 3：启用框架配置
 
 `application.yml` 示例：
 
@@ -65,17 +73,7 @@ fast:
       - path: com.example.config.UpdateTime
 ```
 
-关键配置项：
-
-- `open-sql-print`：是否打印 SQL
-- `dao-actuator`：底层执行器，常用 `jdbc`
-- `open-logic-deleted-auto`：逻辑删除开关
-- `logic-deleted-*`：逻辑删除字段及默认/删除值
-- `supports`：扩展能力开关（如事务、SQL 扩展）
-
----
-
-## 4. 常用操作
+## 4. 核心能力使用
 
 ### 4.1 查询
 
@@ -97,17 +95,14 @@ StudentMapper.lambdaUpdate()
     .execute();
 ```
 
-### 4.3 删除
+### 4.3 删除（逻辑删除与物理删除）
 
 ```java
-// 物理删除（关闭删除保护）
-StudentMapper.lambdaDelete().id().notIn(ids).closeDeletedProtect().delete();
-
-// 逻辑删除（开启逻辑删除配置时）
-StudentMapper.lambdaDelete().id().notIn(ids).delete();
+StudentMapper.lambdaDelete().id().notIn(ids).delete(); // 逻辑删除
+StudentMapper.lambdaDelete().id().notIn(ids).closeDeletedProtect().delete(); // 物理删除
 ```
 
-### 4.4 多表关联查询
+### 4.4 多表 Join
 
 ```java
 List<Map<String, Object>> maps = new JoinCustomer(Student.class, "s")
@@ -121,21 +116,22 @@ List<Map<String, Object>> maps = new JoinCustomer(Student.class, "s")
     .find();
 ```
 
-> 说明：`lastWhere` 会自动识别是否已有 `WHERE`，避免重复拼接。
+说明：
 
-### 4.5 本地 SQL 执行
+- `leftJoin/rightJoin/innerJoin` 均可链式调用
+- `lastWhere` 已支持避免重复 `WHERE`，已有条件时自动拼接 `AND`
+- 推荐在多表场景统一使用 alias，减少字段歧义
+
+### 4.5 自定义 SQL（SqlExecutor）
 
 ```java
 List<Stu> list = SqlExecutor.build().select(sql, Stu.class);
-int rows = SqlExecutor.build().execute(updateSql);
-SqlExecutor.build().executeBatch(sqlList);
+List<Map<String, Object>> rows = SqlExecutor.build().select(sql, new HashMap<String, Object>());
+int updated = SqlExecutor.build().execute(updateSql);
+SqlExecutor.build().executeBatch(sqlBatch);
 ```
 
----
-
-## 5. 跨数据源与事务
-
-### 5.1 跨数据源
+### 4.6 跨数据源
 
 ```java
 SqlExecutor.build()
@@ -143,12 +139,26 @@ SqlExecutor.build()
     .execute("update student set name='A' where id=1");
 ```
 
-### 5.2 本地事务
+## 5. 扩展点
 
-- 在配置中启用 `transaction` 支持
-- 在方法上增加 `@LocalTransactional`
+### 5.1 扩展字段（AbstractField）
 
----
+典型场景：创建时间、更新时间、逻辑删除字段自动补充。
+
+实现要求：
+
+- 继承 `AbstractField`
+- 实现 `fieldName/check/defaultVal/strategy`
+- 通过配置注册到 `fast.mapper.fields`
+
+### 5.2 业务扩展（MapperExpander）
+
+典型场景：审计日志、统一链路记录、前后置处理。
+
+实现要求：
+
+- 继承 `MapperExpander`
+- 在配置中调用 `FastMapperConfig.addMapperExpander(...)`
 
 ## 6. 代码生成（可选）
 
@@ -161,44 +171,61 @@ GenerateConfig config = GenerateConfig.builder()
 GenerateUtil.generate(config);
 ```
 
----
+## 7. 已完成的关键优化点（当前分支）
 
-## 7. 常见问题与排障
+- 修复 `JoinTb.rightJoin/innerJoin` 分派错误
+- 修复 `JoinManager` where/alias 拼接问题
+- 修复 `in()` 条件误用 `NOT IN` 的语义错误
+- 优化 `lastWhere` 重复 `WHERE` 问题
+- 强化 `DataSourceRunner` 异常场景 `finally` 解绑
+- 优化从库模板 key 生成与缓存稳定性
+- 清理部分 raw type 并补齐泛型链路
+- 增加回归测试覆盖（Join、Criteria、SQL、DataSource）
 
-### 7.1 泛型/类型报错（如 `setObjClass`）
+## 8. 常见问题与排障
 
-- 原因：`FastMapperParam`/`FastTableMapper` 泛型更严格后，调用方使用原始类型
-- 处理：优先声明泛型变量，必要时在单点使用受控 `@SuppressWarnings("unchecked")`
+### 8.1 泛型报错（`setObjClass`/`List<?>`）
 
-### 7.2 Join SQL 条件异常
+原因：调用链未声明泛型，或返回值被推断为通配符。  
+处理：优先声明类型变量，必要时在单点增加受控 `@SuppressWarnings("unchecked")`。
 
-- 检查 `alias` 与 `where` 是否对应
-- 检查 `lastWhere` 参数名是否与 SQL 中占位符一致
+### 8.2 Join 结果不符合预期
 
-### 7.3 从库模板缓存错用
+- 检查表 alias 与 where 字段引用是否一致
+- 检查 `lastWhere` 片段与参数 key 是否一致
+- 检查 join key 对应字段是否映射正确
 
-- 确保不同 `DataSource` 能生成不同 key
-- 已内置 fallback，避免空 key 导致缓存冲突
+### 8.3 多数据源串库/缓存错用
 
-### 7.4 线程上下文污染
+- 检查调用链是否正确设置从库
+- 检查线程上下文是否被清理
+- 检查 dataSource key 生成是否稳定
 
-- 使用跨数据源操作后建议调用对应清理逻辑
-- 事务/执行器内部应保证异常场景 `finally` 清理
+### 8.4 SQL 不打印或日志不全
 
----
+- 检查 `open-sql-print` 配置
+- 检查日志级别与日志实现（slf4j provider）
 
-## 8. 验证命令
+## 9. 验证与发布清单
+
+### 9.1 本地验证命令
 
 ```bash
 mvn -q -DskipTests compile
 mvn -q test
 ```
 
----
+### 9.2 发布前检查
 
-## 9. 推荐团队规范
+- 代码编译通过
+- 单元测试通过
+- README 文档入口已更新
+- 对外文档与内部文档已同步
+- 无新增高优先级 lint 报错
 
-- 新增能力必须补充测试（至少覆盖成功路径 + 边界路径）
-- 所有 SQL 构建修复都应增加回归用例
-- 尽量避免 raw type，统一使用泛型接口（`Map`、`List<?>`）
+## 10. 文档索引
+
+- 对外版：`OPERATION_MANUAL_PUBLIC.md`
+- 内部版：`OPERATION_MANUAL.md`
+- 快速入口：`README.md`
 

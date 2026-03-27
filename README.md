@@ -1,7 +1,7 @@
 # 软件定位
 简化操作 MySQL数据库的JAVA ROM框架
 
-**文档**：[对外使用说明](OPERATION_MANUAL_PUBLIC.md) · [内部操作手册](OPERATION_MANUAL.md)
+**文档**：[对外使用说明](OPERATION_MANUAL_PUBLIC.md) · [内部操作手册](OPERATION_MANUAL.md) · [文档变更记录](CHANGELOG_DOC.md)
 # 添加springboot支持
 ```
         <dependency>
@@ -66,36 +66,46 @@ fast:
 ## 扩展字段书写方式
 ```
 /**
- * 1.需要继承AbstractField类
+ * 1.需要继承AbstractMapperField类
  * 2.defaultVal为每次填充的默认值
- * 3.fieldName字段名
- * 4.check校验基于操作方式填充
- * 5.strategy设置填充的地方比如是过滤条件(搜索或者更新时进行额外数据过滤)、实体填充(插入或更新,删除额外更新一些值)
+ * 3.columnName数据库字段名
+ * 4.conditionLink 连接方式 默认Equal
+ * 5.columnConditionFormatterName 格式化后的查询条件名称
+ * 6.当为拼接条件Occasion.CONDITION时,默认生成mapper的字段查询条件优先级最高，会覆盖全局的默认拼接配置
+ * 7.strategy设置填充的地方比如是过滤条件(搜索或者更新时进行额外数据过滤)、实体填充(插入或更新,删除额外更新一些值)
  */
-public class CreateTime extends AbstractField {
-
+public class StockTime extends AbstractMapperField {
+    /**
+     * 定义策略
+     */
     @Override
-    public String fieldName() {
-        return "create_time";
+    public Map<FastMapperParam.OperationType, Occasion> strategy() {
+        return new EnumMap<FastMapperParam.OperationType, Occasion>(FastMapperParam.OperationType.class)
+        {{
+            put(FastMapperParam.OperationType.SELECT, Occasion.CONDITION);
+            put(FastMapperParam.OperationType.SELECTLIST, Occasion.CONDITION);
+            put(FastMapperParam.OperationType.UPDATE, Occasion.CONDITION);
+        }};
     }
 
     @Override
-    public boolean check(FastMapperParam param) {
-        FastMapperParam.OperationType operationType = param.getOperationType();
-        return param.getSource() == FastMapperParam.ActionSource.MAPPER && StrUtil.equals(operationType.name(), FastMapperParam.OperationType.INSERT.name());
+    public String columnName() {
+        return "stock_time";
+    }
+
+    @Override
+    public Expression conditionLink(){
+        return Expression.Equal;
+    }
+
+    @Override
+    public String columnConditionFormatterName(){
+        return "year(stock_time)";
     }
 
     @Override
     public Object defaultVal() {
-        return new Date();
-    }
-
-    
-    @Override
-    public Map<FastMapperParam.OperationType, AddOccasion> strategy() {
-        return new HashMap<FastMapperParam.OperationType, AddOccasion>() {{
-            put(FastMapperParam.OperationType.INSERT, AddOccasion.OBJECT);
-        }};
+        return DateUtil.year(DateUtil.date());
     }
 }
 ```
