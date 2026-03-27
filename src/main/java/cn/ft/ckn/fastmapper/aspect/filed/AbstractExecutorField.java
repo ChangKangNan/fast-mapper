@@ -9,6 +9,6 @@ import cn.ft.ckn.fastmapper.util.exe.SqlExecutor;
 public abstract class AbstractExecutorField extends AbstractField{
     @Override
     public boolean checkGlobal(FastMapperParam param) {
-        return param.getSource() == FastMapperParam.ActionSource.EXECUTOR && super.checkGlobal(param);
+        return param.getSource() == FastMapperParam.ActionSource.EXECUTOR;
     }
 }

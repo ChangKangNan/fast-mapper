@@ -198,8 +198,13 @@ public class PackageSqlUtil {
                 sql.append(whereCondition.sql);
                 paramMap.putAll(whereCondition.params);
             }else {
+                String linkColumnName = "`" + whereCondition.columnName + "`";
+                Boolean formatter = whereCondition.formatter;
+                if (formatter) {
+                    linkColumnName = whereCondition.formatterColumnName;
+                }
                 if (StrUtil.equalsAnyIgnoreCase(whereCondition.expression.name, Expression.IsNull.name, Expression.IsNotNull.name)) {
-                    sql.append("`").append(whereCondition.columnName).append("`");
+                    sql.append(linkColumnName);
                     sql.append(StrUtil.SPACE);
                     sql.append(whereCondition.expression.expression);
                     sql.append(StrUtil.SPACE);
@@ -207,14 +212,14 @@ public class PackageSqlUtil {
                 }
 
                 if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Match.name, Expression.NotMatch.name)) {
-                    sql.append(whereCondition.expression.name).append(LEFT_BRACKETS).append("`").append(whereCondition.columnName).append("`").append(RIGHT_BRACKETS);
+                    sql.append(whereCondition.expression.name).append(LEFT_BRACKETS).append(linkColumnName).append(RIGHT_BRACKETS);
                     sql.append(StrUtil.SPACE);
                     sql.append(whereCondition.expression.expression);
                     sql.append(LEFT_BRACKETS);
                     packParam(sql, paramMap, whereCondition.value, paramIndex);
                     sql.append(RIGHT_BRACKETS);
                 } else if (StrUtil.equalsAny(whereCondition.expression.name, Expression.Between.name, Expression.NotBetween.name)) {
-                    sql.append("`").append(whereCondition.columnName).append("`");
+                    sql.append(linkColumnName);
                     sql.append(whereCondition.expression.expression);
                     packParam(sql, paramMap, whereCondition.minValue, paramIndex);
                     sql.append(StrUtil.SPACE);
@@ -222,12 +227,12 @@ public class PackageSqlUtil {
                     sql.append(StrUtil.SPACE);
                     packParam(sql, paramMap, whereCondition.maxValue, paramIndex);
                 } else if (StrUtil.equals(whereCondition.expression.name, Expression.Like.name)) {
-                    sql.append("`").append(whereCondition.columnName).append("`");
+                    sql.append(linkColumnName);
                     sql.append(StrUtil.SPACE);
                     sql.append(whereCondition.expression.expression);
                     packParam(sql, paramMap, "%" + whereCondition.value + "%", paramIndex);
                 } else {
-                    sql.append("`").append(whereCondition.columnName).append("`");
+                    sql.append(linkColumnName);
                     sql.append(whereCondition.expression.expression);
                     if (StrUtil.equalsAny(whereCondition.expression.name, Expression.In.name, Expression.NotIn.name)) {
                         if (ArrayUtil.isArray(whereCondition.value)) {

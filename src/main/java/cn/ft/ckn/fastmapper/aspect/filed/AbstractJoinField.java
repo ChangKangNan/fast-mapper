@@ -9,6 +9,6 @@ import cn.ft.ckn.fastmapper.join.JoinCustomer;
 public abstract class AbstractJoinField extends AbstractField{
     @Override
     public boolean checkGlobal(FastMapperParam param) {
-        return param.getSource() == FastMapperParam.ActionSource.JOIN && super.checkGlobal(param);
+        return param.getSource() == FastMapperParam.ActionSource.JOIN;
     }
 }

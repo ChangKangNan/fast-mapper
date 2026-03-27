@@ -8,6 +8,6 @@ import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 public abstract class AbstractMapperField extends AbstractField{
     @Override
     public boolean checkGlobal(FastMapperParam param) {
-        return param.getSource() == FastMapperParam.ActionSource.MAPPER && super.checkGlobal(param);
+        return param.getSource() == FastMapperParam.ActionSource.MAPPER;
     }
 }

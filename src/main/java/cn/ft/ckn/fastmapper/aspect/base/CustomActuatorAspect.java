@@ -45,7 +45,7 @@ public class CustomActuatorAspect implements MapperExpander {
         }
 
         for (AbstractField field : FastMapperConfig.addFieldList) {
-            String fieldName = field.fieldName();
+            String fieldName = field.columnName();
             Object val = field.defaultVal();
             Map<FastMapperParam.OperationType, Occasion> strategy = field.strategy();
             Occasion occasion = strategy.get(param.getOperationType());
@@ -88,7 +88,17 @@ public class CustomActuatorAspect implements MapperExpander {
                     , FastMapperParam.OperationType.SELECT.name()
                     , FastMapperParam.OperationType.DELETE.name())) {
                 List<FastMapperParam.WhereCondition> whereConditions = param.getWhereCondition();
-                whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, field.conditionLink(), true));
+                String conditionFormatterName = field.columnConditionFormatterName();
+                String columnName = field.columnName();
+                boolean match = whereConditions.stream().filter(f -> f.columnName != null).anyMatch(w -> w.columnName.equals(columnName));
+                if (match) {
+                    continue;
+                }
+                if (StrUtil.equals(columnName, conditionFormatterName)) {
+                    whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, field.conditionLink(), true));
+                } else {
+                    whereConditions.add(new FastMapperParam.WhereCondition(fieldName, val, field.conditionLink(), conditionFormatterName, true, true));
+                }
             }
 
         }
