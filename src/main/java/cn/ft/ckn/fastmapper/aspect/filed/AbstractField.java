@@ -2,6 +2,8 @@ package cn.ft.ckn.fastmapper.aspect.filed;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.em.Expression;
+import cn.ft.ckn.fastmapper.bean.em.FillConditionStrategy;
+import cn.ft.ckn.fastmapper.bean.em.FillObjStrategy;
 import cn.ft.ckn.fastmapper.join.JoinCustomer;
 import cn.ft.ckn.fastmapper.util.exe.SqlExecutor;
 
@@ -24,12 +26,17 @@ public abstract class AbstractField {
     public abstract Object defaultVal();
 
     /**
-     * FastMapperParam.OperationType 为对应操作的 point
-     *  * Occasion.OBJECT 插入对象
-     *  * Occasion.CONDITION 作为条件拼接
+     * 填充对象{@link FillObjStrategy}
      * @return 对应执行策略
      */
-    public abstract Map<FastMapperParam.OperationType,Occasion> strategy();
+    public FillObjStrategy fillObjStrategy(){return FillObjStrategy.NON;}
+
+    /**
+     * 填充条件{@link FillConditionStrategy}
+     * @return 对应执行策略
+     */
+    public  FillConditionStrategy fillConditionStrategy(){return FillConditionStrategy.NON;}
+
 
     /**
      * @return 条件时 字段的连接方式，默认等于

@@ -71,23 +71,22 @@ fast:
  * 3.columnName数据库字段名
  * 4.conditionLink 连接方式 默认Equal
  * 5.columnConditionFormatterName 格式化后的查询条件名称
- * 6.当为拼接条件Occasion.CONDITION时,默认生成mapper的字段查询条件优先级最高，会覆盖全局的默认拼接配置
- * 7.strategy设置填充的地方比如是过滤条件(搜索或者更新时进行额外数据过滤)、实体填充(插入或更新,删除额外更新一些值)
+ * 6.当为拼接条件时,默认生成mapper的字段查询条件优先级最高，会覆盖全局的默认拼接配置
+ * 7.fillConditionStrategy 为填充条件策略(查询更新以及删除后面的条件 以给定默认值 defaultVal 为基准)
+ * 8.fillObjStrategy 为填充对象策略(插入以及更新额外的属性值附加  以给定默认值 defaultVal 为基准)
  */
 public class StockTime extends AbstractMapperField {
-    /**
-     * 定义策略
-     */
+
     @Override
-    public Map<FastMapperParam.OperationType, Occasion> strategy() {
-        return new EnumMap<FastMapperParam.OperationType, Occasion>(FastMapperParam.OperationType.class)
-        {{
-            put(FastMapperParam.OperationType.SELECT, Occasion.CONDITION);
-            put(FastMapperParam.OperationType.SELECTLIST, Occasion.CONDITION);
-            put(FastMapperParam.OperationType.UPDATE, Occasion.CONDITION);
-        }};
+    public FillConditionStrategy fillConditionStrategy() {
+        return FillConditionStrategy.SELECT_UPDATE_CONDITION;
     }
 
+    @Override
+    public FillObjStrategy fillObjStrategy() {
+        return FillObjStrategy.NON;
+    }
+    
     @Override
     public String columnName() {
         return "stock_time";
@@ -118,15 +117,22 @@ public class StockTime extends AbstractMapperField {
 ```
 StudentConfigMapper.lambdaQuery().name().equal("tony").one();//单个
 StudentConfigMapper.lambdaQuery().name().equal("tony").list();//集合
+Goods one = GoodsMapper.lambdaQuery()
+        .id().equal(2)
+        .orSql(b -> b.goodsName().equal("a").or().goodsQty().greater(2))
+        .one();//or 查询
+PageInfo<Goods> pageInfo = GoodsMapper.lambdaQuery()
+        .andSql(b -> b.goodsName().equal("a").or().goodsQty().greater(2))
+        .page(1, 10);// 分页查询
+
 ```
 ## 更新
 ```
 Student s = new Student();
 s.setHobby("music");
 StudentMapper.lambdaUpdate().id().equal(1).update(s);//更新对象
-
 StudentMapper.lambdaUpdate().id().equal(1).value().set(Student::getHobby,"music").execute();//更新单独的值
-
+GoodsMapper.lambdaUpdate().id().equal(3).value().setNull(Goods::getGoodsName).execute();//设置Null
 ```
 ## 删除
 ```

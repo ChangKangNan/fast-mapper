@@ -4,6 +4,8 @@ import cn.ft.ckn.fastmapper.aspect.filed.AbstractField;
 import cn.ft.ckn.fastmapper.aspect.filed.Occasion;
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.em.ExpanderOccasion;
+import cn.ft.ckn.fastmapper.bean.em.FillConditionStrategy;
+import cn.ft.ckn.fastmapper.bean.em.FillObjStrategy;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 import cn.ft.ckn.fastmapper.ex.MapperExpander;
 import cn.hutool.core.bean.BeanUtil;
@@ -24,7 +26,7 @@ public class CustomActuatorAspect implements MapperExpander {
             return true;
         }
 
-        boolean needGroup = FastMapperConfig.addFieldList.stream().anyMatch(f -> f.checkGlobal(param) && f.strategy().get(param.getOperationType()) == Occasion.CONDITION);
+        boolean needGroup = FastMapperConfig.addFieldList.stream().anyMatch(f -> f.checkGlobal(param) && condition(param,f.fillConditionStrategy()));
         List<FastMapperParam.WhereCondition> whereCondition = param.getWhereCondition();
         boolean isContainsOr = CollUtil.isEmpty(whereCondition);
         if (!isContainsOr) {
@@ -47,13 +49,14 @@ public class CustomActuatorAspect implements MapperExpander {
         for (AbstractField field : FastMapperConfig.addFieldList) {
             String fieldName = field.columnName();
             Object val = field.defaultVal();
-            Map<FastMapperParam.OperationType, Occasion> strategy = field.strategy();
-            Occasion occasion = strategy.get(param.getOperationType());
+            FillConditionStrategy fillConditionStrategy = field.fillConditionStrategy();
+            FillObjStrategy fillObjStrategy = field.fillObjStrategy();
+
             if (!field.checkGlobal(param)) {
                 continue;
             }
 
-            if (occasion == Occasion.OBJECT && StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.INSERT.name())) {
+            if (fillObjStrategy == FillObjStrategy.INSERT_OBJ && StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.INSERT.name())) {
                 List insertList = param.getInsertList();
                 Map<String, String> fieldToColumn = param.getTableMapper().getFieldToColumn();
                 String insertFillField = fieldName;
@@ -75,7 +78,7 @@ public class CustomActuatorAspect implements MapperExpander {
                 }
             }
 
-            if (occasion == Occasion.OBJECT && StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.UPDATE.name())) {
+            if ((fillObjStrategy == FillObjStrategy.UPDATE_OBJ || fillObjStrategy == FillObjStrategy.INSERT_UPDATE_OBJ) && StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.UPDATE.name())) {
                 List<FastMapperParam.Value> updateValueList = param.getUpdateValueList();
                 long exist = updateValueList.stream().filter(w -> StrUtil.equals(w.columnName, fieldName)).count();
                 if (exist == 0) {
@@ -83,10 +86,7 @@ public class CustomActuatorAspect implements MapperExpander {
                 }
             }
 
-            if (occasion == Occasion.CONDITION && StrUtil.equalsAny(param.getOperationType().name()
-                    , FastMapperParam.OperationType.UPDATE.name()
-                    , FastMapperParam.OperationType.SELECT.name()
-                    , FastMapperParam.OperationType.DELETE.name())) {
+            if (condition(param, fillConditionStrategy)) {
                 List<FastMapperParam.WhereCondition> whereConditions = param.getWhereCondition();
                 String conditionFormatterName = field.columnConditionFormatterName();
                 String columnName = field.columnName();
@@ -119,5 +119,12 @@ public class CustomActuatorAspect implements MapperExpander {
     @Override
     public List<ExpanderOccasion> occasion() {
         return ListUtil.of(ExpanderOccasion.INSERT, ExpanderOccasion.DELETE, ExpanderOccasion.UPDATE, ExpanderOccasion.SELECT);
+    }
+
+    private boolean condition(FastMapperParam param,FillConditionStrategy fillConditionStrategy){
+        boolean needInsertCondition = (StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.SELECT.name()) && (fillConditionStrategy == FillConditionStrategy.SELECT_CONDITION || fillConditionStrategy == FillConditionStrategy.SELECT_UPDATE_CONDITION || fillConditionStrategy == FillConditionStrategy.SELECT_UPDATE_DELETE_CONDITION));
+        boolean needUpdateCondition = (StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.UPDATE.name()) && (fillConditionStrategy == FillConditionStrategy.UPDATE_CONDITION || fillConditionStrategy == FillConditionStrategy.SELECT_UPDATE_CONDITION || fillConditionStrategy == FillConditionStrategy.SELECT_UPDATE_DELETE_CONDITION));
+        boolean needDeleteCondition = (StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.DELETE.name()) && (fillConditionStrategy == FillConditionStrategy.DELETE_CONDITION || fillConditionStrategy == FillConditionStrategy.UPDATE_DELETE_CONDITION || fillConditionStrategy == FillConditionStrategy.SELECT_UPDATE_DELETE_CONDITION));
+        return needInsertCondition || needUpdateCondition || needDeleteCondition;
     }
 }

@@ -1,27 +1,11 @@
 package cn.ft.ckn.fastmapper.aspect.filed;
 
-import cn.ft.ckn.fastmapper.bean.FastMapperParam;
 import cn.ft.ckn.fastmapper.bean.em.Expression;
+import cn.ft.ckn.fastmapper.bean.em.FillConditionStrategy;
+import cn.ft.ckn.fastmapper.bean.em.FillObjStrategy;
 import cn.ft.ckn.fastmapper.config.FastMapperConfig;
 
-import java.util.EnumMap;
-import java.util.Map;
-
 public class LogicDeletedField extends AbstractMapperField {
-
-    /**
-     * 定义策略
-     */
-    @Override
-    public Map<FastMapperParam.OperationType, Occasion> strategy() {
-        return new EnumMap<FastMapperParam.OperationType, Occasion>(FastMapperParam.OperationType.class)
-        {{
-            put(FastMapperParam.OperationType.INSERT, Occasion.OBJECT);
-            put(FastMapperParam.OperationType.DELETE, Occasion.CONDITION);
-            put(FastMapperParam.OperationType.UPDATE, Occasion.CONDITION);
-            put(FastMapperParam.OperationType.SELECT, Occasion.CONDITION);
-        }};
-    }
 
     /**
      * 数据库字段名称
@@ -45,6 +29,16 @@ public class LogicDeletedField extends AbstractMapperField {
     @Override
     public Object defaultVal() {
         return FastMapperConfig.logicDeletedColumnDefaultValue;
+    }
+
+    @Override
+    public FillObjStrategy fillObjStrategy() {
+        return FillObjStrategy.INSERT_OBJ;
+    }
+
+    @Override
+    public FillConditionStrategy fillConditionStrategy() {
+        return FillConditionStrategy.SELECT_UPDATE_DELETE_CONDITION;
     }
 
 
