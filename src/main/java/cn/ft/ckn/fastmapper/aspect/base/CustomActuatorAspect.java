@@ -40,10 +40,9 @@ public class CustomActuatorAspect implements MapperExpander {
                     break;
                 }
             }
-        }
-
-        if (needGroup && isContainsOr) {
-            FastMapperParam.get().setBracket(FastMapperParam.Bracket.builder().leftIndex(0).rightIndex(FastMapperParam.get().getWhereCondition().size() - 1).build());
+            if (needGroup && isContainsOr) {
+                FastMapperParam.get().setBracket(FastMapperParam.Bracket.builder().leftIndex(0).rightIndex(FastMapperParam.get().getWhereCondition().size() - 1).build());
+            }
         }
 
         for (AbstractField field : FastMapperConfig.addFieldList) {
