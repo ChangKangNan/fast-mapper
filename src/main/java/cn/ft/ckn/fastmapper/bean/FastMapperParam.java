@@ -40,6 +40,7 @@ public class FastMapperParam<T> {
         fastMapperParam.setPageSize(null);
         fastMapperParam.limit = null;
         fastMapperParam.setAddFieldBefore(false);
+        fastMapperParam.setSource(ActionSource.MAPPER);
         return fastMapperParam;
     }
 

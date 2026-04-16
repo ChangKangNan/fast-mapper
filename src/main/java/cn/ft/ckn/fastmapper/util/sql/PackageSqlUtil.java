@@ -349,9 +349,12 @@ public class PackageSqlUtil {
     }
 
 
-    public static StrBuilder selectSql(FastMapperParam<?> FastMapperParam) {
+    public static StrBuilder selectSql(FastMapperParam<?> fastMapperParam) {
+        if(StrUtil.isNotBlank(fastMapperParam.getExecuteSql())){
+            return new StrBuilder(fastMapperParam.getExecuteSql());
+        }
         StrBuilder sql = StrUtil.strBuilder(SELECT).append(StrUtil.SPACE);
-        FastTableMapper<?> tableMapper = FastMapperParam.getTableMapper();
+        FastTableMapper<?> tableMapper = fastMapperParam.getTableMapper();
         Map<String, String> fieldToColumn = tableMapper.getFieldToColumn();
         List<String> showFields = tableMapper.getShowFields();
         String columns = showFields.stream().map(field -> "`" + fieldToColumn.get(field) + "`").collect(Collectors.joining(","));
@@ -359,8 +362,8 @@ public class PackageSqlUtil {
         return sql;
     }
 
-    public static StrBuilder countSql(FastMapperParam<?> FastMapperParam) {
-        FastTableMapper<?> tableMapper = FastMapperParam.getTableMapper();
+    public static StrBuilder countSql(FastMapperParam<?> fastMapperParam) {
+        FastTableMapper<?> tableMapper = fastMapperParam.getTableMapper();
         return StrUtil.strBuilder(SELECT).append(StrUtil.SPACE).append("COUNT(1) AS `counts`").append(StrUtil.SPACE).append(FROM).append(StrUtil.SPACE).append(tableMapper.getTableName());
     }
 

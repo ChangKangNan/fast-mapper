@@ -1,7 +1,9 @@
 package cn.ft.ckn.fastmapper.util.log;
 
 import cn.ft.ckn.fastmapper.bean.FastMapperParam;
+import cn.ft.ckn.fastmapper.bean.FastTableMapper;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.Collection;
@@ -38,7 +40,13 @@ public class LogUtil {
      * @param result  SQL 执行结果字符串
      */
     public static void print(String execute, String result) {
-        cn.hutool.log.Log log = cn.hutool.log.LogFactory.get(FastMapperParam.get().getTableMapper().getTableName());
+        FastTableMapper<Object> tableMapper = FastMapperParam.get().getTableMapper();
+        cn.hutool.log.Log log;
+        if (tableMapper == null || tableMapper.getTableName() == null) {
+            log = cn.hutool.log.LogFactory.get("");
+        } else {
+            log = cn.hutool.log.LogFactory.get(FastMapperParam.get().getTableMapper().getTableName());
+        }
         log.info(
                         getPrefix()
                         + " SQL 执行 ↓ "
@@ -121,6 +129,6 @@ public class LogUtil {
         if(val instanceof Collection && ((Collection<?>) val).isEmpty()){
             return "执行结果: []";
         }
-        return "执行结果: " + (val instanceof Integer ? val : JSONObject.toJSONString(val));
+        return "执行结果: " + (val instanceof Integer ? val : JSONUtil.toJsonStr(val));
     }
 }
