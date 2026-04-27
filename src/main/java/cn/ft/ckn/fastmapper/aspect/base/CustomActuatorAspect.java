@@ -11,12 +11,14 @@ import cn.ft.ckn.fastmapper.ex.MapperExpander;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CustomActuatorAspect implements MapperExpander {
 
@@ -54,7 +56,14 @@ public class CustomActuatorAspect implements MapperExpander {
             if (!field.checkGlobal(param)) {
                 continue;
             }
-
+            Object linkWithVal = field.notLinkWithVal();
+            long count = whereCondition.stream().filter(c -> c.columnName.equals(fieldName) && ObjectUtil.equals(c.value, linkWithVal)).count();
+            if (linkWithVal != null && count > 0) {
+                List<FastMapperParam.WhereCondition> condition = param.getWhereCondition();
+                List<FastMapperParam.WhereCondition> conditionList = condition.stream().filter(c -> !(c.columnName.equals(fieldName) && ObjectUtil.equals(c.value, linkWithVal))).collect(Collectors.toList());
+                param.setWhereCondition(conditionList);
+                continue;
+            }
             if (fillObjStrategy == FillObjStrategy.INSERT_OBJ && StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.INSERT.name())) {
                 List insertList = param.getInsertList();
                 Map<String, String> fieldToColumn = param.getTableMapper().getFieldToColumn();
@@ -76,6 +85,8 @@ public class CustomActuatorAspect implements MapperExpander {
                     BeanUtil.fillBeanWithMap(infos, o, true, true);
                 }
             }
+
+
 
             if ((fillObjStrategy == FillObjStrategy.UPDATE_OBJ || fillObjStrategy == FillObjStrategy.INSERT_UPDATE_OBJ) && StrUtil.equals(param.getOperationType().name(), FastMapperParam.OperationType.UPDATE.name())) {
                 List<FastMapperParam.Value> updateValueList = param.getUpdateValueList();

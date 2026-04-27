@@ -48,4 +48,8 @@ public abstract class AbstractField {
     public String columnConditionFormatterName(){
         return columnName();
     }
+
+    public Object notLinkWithVal() {
+        return null;
+    }
 }
