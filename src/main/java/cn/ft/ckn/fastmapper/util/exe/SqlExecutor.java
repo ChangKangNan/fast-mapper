@@ -23,7 +23,6 @@ import java.util.Map;
  */
 public class SqlExecutor {
     private DaoActuator<?> daoActuator;
-    private static SqlExecutor sqlExecutorUtil = new SqlExecutor();
 
     private SqlExecutor() {
         this.daoActuator = DataSourceConnection.getDaoActuator();
@@ -33,7 +32,7 @@ public class SqlExecutor {
     }
 
     public static SqlExecutor build() {
-        return sqlExecutorUtil;
+        return new SqlExecutor();
     }
 
     @SuppressWarnings("unchecked")
